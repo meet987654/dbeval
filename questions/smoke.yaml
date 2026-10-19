@@ -1,0 +1,23 @@
+# Day 1 smoke questions: only to see what the baseline does. Not scored yet.
+# olist
+- db: olist
+  question: How many orders are in the database?
+- db: olist
+  question: How many orders have been delivered?
+- db: olist
+  question: Which 5 product categories, in English, had the highest total sales?
+- db: olist
+  question: What is the average delivery time in days for delivered orders?
+- db: olist
+  question: What share of delivered orders arrived later than the estimated delivery date?
+# appdb
+- db: appdb
+  question: How many accounts do we have?
+- db: appdb
+  question: How many subscriptions are currently active?
+- db: appdb
+  question: What was total paid revenue in USD in Q3 2026?
+- db: appdb
+  question: Which plan tier has the most active subscriptions?
+- db: appdb
+  question: How many subscriptions churned in September 2026?
