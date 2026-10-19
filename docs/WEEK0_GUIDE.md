@@ -110,36 +110,17 @@ One-line pitch to paste:
 ## 3. Day 1: the second database and the baseline
 
 ### Step 1: Build `appdb`
-This is a fake SaaS product database. It is the important one because real databases are messy. Ask an LLM to write `db/seed_appdb.py` from this spec, read the code, then run it.
-
-Tables: `accounts`, `users`, `subscriptions`, `invoices`, `refunds`, `events`.
-
-Put these traps in on purpose:
-
-- `accounts.is_test` marks internal test accounts that must not count in any metric.
-- `subscriptions.status` is an enum (`active`, `trialing`, `past_due`, `canceled`).
-- Soft deletes: `deleted_at` on accounts and users, which must be excluded.
-- Money is stored as `amount_cents` in an integer column, with a `currency` column.
-- Timestamps are `timestamptz` and the business reports in a single timezone.
-- Revenue means paid invoices **minus** refunds, excluding test accounts and deleted accounts.
-- Churn means a subscription canceled in the period, not an account deleted.
-- Two columns with confusing names, such as `plan` and `plan_tier`, where only one is current.
-
-About 2,000 accounts and 20,000 invoices is enough.
+- [x] Wrote `db/seed_appdb.py` incorporating SaaS schema traps (soft deletes, test accounts, currency cents, cancellations vs churn, upgrade chains, unkeyed refunds and events).
+- [x] Ran `db/seed_appdb.py` to seed 2,000 accounts, 6,976 users, 2,084 subscriptions, 28,914 invoices, 1,112 refunds, and 86,261 events. Verified `reader` role access.
 
 ### Step 2: Write the baseline runner
-`runners/baseline.py` does five things:
-
-1. Read the table definitions from `information_schema.columns`.
-2. For each column, add 3 sample values.
-3. Build one prompt: schema text plus the question, asking for a single SQL query.
-4. Run the SQL as `reader`, with a timeout and a row limit.
-5. Return the rows.
-
-Choose one model for the whole project and put it in `.env` as `LLM_MODEL`. Use temperature 0. Every other tool must use the same model. If one tool cannot, pick a provider they all support.
+- [x] Wrote `runners/baseline.py`: reads schema + keys + 3 distinct samples per column, builds prompt, enforces read-only SQL, runs with statement timeout and row limit.
+- [x] Created `questions/smoke.yaml` with 10 questions (5 Olist, 5 appdb).
+- [x] Verified schema inspection on both `olist` and `appdb` (`--show-schema`).
 
 ### Step 3: Try it on 5 hand-written questions per database
-Print the SQL and the rows for each. Do they look right?
+- [ ] Add active LLM API key to `.env` (`ANTHROPIC_API_KEY` or `OPENAI_API_KEY`) and run `python runners/baseline.py --smoke questions/smoke.yaml`.
+- [ ] Inspect generated SQL and results in `results/raw/smoke_baseline.json`.
 
 **Day 1 is done when:** the baseline answers 5 questions end to end on both databases.
 
