@@ -5,6 +5,7 @@
 - **Repo/Docs:** https://github.com/kaelio/ktx
 - **Official site:** https://kaelio.com
 - **Package:** `@kaelio/ktx` (npm)
+- **Version:** `@kaelio/ktx@0.16.0`
 
 ## Checklist (Day 0 Step 4)
 - [x] **Postgres Support:** Yes. Supports PostgreSQL (`postgres`), MySQL, ClickHouse, BigQuery, Snowflake, DuckDB, SQLite, SQL Server, Athena.
