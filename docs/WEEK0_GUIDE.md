@@ -83,45 +83,11 @@ One-line pitch to paste:
 > Which data-agent context layer works best on *your* database? A neutral head-to-head, starting with Postgres.
 
 ### Step 2: Start Postgres
-Create `docker-compose.yml`:
-
-```yaml
-services:
-  db:
-    image: postgres:16
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5433:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-volumes:
-  pgdata:
-```
-
-Run `docker compose up -d`. Port 5433 avoids clashing with any Postgres you already have.
+- [x] Create `docker-compose.yml` and start Postgres (`docker compose up -d` on port 5433).
 
 ### Step 3: Create the databases and a read-only user
-Create `db/init.sql`:
-
-```sql
-CREATE DATABASE olist;
-CREATE DATABASE appdb;
-CREATE ROLE reader LOGIN PASSWORD 'reader';
-GRANT CONNECT ON DATABASE olist TO reader;
-GRANT CONNECT ON DATABASE appdb TO reader;
-```
-
-Run it, then run this in **each** database (connect with `\c olist`, then `\c appdb`):
-
-```sql
-GRANT USAGE ON SCHEMA public TO reader;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO reader;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO reader;
-```
-
-Every tool must connect as `reader`. That keeps the comparison fair and safe.
+- [x] Create `db/init.sql`.
+- [x] Run `db/init.sql` to create `olist`, `appdb`, and role `reader` with read-only permissions across both databases. Verified connections.
 
 ### Step 4: Check what each tool can do
 - [x] Check ktx, Datus and Wren docs/README for Postgres, headless/MCP execution, and LLM providers (recorded in `notes/<tool>.md`).
