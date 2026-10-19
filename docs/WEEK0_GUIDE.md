@@ -75,8 +75,8 @@ dbeval/
 
 ### Step 1: Make the repo
 - [x] 1. Create a public GitHub repo named `dbeval`.
-- [ ] 2. Add the folders from section 1 (empty folders need a `.gitkeep` file).
-- [ ] 3. Write `README.md` with three things: the one-line pitch, the decision rule (section 10), and a status line.
+- [x] 2. Add the folders from section 1 (empty folders need a `.gitkeep` file).
+- [x] 3. Write `README.md` with three things: the one-line pitch, the decision rule (section 10), and a status line.
 
 One-line pitch to paste:
 
