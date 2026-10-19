@@ -124,15 +124,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO reader;
 Every tool must connect as `reader`. That keeps the comparison fair and safe.
 
 ### Step 4: Check what each tool can do
-For ktx, Datus and Wren, open the docs and the GitHub README. In `notes/<tool>.md` write down:
-
-- Does it support Postgres?
-- Can it run without a human typing in a terminal (a command, an API, or MCP)?
-- Which LLM providers does it accept?
-
-If a tool fails one of these, write that down and drop it. Do not fight it.
-
-I have not run any of these tools. The install commands I saw for ktx were `npm install -g @kaelio/ktx` and `ktx setup`. Confirm them against the official docs before running.
+- [x] Check ktx, Datus and Wren docs/README for Postgres, headless/MCP execution, and LLM providers (recorded in `notes/<tool>.md`).
+- [ ] Record setup times and first impressions as each tool is installed.
 
 ### Step 5: Load the Olist database
 1. Download the Olist dataset from Kaggle (a free account is needed) and put the CSVs in `data/`.
