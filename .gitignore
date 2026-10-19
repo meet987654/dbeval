@@ -27,6 +27,11 @@ yarn-error.log*
 # Database data
 pgdata/
 
+# Tool layers / local runners
+ktx_olist/
+.ktx/
+*.log
+
 # OS / Editor
 .DS_Store
 Thumbs.db

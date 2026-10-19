@@ -99,9 +99,11 @@ One-line pitch to paste:
 - [x] 3. Ran `db/load_olist.py` and verified row counts (`orders`: 99,441 rows; `geolocation`: 1,000,163 rows; etc.). Verified `reader` role query access.
 
 ### Step 6: Look at ktx once
-Install ktx and run its setup against `olist`. Do not measure anything yet. Just see what it produces and how long it takes. Write your first impressions in `notes/ktx.md`.
+- [x] Installed `@kaelio/ktx@0.16.0` globally and verified managed Python runtime.
+- [x] Initialized ktx project (`ktx_olist`), connected to `olist` Postgres database, tested connection and verified read-only SQL queries (`SELECT count(*) FROM orders` -> `99441`).
+- [x] Recorded setup log, caveats, and first impressions in `notes/ktx.md`.
 
-**Day 0 is done when:** the repo is public, both databases exist (appdb may be empty), Olist is loaded, and each tool has a notes file.
+**Day 0 is DONE!** The repo is public, Postgres is running, both databases exist, Olist is loaded with 9 verified tables, each tool has a notes file, and initial ktx setup was run and documented.
 
 ---
 

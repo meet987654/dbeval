@@ -4,7 +4,7 @@
 
 ## Status
 
-**Current Status:** Day 0 in progress — Repository created, environment and databases being initialized. Follow along in [docs/WEEK0_GUIDE.md](docs/WEEK0_GUIDE.md).
+**Current Status:** Day 0 Complete (Repo setup, Postgres running, Olist loaded, notes & ktx initial look logged). Ready for Day 1. Follow along in [docs/WEEK0_GUIDE.md](docs/WEEK0_GUIDE.md).
 
 ---
 
