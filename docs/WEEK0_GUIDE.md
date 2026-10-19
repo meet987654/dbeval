@@ -94,11 +94,9 @@ One-line pitch to paste:
 - [ ] Record setup times and first impressions as each tool is installed.
 
 ### Step 5: Load the Olist database
-1. Download the Olist dataset from Kaggle (a free account is needed) and put the CSVs in `data/`.
-2. Write `db/load_olist.py`. It loops over the CSV files, reads each with pandas, and writes it to the `olist` database with `to_sql`. Name each table from its file name, for example `olist_orders_dataset.csv` becomes `orders`.
-3. Run it, then check the row counts with `SELECT count(*) FROM orders;`.
-
-Note: loading CSVs this way creates tables without foreign keys. That is realistic for a messy database, so leave it and mention it in the report.
+- [x] 1. Downloaded the Olist dataset from Kaggle via `kagglehub` directly into `data/`.
+- [x] 2. Wrote `db/load_olist.py` to loop over CSV files and load them into `olist` database tables without foreign keys.
+- [x] 3. Ran `db/load_olist.py` and verified row counts (`orders`: 99,441 rows; `geolocation`: 1,000,163 rows; etc.). Verified `reader` role query access.
 
 ### Step 6: Look at ktx once
 Install ktx and run its setup against `olist`. Do not measure anything yet. Just see what it produces and how long it takes. Write your first impressions in `notes/ktx.md`.
