@@ -31,3 +31,17 @@ Evaluated over two distinct databases:
 - **appdb:** Realistic synthetic SaaS database with edge cases (test accounts, soft deletes, multi-currency cents, cancels vs churn).
 
 See [docs/WEEK0_GUIDE.md](docs/WEEK0_GUIDE.md) for full instructions and daily schedule.
+
+---
+
+## Model Selection & Rate Limits
+
+All four systems under test run on the exact same model:
+- **Evaluation Model:** `codestral-2508` via Mistral AI (`https://api.mistral.ai/v1`)
+- **Throughput & Limits:** 625,000 tokens/min and 2.08 requests/sec on Mistral's Experiment plan. Runner includes a 1.1s inter-request pause and automatic 429 backoff retry.
+- **Model Selection Rationale:**
+  - `mistral-large-2512` and `mistral-large-latest` returned `403 tier_not_allowed` on the free tier.
+  - `mistral-small-2603`, `mistral-medium-latest`, and `mistral-large-4` were excluded due to a restrictive 20,000 tokens/min limit (~5 calls/min).
+  - `codestral-2508` is a pinned, dated model specifically built for code/SQL generation with high throughput.
+- **Gold Answer Oracles:** Validated with independent Groq models (`openai/gpt-oss-120b` and `qwen/qwen3.8-27b`) to prevent self-evaluating bias.
+

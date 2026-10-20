@@ -13,9 +13,9 @@
       ]
     ],
     "error": null,
-    "tokens_in": 2143,
-    "tokens_out": 46,
-    "seconds": 8.67
+    "tokens_in": 2788,
+    "tokens_out": 7,
+    "seconds": 3.35
   },
   {
     "system": "baseline",
@@ -31,17 +31,17 @@
       ]
     ],
     "error": null,
-    "tokens_in": 2142,
-    "tokens_out": 132,
-    "seconds": 1.04
+    "tokens_in": 2787,
+    "tokens_out": 20,
+    "seconds": 2.06
   },
   {
     "system": "baseline",
     "db": "olist",
     "question": "Which 5 product categories, in English, had the highest total sales?",
-    "sql": "SELECT pct.product_category_name_english AS category,\n       SUM(oi.price) AS total_sales\nFROM order_items oi\nJOIN products p ON oi.product_id = p.product_id\nJOIN product_category_name_translation pct\n  ON p.product_category_name = pct.product_category_name\nGROUP BY pct.product_category_name_english\nORDER BY total_sales DESC\nLIMIT 5",
+    "sql": "SELECT\n    pct.product_category_name_english,\n    SUM(oi.price) AS total_sales\nFROM\n    order_items oi\nJOIN\n    products p ON oi.product_id = p.product_id\nJOIN\n    product_category_name_translation pct ON p.product_category_name = pct.product_category_name\nGROUP BY\n    pct.product_category_name_english\nORDER BY\n    total_sales DESC\nLIMIT 5",
     "columns": [
-      "category",
+      "product_category_name_english",
       "total_sales"
     ],
     "rows": [
@@ -51,69 +51,63 @@
       ],
       [
         "watches_gifts",
-        1205005.6800000127
+        1205005.6800000123
       ],
       [
         "bed_bath_table",
-        1036988.6800000395
+        1036988.6800000414
       ],
       [
         "sports_leisure",
-        988048.9700000186
+        988048.9700000184
       ],
       [
         "computers_accessories",
-        911954.3200000152
+        911954.320000015
       ]
     ],
     "error": null,
-    "tokens_in": 2150,
-    "tokens_out": 313,
-    "seconds": 1.61
+    "tokens_in": 2795,
+    "tokens_out": 96,
+    "seconds": 2.76
   },
   {
     "system": "baseline",
     "db": "olist",
     "question": "What is the average delivery time in days for delivered orders?",
-    "sql": "SELECT AVG(EXTRACT(EPOCH FROM (order_delivered_customer_date::timestamp - order_purchase_timestamp::timestamp)) / 86400) AS avg_delivery_days\nFROM orders\nWHERE order_status = 'delivered'",
-    "columns": [
-      "avg_delivery_days"
-    ],
-    "rows": [
-      [
-        "12.55821709805197547514"
-      ]
-    ],
-    "error": null,
-    "tokens_in": 2147,
-    "tokens_out": 167,
-    "seconds": 9.23
+    "sql": "SELECT AVG(EXTRACT(EPOCH FROM (order_delivered_customer_date - order_purchase_timestamp)) / 86400) AS avg_delivery_time_days\nFROM orders\nWHERE order_status = 'delivered'",
+    "columns": [],
+    "rows": [],
+    "error": "ProgrammingError: (psycopg2.errors.UndefinedFunction) operator does not exist: text - text\nLINE 1: ...EXTRACT(EPOCH FROM (order_delivered_customer_date - order_pu...\n                                                             ^\nHINT:  No operator matches the given name and argument types. You might need to add expli",
+    "tokens_in": 2792,
+    "tokens_out": 49,
+    "seconds": 2.14
   },
   {
     "system": "baseline",
     "db": "olist",
     "question": "What share of delivered orders arrived later than the estimated delivery date?",
-    "sql": "SELECT\n    SUM(CASE WHEN o.order_delivered_customer_date::timestamp > o.order_estimated_delivery_date::timestamp THEN 1 ELSE 0 END)::decimal /\n    COUNT(*) AS late_delivery_share\nFROM orders o\nWHERE o.order_status = 'delivered'\n  AND o.order_delivered_customer_date IS NOT NULL",
+    "sql": "SELECT\n    COUNT(CASE WHEN order_delivered_customer_date > order_estimated_delivery_date THEN 1 END) * 100.0 / COUNT(*) AS late_delivery_share\nFROM\n    orders\nWHERE\n    order_status = 'delivered'",
     "columns": [
       "late_delivery_share"
     ],
     "rows": [
       [
-        "0.08112366538820358661"
+        "8.1116938576670329"
       ]
     ],
     "error": null,
-    "tokens_in": 2148,
-    "tokens_out": 277,
-    "seconds": 15.74
+    "tokens_in": 2793,
+    "tokens_out": 57,
+    "seconds": 2.17
   },
   {
     "system": "baseline",
     "db": "appdb",
     "question": "How many accounts do we have?",
-    "sql": "SELECT COUNT(*) AS account_count FROM accounts",
+    "sql": "SELECT COUNT(*) FROM accounts",
     "columns": [
-      "account_count"
+      "count"
     ],
     "rows": [
       [
@@ -121,9 +115,9 @@
       ]
     ],
     "error": null,
-    "tokens_in": 1456,
-    "tokens_out": 112,
-    "seconds": 13.43
+    "tokens_in": 1759,
+    "tokens_out": 7,
+    "seconds": 2.4
   },
   {
     "system": "baseline",
@@ -139,36 +133,36 @@
       ]
     ],
     "error": null,
-    "tokens_in": 1456,
-    "tokens_out": 117,
-    "seconds": 12.7
+    "tokens_in": 1759,
+    "tokens_out": 18,
+    "seconds": 1.95
   },
   {
     "system": "baseline",
     "db": "appdb",
     "question": "What was total paid revenue in USD in Q3 2026?",
-    "sql": "SELECT SUM(i.amount_cents::numeric / 100 * f.usd_per_unit) AS total_paid_usd\nFROM invoices i\nJOIN fx_rates f ON i.currency = f.currency\nJOIN accounts a ON i.account_id = a.id\nWHERE i.status = 'paid'\n  AND i.paid_at >= '2026-07-01'::timestamptz\n  AND i.paid_at < '2026-10-01'::timestamptz\n  AND a.is_test = false\n  AND a.deleted_at IS NULL",
+    "sql": "SELECT\n  SUM(i.amount_cents * fx.usd_per_unit) / 100 AS total_paid_revenue_usd\nFROM\n  invoices i\nJOIN\n  fx_rates fx ON i.currency = fx.currency\nWHERE\n  i.status = 'paid'\n  AND i.paid_at BETWEEN '2026-07-01' AND '2026-09-30'",
     "columns": [
-      "total_paid_usd"
+      "total_paid_revenue_usd"
     ],
     "rows": [
       [
-        "267974.586440000000000000000"
+        "294617.586040000000"
       ]
     ],
     "error": null,
-    "tokens_in": 1463,
-    "tokens_out": 490,
-    "seconds": 11.9
+    "tokens_in": 1768,
+    "tokens_out": 96,
+    "seconds": 2.46
   },
   {
     "system": "baseline",
     "db": "appdb",
     "question": "Which plan tier has the most active subscriptions?",
-    "sql": "SELECT s.plan_tier,\n       COUNT(*) AS active_subscription_count\nFROM subscriptions s\nWHERE s.status = 'active'\nGROUP BY s.plan_tier\nORDER BY active_subscription_count DESC\nLIMIT 1",
+    "sql": "SELECT plan_tier, COUNT(*) as active_subscriptions\nFROM subscriptions\nWHERE status = 'active'\nGROUP BY plan_tier\nORDER BY active_subscriptions DESC\nLIMIT 1",
     "columns": [
       "plan_tier",
-      "active_subscription_count"
+      "active_subscriptions"
     ],
     "rows": [
       [
@@ -177,17 +171,17 @@
       ]
     ],
     "error": null,
-    "tokens_in": 1458,
-    "tokens_out": 139,
-    "seconds": 14.23
+    "tokens_in": 1761,
+    "tokens_out": 40,
+    "seconds": 2.53
   },
   {
     "system": "baseline",
     "db": "appdb",
     "question": "How many subscriptions churned in September 2026?",
-    "sql": "SELECT COUNT(*) AS churned_subscriptions_sept_2026\nFROM subscriptions\nWHERE canceled_at >= DATE '2026-09-01'\n  AND canceled_at < DATE '2026-10-01'",
+    "sql": "SELECT COUNT(*) AS churned_subscriptions\nFROM subscriptions\nWHERE canceled_at IS NOT NULL\nAND EXTRACT(MONTH FROM canceled_at) = 9\nAND EXTRACT(YEAR FROM canceled_at) = 2026",
     "columns": [
-      "churned_subscriptions_sept_2026"
+      "churned_subscriptions"
     ],
     "rows": [
       [
@@ -195,8 +189,8 @@
       ]
     ],
     "error": null,
-    "tokens_in": 1460,
-    "tokens_out": 172,
-    "seconds": 3.14
+    "tokens_in": 1765,
+    "tokens_out": 51,
+    "seconds": 2.27
   }
 ]
