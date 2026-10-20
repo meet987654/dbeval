@@ -1,0 +1,114 @@
+[
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "accounts"
+    },
+    "tableDescription": null,
+    "columnDescriptions": {
+      "id": null,
+      "name": null,
+      "plan": null,
+      "plan_tier": null,
+      "is_test": null,
+      "country": null,
+      "currency": null,
+      "created_at": null,
+      "deleted_at": null
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "events"
+    },
+    "tableDescription": null,
+    "columnDescriptions": {
+      "id": null,
+      "account_id": null,
+      "user_id": null,
+      "event_type": null,
+      "occurred_at": null
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "fx_rates"
+    },
+    "tableDescription": null,
+    "columnDescriptions": {
+      "currency": null,
+      "usd_per_unit": null
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "invoices"
+    },
+    "tableDescription": null,
+    "columnDescriptions": {
+      "id": null,
+      "subscription_id": null,
+      "account_id": null,
+      "amount_cents": null,
+      "currency": null,
+      "status": null,
+      "issued_at": null,
+      "paid_at": null
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "subscriptions"
+    },
+    "tableDescription": null,
+    "columnDescriptions": {
+      "id": null,
+      "account_id": null,
+      "plan_tier": null,
+      "status": null,
+      "started_at": null,
+      "trial_ends_at": null,
+      "canceled_at": null,
+      "cancel_reason": null
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "refunds"
+    },
+    "tableDescription": null,
+    "columnDescriptions": {
+      "id": null,
+      "invoice_id": null,
+      "amount_cents": null,
+      "created_at": null
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "users"
+    },
+    "tableDescription": null,
+    "columnDescriptions": {
+      "id": null,
+      "account_id": null,
+      "email": null,
+      "role": null,
+      "created_at": null,
+      "deleted_at": null
+    }
+  }
+]

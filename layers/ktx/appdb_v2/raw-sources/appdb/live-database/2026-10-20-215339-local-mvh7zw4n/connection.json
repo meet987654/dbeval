@@ -1,0 +1,20 @@
+{
+  "connectionId": "appdb",
+  "driver": "postgres",
+  "extractedAt": "2026-10-20T21:53:39.676Z",
+  "scope": {
+    "schemas": [
+      "public"
+    ]
+  },
+  "metadata": {
+    "database": null,
+    "schemas": [
+      "public"
+    ],
+    "host": null,
+    "table_count": 7,
+    "total_columns": 42
+  },
+  "tableCount": 7
+}
