@@ -1,0 +1,82 @@
+- id: olist-001
+  category: simple
+  question: How many sellers are there?
+  gold_sql: 'SELECT COUNT(*) FROM sellers
+
+    '
+- id: olist-003
+  category: simple
+  question: How many delivered orders arrived after their estimated delivery date?
+  gold_sql: "SELECT COUNT(*) FROM orders\nWHERE order_status = 'delivered'\n  AND\
+    \ order_delivered_customer_date::timestamp > order_estimated_delivery_date::timestamp\n"
+- id: olist-004
+  category: simple
+  question: How many product categories had at least one sale?
+  gold_sql: 'SELECT COUNT(DISTINCT COALESCE(t.product_category_name_english, p.product_category_name))
+
+    FROM order_items oi JOIN products p ON p.product_id = oi.product_id
+
+    LEFT JOIN product_category_name_translation t ON t.product_category_name = p.product_category_name
+
+    WHERE p.product_category_name IS NOT NULL
+
+    '
+- id: olist-005
+  category: metric
+  question: What were total sales in 2017, excluding shipping costs?
+  gold_sql: "SELECT ROUND(SUM(oi.price::numeric), 2)\nFROM order_items oi JOIN orders\
+    \ o ON o.order_id = oi.order_id\nWHERE o.order_status NOT IN ('canceled', 'unavailable')\n\
+    \  AND o.order_purchase_timestamp::timestamp >= '2017-01-01'\n  AND o.order_purchase_timestamp::timestamp\
+    \ < '2018-01-01'\n"
+- id: olist-006
+  category: metric
+  question: What was the average payment value per delivered order?
+  gold_sql: "SELECT ROUND(AVG(t.v)::numeric, 2) FROM (\n  SELECT p.order_id, SUM(p.payment_value)\
+    \ AS v\n  FROM order_payments p JOIN orders o ON o.order_id = p.order_id\n  WHERE\
+    \ o.order_status = 'delivered'\n  GROUP BY p.order_id) t\n"
+- id: olist-008
+  category: metric
+  question: Of all delivered orders, what percentage included at least one credit
+    card payment?
+  gold_sql: "SELECT ROUND(100.0 * COUNT(DISTINCT p.order_id) /\n       (SELECT COUNT(*)\
+    \ FROM orders WHERE order_status = 'delivered'), 2)\nFROM order_payments p JOIN\
+    \ orders o ON o.order_id = p.order_id\nWHERE o.order_status = 'delivered' AND\
+    \ p.payment_type = 'credit_card'\n"
+- id: olist-009
+  category: metric
+  question: What was the total payment value of delivered orders purchased in 2018?
+  gold_sql: "SELECT ROUND(SUM(p.payment_value)::numeric, 2)\nFROM order_payments p\
+    \ JOIN orders o ON o.order_id = p.order_id\nWHERE o.order_status = 'delivered'\n\
+    \  AND o.order_purchase_timestamp::timestamp >= '2018-01-01'\n  AND o.order_purchase_timestamp::timestamp\
+    \ < '2019-01-01'\n"
+- id: olist-010
+  category: multi_join
+  question: Which 3 seller states had the highest sales, excluding shipping costs?
+  ordered: true
+  gold_sql: 'SELECT s.seller_state
+
+    FROM order_items oi JOIN sellers s ON s.seller_id = oi.seller_id
+
+    JOIN orders o ON o.order_id = oi.order_id
+
+    WHERE o.order_status NOT IN (''canceled'', ''unavailable'')
+
+    GROUP BY s.seller_state ORDER BY SUM(oi.price) DESC LIMIT 3
+
+    '
+- id: olist-011
+  category: multi_join
+  question: Which 3 customer states had the slowest average delivery time for delivered
+    orders?
+  ordered: true
+  gold_sql: "SELECT c.customer_state\nFROM orders o JOIN customers c ON c.customer_id\
+    \ = o.customer_id\nWHERE o.order_status = 'delivered' AND o.order_delivered_customer_date\
+    \ IS NOT NULL\nGROUP BY c.customer_state\nORDER BY AVG(EXTRACT(EPOCH FROM (o.order_delivered_customer_date::timestamp\n\
+    \                                 - o.order_purchase_timestamp::timestamp))) DESC\n\
+    LIMIT 3\n"
+- id: olist-013
+  category: ambiguous
+  question: Who are our best customers?
+  gold_sql: null
+  expected: Ask what "best" means (spend, order count, reviews) or state the assumption
+    used.

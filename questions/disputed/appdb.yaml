@@ -1,0 +1,78 @@
+- id: appdb-017
+  category: metric
+  question: How many invoices failed to be paid in Q3 2026, counting by the date they
+    were issued?
+  gold_sql: "SELECT COUNT(*) FROM invoices i JOIN accounts a ON a.id = i.account_id\n\
+    WHERE i.status = 'failed'\n  AND i.issued_at >= '2026-07-01 00:00:00+00' AND i.issued_at\
+    \ < '2026-10-01 00:00:00+00'\n  AND a.is_test = false AND a.deleted_at IS NULL\n"
+  oracles:
+    oracle_a:
+      agrees: false
+      sql: "SELECT\n    DATE(i.issued_at) AS issue_date,\n    COUNT(*) AS failed_invoices\n\
+        FROM invoices i\nJOIN accounts a ON a.id = i.account_id\nWHERE a.is_test =\
+        \ FALSE\n  AND a.deleted_at IS NULL\n  AND i.status = 'failed'\n  AND i.issued_at\
+        \ >= DATE '2026-07-01'\n  AND i.issued_at <  DATE '2026-10-01'\nGROUP BY DATE(i.issued_at)\n\
+        ORDER BY issue_date"
+      error: null
+    oracle_b:
+      agrees: true
+      sql: "SELECT COUNT(*) AS failed_invoice_count\nFROM invoices i\nJOIN accounts\
+        \ a ON a.id = i.account_id\nWHERE a.is_test = false\n  AND a.deleted_at IS\
+        \ NULL\n  AND i.status = 'failed'\n  AND i.issued_at >= '2026-07-01'\n  AND\
+        \ i.issued_at < '2026-10-01'"
+      error: null
+- id: appdb-020
+  category: multi_join
+  question: List the ids of the 5 accounts that paid us the most in 2026 after refunds.
+  ordered: true
+  gold_sql: "WITH paid AS (\n  SELECT i.account_id, SUM(i.amount_cents::numeric /\
+    \ 100 * f.usd_per_unit) AS v\n  FROM invoices i JOIN fx_rates f ON f.currency\
+    \ = i.currency\n  WHERE i.status = 'paid'\n    AND i.paid_at >= '2026-01-01 00:00:00+00'\
+    \ AND i.paid_at < '2027-01-01 00:00:00+00'\n  GROUP BY i.account_id),\nref AS\
+    \ (\n  SELECT i.account_id, SUM(r.amount_cents::numeric / 100 * f.usd_per_unit)\
+    \ AS v\n  FROM refunds r JOIN invoices i ON i.id = r.invoice_id\n  JOIN fx_rates\
+    \ f ON f.currency = i.currency\n  WHERE r.created_at >= '2026-01-01 00:00:00+00'\
+    \ AND r.created_at < '2027-01-01 00:00:00+00'\n  GROUP BY i.account_id)\nSELECT\
+    \ p.account_id FROM paid p\nJOIN accounts a ON a.id = p.account_id AND a.is_test\
+    \ = false AND a.deleted_at IS NULL\nLEFT JOIN ref r ON r.account_id = p.account_id\n\
+    ORDER BY p.v - COALESCE(r.v, 0) DESC LIMIT 5\n"
+  oracles:
+    oracle_a:
+      agrees: false
+      sql: "WITH real_accounts AS (\n    SELECT id\n    FROM accounts\n    WHERE is_test\
+        \ = false\n      AND deleted_at IS NULL\n),\n\ngross AS (\n    SELECT i.account_id,\n\
+        \           SUM(i.amount_cents / 100.0 * fx.usd_per_unit) AS gross_usd\n \
+        \   FROM invoices i\n    JOIN real_accounts a ON i.account_id = a.id\n   \
+        \ JOIN fx_rates fx ON i.currency = fx.currency\n    WHERE i.status = 'paid'\n\
+        \      AND i.paid_at >= '2026-01-01'::timestamptz\n      AND i.paid_at < \
+        \ '2027-01-01'::timestamptz\n    GROUP BY i.account_id\n),\n\nrefunds AS (\n\
+        \    SELECT i.account_id,\n           SUM(r.amount_cents / 100.0 * fx.usd_per_unit)\
+        \ AS refund_usd\n    FROM refunds r\n    JOIN invoices i ON r.invoice_id =\
+        \ i.id\n    JOIN real_accounts a ON i.account_id = a.id\n    JOIN fx_rates\
+        \ fx ON i.currency = fx.currency\n    WHERE r.created_at >= '2026-01-01'::timestamptz\n\
+        \      AND r.created_at <  '2027-01-01'::timestamptz\n    GROUP BY i.account_id\n\
+        ),\n\nnet AS (\n    SELECT COALESCE(g.account_id, r.account_id) AS account_id,\n\
+        \           COALESCE(g.gross_usd, 0) - COALESCE(r.refund_usd, 0) AS net_usd\n\
+        \    FROM gross g\n    FULL OUTER JOIN refunds r ON g.account_id = r.account_id\n\
+        )\n\nSELECT account_id\nFROM net\nORDER BY net_usd DESC NULLS LAST\nLIMIT\
+        \ 5"
+      error: null
+    oracle_b:
+      agrees: false
+      sql: "WITH gross AS (\n    SELECT\n        i.account_id,\n        SUM(i.amount_cents\
+        \ / 100.0 * fx.usd_per_unit) AS gross_usd\n    FROM invoices i\n    JOIN accounts\
+        \ a ON a.id = i.account_id\n    JOIN fx_rates fx ON fx.currency = i.currency\n\
+        \    WHERE i.status = 'paid'\n      AND i.paid_at >= '2026-01-01'::timestamptz\n\
+        \      AND i.paid_at <  '2027-01-01'::timestamptz\n      AND a.is_test = false\n\
+        \      AND a.deleted_at IS NULL\n    GROUP BY i.account_id\n),\nrefunds AS\
+        \ (\n    SELECT\n        i.account_id,\n        SUM(r.amount_cents / 100.0\
+        \ * fx.usd_per_unit) AS refund_usd\n    FROM refunds r\n    JOIN invoices\
+        \ i ON i.id = r.invoice_id\n    JOIN accounts a ON a.id = i.account_id\n \
+        \   JOIN fx_rates fx ON fx.currency = i.currency\n    WHERE r.created_at >=\
+        \ '2026-01-01'::timestamptz\n      AND r.created_at <  '2027-01-01'::timestamptz\n\
+        \      AND a.is_test = false\n      AND a.deleted_at IS NULL\n    GROUP BY\
+        \ i.account_id\n)\nSELECT\n    COALESCE(g.account_id, rf.account_id) AS account_id\n\
+        FROM gross g\nFULL OUTER JOIN refunds rf ON rf.account_id = g.account_id\n\
+        ORDER BY\n    COALESCE(g.gross_usd, 0) - COALESCE(rf.refund_usd, 0) DESC\n\
+        LIMIT 5"
+      error: null

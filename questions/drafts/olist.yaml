@@ -1,0 +1,129 @@
+# olist draft questions. Gold SQL follows docs/business_rules.md.
+# NOT YET RUN against your Olist database: check table and column names with
+#   python runners/baseline.py --db olist --show-schema
+# and fix anything that errors. Date columns are text, hence the ::timestamp casts.
+
+- id: olist-001
+  category: simple
+  question: How many sellers are there?
+  gold_sql: |
+    SELECT COUNT(*) FROM sellers
+
+- id: olist-002
+  category: simple
+  question: How many different people have placed an order?
+  gold_sql: |
+    SELECT COUNT(DISTINCT c.customer_unique_id)
+    FROM customers c JOIN orders o ON o.customer_id = c.customer_id
+
+- id: olist-003
+  category: simple
+  question: How many delivered orders arrived after their estimated delivery date?
+  gold_sql: |
+    SELECT COUNT(*) FROM orders
+    WHERE order_status = 'delivered'
+      AND order_delivered_customer_date::timestamp > order_estimated_delivery_date::timestamp
+
+- id: olist-004
+  category: simple
+  question: How many product categories had at least one sale?
+  gold_sql: |
+    SELECT COUNT(DISTINCT COALESCE(t.product_category_name_english, p.product_category_name))
+    FROM order_items oi JOIN products p ON p.product_id = oi.product_id
+    LEFT JOIN product_category_name_translation t ON t.product_category_name = p.product_category_name
+    WHERE p.product_category_name IS NOT NULL
+
+- id: olist-005
+  category: metric
+  question: What were total sales in 2017, excluding shipping costs?
+  gold_sql: |
+    SELECT ROUND(SUM(oi.price::numeric), 2)
+    FROM order_items oi JOIN orders o ON o.order_id = oi.order_id
+    WHERE o.order_status NOT IN ('canceled', 'unavailable')
+      AND o.order_purchase_timestamp::timestamp >= '2017-01-01'
+      AND o.order_purchase_timestamp::timestamp < '2018-01-01'
+
+- id: olist-006
+  category: metric
+  question: What was the average payment value per delivered order?
+  gold_sql: |
+    SELECT ROUND(AVG(t.v)::numeric, 2) FROM (
+      SELECT p.order_id, SUM(p.payment_value) AS v
+      FROM order_payments p JOIN orders o ON o.order_id = p.order_id
+      WHERE o.order_status = 'delivered'
+      GROUP BY p.order_id) t
+
+- id: olist-007
+  category: metric
+  question: How many customers have ordered more than once?
+  gold_sql: |
+    SELECT COUNT(*) FROM (
+      SELECT c.customer_unique_id
+      FROM customers c JOIN orders o ON o.customer_id = c.customer_id
+      GROUP BY c.customer_unique_id
+      HAVING COUNT(DISTINCT o.order_id) > 1) t
+
+- id: olist-008
+  category: metric
+  question: Of all delivered orders, what percentage included at least one credit card payment?
+  gold_sql: |
+    SELECT ROUND(100.0 * COUNT(DISTINCT p.order_id) /
+           (SELECT COUNT(*) FROM orders WHERE order_status = 'delivered'), 2)
+    FROM order_payments p JOIN orders o ON o.order_id = p.order_id
+    WHERE o.order_status = 'delivered' AND p.payment_type = 'credit_card'
+
+- id: olist-009
+  category: metric
+  question: What was the total payment value of delivered orders purchased in 2018?
+  gold_sql: |
+    SELECT ROUND(SUM(p.payment_value)::numeric, 2)
+    FROM order_payments p JOIN orders o ON o.order_id = p.order_id
+    WHERE o.order_status = 'delivered'
+      AND o.order_purchase_timestamp::timestamp >= '2018-01-01'
+      AND o.order_purchase_timestamp::timestamp < '2019-01-01'
+
+- id: olist-010
+  category: multi_join
+  question: Which 3 seller states had the highest sales, excluding shipping costs?
+  ordered: true
+  gold_sql: |
+    SELECT s.seller_state
+    FROM order_items oi JOIN sellers s ON s.seller_id = oi.seller_id
+    JOIN orders o ON o.order_id = oi.order_id
+    WHERE o.order_status NOT IN ('canceled', 'unavailable')
+    GROUP BY s.seller_state ORDER BY SUM(oi.price) DESC LIMIT 3
+
+- id: olist-011
+  category: multi_join
+  question: Which 3 customer states had the slowest average delivery time for delivered orders?
+  ordered: true
+  gold_sql: |
+    SELECT c.customer_state
+    FROM orders o JOIN customers c ON c.customer_id = o.customer_id
+    WHERE o.order_status = 'delivered' AND o.order_delivered_customer_date IS NOT NULL
+    GROUP BY c.customer_state
+    ORDER BY AVG(EXTRACT(EPOCH FROM (o.order_delivered_customer_date::timestamp
+                                     - o.order_purchase_timestamp::timestamp))) DESC
+    LIMIT 3
+
+- id: olist-012
+  category: multi_join
+  question: Among categories with at least 500 items sold, which 3 have the highest average review score?
+  ordered: true
+  gold_sql: |
+    WITH latest AS (
+      SELECT DISTINCT ON (order_id) order_id, review_score
+      FROM order_reviews ORDER BY order_id, review_creation_date DESC)
+    SELECT COALESCE(t.product_category_name_english, p.product_category_name) AS category
+    FROM order_items oi JOIN products p ON p.product_id = oi.product_id
+    LEFT JOIN product_category_name_translation t ON t.product_category_name = p.product_category_name
+    JOIN latest l ON l.order_id = oi.order_id
+    WHERE p.product_category_name IS NOT NULL
+    GROUP BY 1 HAVING COUNT(*) >= 500
+    ORDER BY AVG(l.review_score) DESC LIMIT 3
+
+- id: olist-013
+  category: ambiguous
+  question: Who are our best customers?
+  gold_sql: null
+  expected: Ask what "best" means (spend, order count, reviews) or state the assumption used.

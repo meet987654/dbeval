@@ -8,7 +8,8 @@
 ## Checklist (Day 0 Step 4)
 - [x] **Postgres Support:** Yes. Has first-class PostgreSQL connector (`datus-postgresql`) and storage/vector engine (`datus-storage-postgresql`).
 - [x] **Headless / Automated Execution:** Yes. Exposes multiple programmatic surfaces: headless Datus-CLI, Python SDK / REST APIs, and native Model Context Protocol (MCP) server.
-- [x] **Supported LLM Providers:** Supports OpenAI, Anthropic, and standard OpenAI-compatible API providers for text-to-SQL and semantic compilation.
+- [x] **Supported LLM Providers:** Supports OpenAI, Anthropic, and standard OpenAI-compatible API providers.
+  - **Groq / gpt-oss-120b compatibility:** Compatible. Supports custom `base_url="https://api.groq.com/openai/v1"` and standard OpenAI-compatible headers, allowing direct use of Groq's `openai/gpt-oss-120b`.
 
 ## Setup & Execution Notes
 - Automated semantic modeling parses schema & historical query logs into OSI semantic models.

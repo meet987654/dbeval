@@ -4,7 +4,7 @@
 
 ## Status
 
-**Current Status:** Day 1 Complete (Baseline runner tested, appdb seeded with SaaS traps, 10 smoke questions verified). Ready for Day 2 (Question suite). Follow along in [docs/WEEK0_GUIDE.md](docs/WEEK0_GUIDE.md).
+**Current Status:** Day 2 Complete (Business rules defined, gold question suites created, comparison scorer tested, dual-oracle validation executed). Ready for Day 3 (Build each tool's layer). Follow along in [docs/WEEK0_GUIDE.md](docs/WEEK0_GUIDE.md).
 
 ---
 

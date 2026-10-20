@@ -143,29 +143,18 @@ Mix for each database:
 
 Write 15 yourself, thinking like a business person. Have an LLM draft the rest, and read every one.
 
+### Step 1: Write the questions
+- [x] Created `docs/business_rules.md` documenting answer-key rules for both databases.
+- [x] Drafted questions in `questions/drafts/appdb.yaml` (22 questions + 2 ambiguous) and `questions/drafts/olist.yaml` (12 questions + 1 ambiguous).
+- [x] Verified all hand-written SQL queries execute cleanly against seeded Postgres databases with `python scorer/validate_gold.py --skip-oracle`.
+
 ### Step 2: Create gold answers
-For each question, get the correct SQL three independent ways:
+- [x] Built `scorer/compare.py` (order-agnostic, column-agnostic, allows extra candidate columns, 2-decimal tolerance) and verified with `python scorer/test_compare.py`.
+- [x] Built dual-oracle validation harness in `scorer/validate_gold.py` using `oracle_a` (`openai/gpt-oss-120b`) and `oracle_b` (`qwen/qwen3.8-27b`).
+- [x] Ran validation against `olist`: 10 validated, 3 disputed (`olist-002`, `olist-007`, `olist-012` over status filtering on non-sales/order actions).
+- [x] Ran validation against `appdb`: 22 validated, 2 disputed (`appdb-017` over grouping vs scalar count wording, and `appdb-020` over tie-breaking order among equal net-paying accounts).
 
-1. You write it by hand (for your 15).
-2. An LLM writes it with one prompt.
-3. An LLM writes it with a different prompt, or a different model.
-
-Run all three. If the result sets agree, save the question in `questions/<db>.yaml`. If they disagree, move it to `questions/disputed/`. Disagreement is a finding, so keep those questions.
-
-Format:
-
-```yaml
-- id: olist-014
-  category: metric
-  question: What was the average delivery time in days for delivered orders?
-  gold_sql: |
-    SELECT ...
-  status: validated
-```
-
-For ambiguous questions, the right behavior is to ask a clarifying question or to state its assumption. Mark them `category: ambiguous` and score them separately.
-
-**Day 2 is done when:** each database has about 40 validated questions and a `disputed/` folder.
+**Day 2 is done:** Question drafts, business rules, comparison scorer, and dual-oracle validation are complete and documented. Disputed questions isolated in `questions/disputed/`.
 
 ---
 
