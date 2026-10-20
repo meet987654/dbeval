@@ -1,0 +1,202 @@
+[
+  {
+    "system": "baseline",
+    "db": "olist",
+    "question": "How many orders are in the database?",
+    "sql": "SELECT COUNT(*) FROM orders",
+    "columns": [
+      "count"
+    ],
+    "rows": [
+      [
+        99441
+      ]
+    ],
+    "error": null,
+    "tokens_in": 2143,
+    "tokens_out": 46,
+    "seconds": 8.67
+  },
+  {
+    "system": "baseline",
+    "db": "olist",
+    "question": "How many orders have been delivered?",
+    "sql": "SELECT COUNT(*) AS delivered_orders_count\nFROM orders\nWHERE order_status = 'delivered'",
+    "columns": [
+      "delivered_orders_count"
+    ],
+    "rows": [
+      [
+        96478
+      ]
+    ],
+    "error": null,
+    "tokens_in": 2142,
+    "tokens_out": 132,
+    "seconds": 1.04
+  },
+  {
+    "system": "baseline",
+    "db": "olist",
+    "question": "Which 5 product categories, in English, had the highest total sales?",
+    "sql": "SELECT pct.product_category_name_english AS category,\n       SUM(oi.price) AS total_sales\nFROM order_items oi\nJOIN products p ON oi.product_id = p.product_id\nJOIN product_category_name_translation pct\n  ON p.product_category_name = pct.product_category_name\nGROUP BY pct.product_category_name_english\nORDER BY total_sales DESC\nLIMIT 5",
+    "columns": [
+      "category",
+      "total_sales"
+    ],
+    "rows": [
+      [
+        "health_beauty",
+        1258681.3400000185
+      ],
+      [
+        "watches_gifts",
+        1205005.6800000127
+      ],
+      [
+        "bed_bath_table",
+        1036988.6800000395
+      ],
+      [
+        "sports_leisure",
+        988048.9700000186
+      ],
+      [
+        "computers_accessories",
+        911954.3200000152
+      ]
+    ],
+    "error": null,
+    "tokens_in": 2150,
+    "tokens_out": 313,
+    "seconds": 1.61
+  },
+  {
+    "system": "baseline",
+    "db": "olist",
+    "question": "What is the average delivery time in days for delivered orders?",
+    "sql": "SELECT AVG(EXTRACT(EPOCH FROM (order_delivered_customer_date::timestamp - order_purchase_timestamp::timestamp)) / 86400) AS avg_delivery_days\nFROM orders\nWHERE order_status = 'delivered'",
+    "columns": [
+      "avg_delivery_days"
+    ],
+    "rows": [
+      [
+        "12.55821709805197547514"
+      ]
+    ],
+    "error": null,
+    "tokens_in": 2147,
+    "tokens_out": 167,
+    "seconds": 9.23
+  },
+  {
+    "system": "baseline",
+    "db": "olist",
+    "question": "What share of delivered orders arrived later than the estimated delivery date?",
+    "sql": "SELECT\n    SUM(CASE WHEN o.order_delivered_customer_date::timestamp > o.order_estimated_delivery_date::timestamp THEN 1 ELSE 0 END)::decimal /\n    COUNT(*) AS late_delivery_share\nFROM orders o\nWHERE o.order_status = 'delivered'\n  AND o.order_delivered_customer_date IS NOT NULL",
+    "columns": [
+      "late_delivery_share"
+    ],
+    "rows": [
+      [
+        "0.08112366538820358661"
+      ]
+    ],
+    "error": null,
+    "tokens_in": 2148,
+    "tokens_out": 277,
+    "seconds": 15.74
+  },
+  {
+    "system": "baseline",
+    "db": "appdb",
+    "question": "How many accounts do we have?",
+    "sql": "SELECT COUNT(*) AS account_count FROM accounts",
+    "columns": [
+      "account_count"
+    ],
+    "rows": [
+      [
+        2000
+      ]
+    ],
+    "error": null,
+    "tokens_in": 1456,
+    "tokens_out": 112,
+    "seconds": 13.43
+  },
+  {
+    "system": "baseline",
+    "db": "appdb",
+    "question": "How many subscriptions are currently active?",
+    "sql": "SELECT COUNT(*) AS active_subscriptions\nFROM subscriptions\nWHERE status = 'active'",
+    "columns": [
+      "active_subscriptions"
+    ],
+    "rows": [
+      [
+        1287
+      ]
+    ],
+    "error": null,
+    "tokens_in": 1456,
+    "tokens_out": 117,
+    "seconds": 12.7
+  },
+  {
+    "system": "baseline",
+    "db": "appdb",
+    "question": "What was total paid revenue in USD in Q3 2026?",
+    "sql": "SELECT SUM(i.amount_cents::numeric / 100 * f.usd_per_unit) AS total_paid_usd\nFROM invoices i\nJOIN fx_rates f ON i.currency = f.currency\nJOIN accounts a ON i.account_id = a.id\nWHERE i.status = 'paid'\n  AND i.paid_at >= '2026-07-01'::timestamptz\n  AND i.paid_at < '2026-10-01'::timestamptz\n  AND a.is_test = false\n  AND a.deleted_at IS NULL",
+    "columns": [
+      "total_paid_usd"
+    ],
+    "rows": [
+      [
+        "267974.586440000000000000000"
+      ]
+    ],
+    "error": null,
+    "tokens_in": 1463,
+    "tokens_out": 490,
+    "seconds": 11.9
+  },
+  {
+    "system": "baseline",
+    "db": "appdb",
+    "question": "Which plan tier has the most active subscriptions?",
+    "sql": "SELECT s.plan_tier,\n       COUNT(*) AS active_subscription_count\nFROM subscriptions s\nWHERE s.status = 'active'\nGROUP BY s.plan_tier\nORDER BY active_subscription_count DESC\nLIMIT 1",
+    "columns": [
+      "plan_tier",
+      "active_subscription_count"
+    ],
+    "rows": [
+      [
+        "starter",
+        789
+      ]
+    ],
+    "error": null,
+    "tokens_in": 1458,
+    "tokens_out": 139,
+    "seconds": 14.23
+  },
+  {
+    "system": "baseline",
+    "db": "appdb",
+    "question": "How many subscriptions churned in September 2026?",
+    "sql": "SELECT COUNT(*) AS churned_subscriptions_sept_2026\nFROM subscriptions\nWHERE canceled_at >= DATE '2026-09-01'\n  AND canceled_at < DATE '2026-10-01'",
+    "columns": [
+      "churned_subscriptions_sept_2026"
+    ],
+    "rows": [
+      [
+        92
+      ]
+    ],
+    "error": null,
+    "tokens_in": 1460,
+    "tokens_out": 172,
+    "seconds": 3.14
+  }
+]

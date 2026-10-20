@@ -4,7 +4,7 @@
 
 ## Status
 
-**Current Status:** Day 0 Complete (Repo setup, Postgres running, Olist loaded, notes & ktx initial look logged). Ready for Day 1. Follow along in [docs/WEEK0_GUIDE.md](docs/WEEK0_GUIDE.md).
+**Current Status:** Day 1 Complete (Baseline runner tested, appdb seeded with SaaS traps, 10 smoke questions verified). Ready for Day 2 (Question suite). Follow along in [docs/WEEK0_GUIDE.md](docs/WEEK0_GUIDE.md).
 
 ---
 

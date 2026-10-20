@@ -137,14 +137,22 @@ def call_llm(system, user):
             messages=[{"role": "user", "content": user}],
         )
         return r.content[0].text, r.usage.input_tokens, r.usage.output_tokens
-    if provider == "openai":
+    if provider in ("openai", "groq"):
         from openai import OpenAI
 
-        r = OpenAI().chat.completions.create(
+        api_key = os.getenv("GROQ_API_KEY") if provider == "groq" else os.getenv("OPENAI_API_KEY")
+        base_url = os.getenv("OPENAI_BASE_URL")
+        if provider == "groq" and not base_url:
+            base_url = "https://api.groq.com/openai/v1"
+
+        client = OpenAI(api_key=api_key, base_url=base_url)
+        r = client.chat.completions.create(
             model=model, temperature=0,
             messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
         )
-        return r.choices[0].message.content, r.usage.prompt_tokens, r.usage.completion_tokens
+        t_in = r.usage.prompt_tokens if r.usage else 0
+        t_out = r.usage.completion_tokens if r.usage else 0
+        return r.choices[0].message.content, t_in, t_out
     raise ValueError(f"Unknown LLM_PROVIDER: {provider}")
 
 

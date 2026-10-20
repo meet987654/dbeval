@@ -119,10 +119,11 @@ One-line pitch to paste:
 - [x] Verified schema inspection on both `olist` and `appdb` (`--show-schema`).
 
 ### Step 3: Try it on 5 hand-written questions per database
-- [ ] Add active LLM API key to `.env` (`ANTHROPIC_API_KEY` or `OPENAI_API_KEY`) and run `python runners/baseline.py --smoke questions/smoke.yaml`.
-- [ ] Inspect generated SQL and results in `results/raw/smoke_baseline.json`.
+- [x] Configured LLM provider (Groq `openai/gpt-oss-120b`) in `.env`.
+- [x] Ran `python runners/baseline.py --smoke questions/smoke.yaml` across all 10 smoke questions (5 Olist, 5 appdb).
+- [x] Inspected generated SQL and results saved to `results/raw/smoke_baseline.json`. Discovered critical baseline traps on SaaS metrics (test accounts included, soft deletes counted, unnetted refunds in revenue, and subscription upgrades counted as churn).
 
-**Day 1 is done when:** the baseline answers 5 questions end to end on both databases.
+**Day 1 is DONE!** The second database (`appdb`) is built and seeded with traps, the baseline runner works end-to-end against both databases, and the smoke tests revealed clear baseline failure modes to evaluate on Day 2.
 
 ---
 
