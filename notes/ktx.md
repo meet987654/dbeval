@@ -11,7 +11,7 @@
 - [x] **Postgres Support:** Yes. Supports PostgreSQL (`postgres`), MySQL, ClickHouse, BigQuery, Snowflake, DuckDB, SQLite, SQL Server, Athena.
 - [x] **Headless / Automated Execution:** Yes. Provides a headless CLI command and native Model Context Protocol (MCP) server daemon (`ktx mcp start` / `stdio`), allowing programmatic invocation by AI agents.
 - [x] **Supported LLM Providers:** Supports Anthropic (Claude), Google Vertex AI, local agent runtimes (`claude-code`, `codex`), and Vercel AI `gateway`.
-  - **Groq / gpt-oss-120b compatibility:** `ktx`'s internal engine does not support Groq directly out-of-the-box (`KTX_LLM_BACKENDS = ['none', 'anthropic', 'vertex', 'gateway', 'claude-code', 'codex']`). To use Groq's `openai/gpt-oss-120b` for internal enrichment, it either requires routing through `backend: gateway` (or a proxy like LiteLLM), or running enrichment via an Anthropic/OpenAI key while the evaluation runner agent querying ktx via MCP uses Groq's `gpt-oss-120b`. Alternatively, if all tools must use a single direct provider, an OpenAI or Anthropic provider could be used.
+  - **Mistral / codestral-2508 compatibility:** Fully verified. `ktx` accepts Mistral's OpenAI-compatible base URL (`https://api.mistral.ai/v1`) using `backend: gateway` with `gateway.api_key: env:MISTRAL_API_KEY` and model `codestral-2508`. Tested with `ktx status` -> `LLM gateway · codestral-2508 ✓ key set`.
 
 ## Setup & Execution Notes
 - Global install: `npm install -g @kaelio/ktx`

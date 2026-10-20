@@ -10,7 +10,7 @@
 - [x] **Postgres Support:** Yes. Introspects PostgreSQL databases natively and generates MDL models for metrics and relationships.
 - [x] **Headless / Automated Execution:** Yes. Features native Model Context Protocol (MCP) server daemon (`wren serve mcp` over `stdio` or HTTP), as well as REST APIs and Python SDK bindings.
 - [x] **Supported LLM Providers:** Supports OpenAI, Anthropic, Azure OpenAI, Google Gemini, Ollama, and custom OpenAI-compatible endpoints.
-  - **Groq / gpt-oss-120b compatibility:** Compatible. Wren Engine accepts standard OpenAI API configuration overrides (`OPENAI_API_BASE=https://api.groq.com/openai/v1`, `OPENAI_API_KEY=...`, model `openai/gpt-oss-120b`).
+  - **Mistral / codestral-2508 compatibility:** Fully compatible. Connects directly using standard OpenAI format with `OPENAI_API_BASE=https://api.mistral.ai/v1`, `OPENAI_API_KEY=MISTRAL_API_KEY`, and model `codestral-2508`.
 
 ## Setup & Execution Notes
 - Native MCP daemon (`wren serve mcp`) enables AI agents to query semantic models directly.

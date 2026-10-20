@@ -9,7 +9,7 @@
 - [x] **Postgres Support:** Yes. Has first-class PostgreSQL connector (`datus-postgresql`) and storage/vector engine (`datus-storage-postgresql`).
 - [x] **Headless / Automated Execution:** Yes. Exposes multiple programmatic surfaces: headless Datus-CLI, Python SDK / REST APIs, and native Model Context Protocol (MCP) server.
 - [x] **Supported LLM Providers:** Supports OpenAI, Anthropic, and standard OpenAI-compatible API providers.
-  - **Groq / gpt-oss-120b compatibility:** Compatible. Supports custom `base_url="https://api.groq.com/openai/v1"` and standard OpenAI-compatible headers, allowing direct use of Groq's `openai/gpt-oss-120b`.
+  - **Mistral / codestral-2508 compatibility:** Fully compatible. Connects directly using standard OpenAI format with `base_url="https://api.mistral.ai/v1"`, `api_key=MISTRAL_API_KEY`, and model `codestral-2508`.
 
 ## Setup & Execution Notes
 - Automated semantic modeling parses schema & historical query logs into OSI semantic models.
