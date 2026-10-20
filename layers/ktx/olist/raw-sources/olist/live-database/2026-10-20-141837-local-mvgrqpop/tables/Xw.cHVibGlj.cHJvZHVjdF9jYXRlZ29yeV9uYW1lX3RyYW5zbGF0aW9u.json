@@ -1,0 +1,29 @@
+{
+  "catalog": null,
+  "db": "public",
+  "name": "product_category_name_translation",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 71,
+  "columns": [
+    {
+      "name": "product_category_name",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_category_name_english",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}

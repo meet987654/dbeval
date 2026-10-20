@@ -27,9 +27,16 @@ yarn-error.log*
 # Database data
 pgdata/
 
-# Tool layers / local runners
+# Tool working directories / local runners
 ktx_olist/
+ktx_appdb/
+wren_olist/
+wren_appdb/
 .ktx/
+.wren/
+.datus/
+conf/
+scratch/
 *.log
 
 # OS / Editor

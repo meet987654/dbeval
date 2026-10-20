@@ -1,0 +1,39 @@
+name: customers
+table_reference:
+  catalog: ''
+  schema: public
+  table: customers
+columns:
+- name: customer_id
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: customer_unique_id
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: customer_zip_code_prefix
+  type: BIGINT
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: customer_city
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: customer_state
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+primary_key: customer_id
+cached: false
+properties: {}

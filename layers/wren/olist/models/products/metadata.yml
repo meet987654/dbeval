@@ -1,0 +1,63 @@
+name: products
+table_reference:
+  catalog: ''
+  schema: public
+  table: products
+columns:
+- name: product_id
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: product_category_name
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: product_name_lenght
+  type: DOUBLE
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: product_description_lenght
+  type: DOUBLE
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: product_photos_qty
+  type: DOUBLE
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: product_weight_g
+  type: DOUBLE
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: product_length_cm
+  type: DOUBLE
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: product_height_cm
+  type: DOUBLE
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: product_width_cm
+  type: DOUBLE
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+primary_key: product_id
+cached: false
+properties: {}

@@ -1,0 +1,137 @@
+{
+  "connectionId": "appdb",
+  "driver": "postgres",
+  "syncId": "2026-10-20-150300-local-mvgtbsfb",
+  "runId": "local-mvgtbsfb",
+  "trigger": "cli",
+  "mode": "enriched",
+  "dryRun": false,
+  "artifactPaths": {
+    "rawSourcesDir": "raw-sources/appdb/live-database/2026-10-20-150300-local-mvgtbsfb",
+    "reportPath": "raw-sources/appdb/live-database/2026-10-20-150300-local-mvgtbsfb/scan-report.json",
+    "manifestShards": [
+      "semantic-layer/appdb/_schema/public.yaml"
+    ],
+    "enrichmentArtifacts": [
+      "raw-sources/appdb/live-database/2026-10-20-150300-local-mvgtbsfb/enrichment/descriptions.json",
+      "raw-sources/appdb/live-database/2026-10-20-150300-local-mvgtbsfb/enrichment/embeddings.json",
+      "raw-sources/appdb/live-database/2026-10-20-150300-local-mvgtbsfb/enrichment/relationships.json",
+      "raw-sources/appdb/live-database/2026-10-20-150300-local-mvgtbsfb/enrichment/relationship-profile.json",
+      "raw-sources/appdb/live-database/2026-10-20-150300-local-mvgtbsfb/enrichment/relationship-diagnostics.json"
+    ]
+  },
+  "diffSummary": {
+    "tablesAdded": 7,
+    "tablesModified": 0,
+    "tablesDeleted": 0,
+    "tablesUnchanged": 0,
+    "columnsAdded": 0,
+    "columnsModified": 0,
+    "columnsDeleted": 0
+  },
+  "manifestShardsWritten": 1,
+  "structuralSyncStats": {
+    "tablesCreated": 0,
+    "tablesUpdated": 0,
+    "tablesDeleted": 0,
+    "columnsCreated": 0,
+    "columnsUpdated": 0,
+    "columnsDeleted": 0
+  },
+  "enrichment": {
+    "dataDictionary": "completed",
+    "tableDescriptions": "completed",
+    "columnDescriptions": "completed",
+    "embeddings": "completed",
+    "deterministicRelationships": "completed",
+    "llmRelationshipValidation": "failed",
+    "statisticalValidation": "completed"
+  },
+  "capabilityGaps": [],
+  "warnings": [
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table invoices: Invalid error response format: Gateway request failed",
+      "table": "invoices",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:appdb"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table events: Invalid error response format: Gateway request failed",
+      "table": "events",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:appdb"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table accounts: Invalid error response format: Gateway request failed",
+      "table": "accounts",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:appdb"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table fx_rates: Invalid error response format: Gateway request failed",
+      "table": "fx_rates",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:appdb"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table subscriptions: Invalid error response format: Gateway request failed",
+      "table": "subscriptions",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:appdb"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table refunds: Invalid error response format: Gateway request failed",
+      "table": "refunds",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:appdb"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table users: Invalid error response format: Gateway request failed",
+      "table": "users",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:appdb"
+      }
+    },
+    {
+      "code": "relationship_llm_proposal_failed",
+      "message": "ktx relationship LLM proposal failed: Invalid error response format: Gateway request failed",
+      "recoverable": true
+    }
+  ],
+  "relationships": {
+    "accepted": 7,
+    "review": 0,
+    "rejected": 0,
+    "skipped": 0
+  },
+  "enrichmentState": {
+    "resumedStages": [],
+    "completedStages": [
+      "descriptions",
+      "embeddings",
+      "relationships"
+    ],
+    "failedStages": []
+  },
+  "createdAt": "2026-10-20T15:03:03.972Z"
+}

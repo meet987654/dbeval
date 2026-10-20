@@ -45,3 +45,12 @@ All four systems under test run on the exact same model:
   - `codestral-2508` is a pinned, dated model specifically built for code/SQL generation with high throughput.
 - **Gold Answer Oracles:** Validated with independent Groq models (`openai/gpt-oss-120b` and `qwen/qwen3.8-27b`) to prevent self-evaluating bias.
 
+---
+
+## Evaluation Architecture Design Decision
+
+- **Fixed Answering Agent:** All tools are evaluated using a fixed answering agent powered by `codestral-2508` via Mistral AI, with each tool supplying its context layer as prompt augmentation.
+- **End-to-End Capabilities:** Tools that feature native execution pipelines (such as Datus's `PrintModeRunner` or Wren Engine's compiler/connector) also have their end-to-end performance logged and reported separately for comparison against the unified answering agent.
+- **Isolation:** Read-only PostgreSQL access via the dedicated `reader` user (`postgresql://reader:reader@localhost:5433/<db>`).
+
+

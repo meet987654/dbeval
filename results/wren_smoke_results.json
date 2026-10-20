@@ -1,0 +1,92 @@
+[
+  {
+    "db": "olist",
+    "type": "Count",
+    "sql": "SELECT count(*) FROM orders;",
+    "result": [
+      {
+        "count": 99441
+      }
+    ],
+    "error": null,
+    "time": 0.16043710708618164
+  },
+  {
+    "db": "olist",
+    "type": "Avg",
+    "sql": "SELECT round(avg(payment_value)::numeric, 2) FROM order_payments;",
+    "result": [
+      {
+        "round": "154.100000000"
+      }
+    ],
+    "error": null,
+    "time": 0.2867097854614258
+  },
+  {
+    "db": "olist",
+    "type": "Join",
+    "sql": "SELECT s.seller_state, count(*) FROM order_items oi JOIN sellers s ON s.seller_id = oi.seller_id GROUP BY s.seller_state ORDER BY count(*) DESC LIMIT 3;",
+    "result": [
+      {
+        "seller_state": "SP",
+        "count": 80342
+      },
+      {
+        "seller_state": "MG",
+        "count": 8827
+      },
+      {
+        "seller_state": "PR",
+        "count": 8671
+      }
+    ],
+    "error": null,
+    "time": 0.9871258735656738
+  },
+  {
+    "db": "appdb",
+    "type": "Count",
+    "sql": "SELECT count(*) FROM accounts;",
+    "result": [
+      {
+        "count": 2000
+      }
+    ],
+    "error": null,
+    "time": 0.0657494068145752
+  },
+  {
+    "db": "appdb",
+    "type": "Avg",
+    "sql": "SELECT round(avg(amount_cents)::numeric / 100, 2) FROM invoices;",
+    "result": [
+      {
+        "round": "684.810000000"
+      }
+    ],
+    "error": null,
+    "time": 0.08080625534057617
+  },
+  {
+    "db": "appdb",
+    "type": "Join",
+    "sql": "SELECT a.plan_tier, count(*) FROM subscriptions s JOIN accounts a ON a.id = s.account_id GROUP BY a.plan_tier;",
+    "result": [
+      {
+        "plan_tier": "scale",
+        "count": 246
+      },
+      {
+        "plan_tier": "growth",
+        "count": 627
+      },
+      {
+        "plan_tier": "starter",
+        "count": 1211
+      }
+    ],
+    "error": null,
+    "time": 0.05783796310424805
+  }
+]

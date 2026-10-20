@@ -1,0 +1,57 @@
+name: orders
+table_reference:
+  catalog: ''
+  schema: public
+  table: orders
+columns:
+- name: order_id
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: customer_id
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: order_status
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: order_purchase_timestamp
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: order_approved_at
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: order_delivered_carrier_date
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: order_delivered_customer_date
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: order_estimated_delivery_date
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+primary_key: order_id
+cached: false
+properties: {}

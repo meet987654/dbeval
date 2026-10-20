@@ -1,0 +1,47 @@
+{
+  "catalog": null,
+  "db": "public",
+  "name": "sellers",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 3095,
+  "columns": [
+    {
+      "name": "seller_id",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "seller_zip_code_prefix",
+      "nativeType": "bigint",
+      "normalizedType": "bigint",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "seller_city",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "seller_state",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}

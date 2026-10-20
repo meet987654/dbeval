@@ -1,0 +1,122 @@
+{
+  "connectionId": "olist",
+  "generatedAt": "2026-10-20T14:19:28.213Z",
+  "summary": {
+    "accepted": 6,
+    "review": 0,
+    "rejected": 0,
+    "skipped": 0
+  },
+  "noAcceptedReason": null,
+  "partial": false,
+  "partialReason": null,
+  "candidateCountsBySource": {
+    "normalized_table_match": 5,
+    "profile_match": 1
+  },
+  "validation": {
+    "available": true,
+    "sqlAvailable": true,
+    "queryCount": 9
+  },
+  "thresholds": {
+    "acceptThreshold": 0.85,
+    "reviewThreshold": 0.55
+  },
+  "policy": {
+    "validationRequiredForManifest": true,
+    "maxCandidatesPerColumn": 25,
+    "profileSampleRows": 10000,
+    "profileConcurrency": 4,
+    "validationConcurrency": 4
+  },
+  "warnings": [
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table customers: Invalid error response format: Gateway request failed",
+      "table": "customers",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:olist"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table order_items: Invalid error response format: Gateway request failed",
+      "table": "order_items",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:olist"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table geolocation: Invalid error response format: Gateway request failed",
+      "table": "geolocation",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:olist"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table order_payments: Invalid error response format: Gateway request failed",
+      "table": "order_payments",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:olist"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table order_reviews: Invalid error response format: Gateway request failed",
+      "table": "order_reviews",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:olist"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table sellers: Invalid error response format: Gateway request failed",
+      "table": "sellers",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:olist"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table orders: Invalid error response format: Gateway request failed",
+      "table": "orders",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:olist"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table product_category_name_translation: Invalid error response format: Gateway request failed",
+      "table": "product_category_name_translation",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:olist"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table products: Invalid error response format: Gateway request failed",
+      "table": "products",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:olist"
+      }
+    },
+    {
+      "code": "relationship_llm_proposal_failed",
+      "message": "ktx relationship LLM proposal failed: Invalid error response format: Gateway request failed",
+      "recoverable": true
+    }
+  ],
+  "profileWarnings": []
+}

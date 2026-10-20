@@ -1,0 +1,51 @@
+name: order_items
+table_reference:
+  catalog: ''
+  schema: public
+  table: order_items
+columns:
+- name: order_id
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: order_item_id
+  type: BIGINT
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: product_id
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: seller_id
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: shipping_limit_date
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: price
+  type: DOUBLE
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: freight_value
+  type: DOUBLE
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+primary_key: order_id
+cached: false
+properties: {}

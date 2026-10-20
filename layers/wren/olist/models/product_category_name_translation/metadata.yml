@@ -1,0 +1,21 @@
+name: product_category_name_translation
+table_reference:
+  catalog: ''
+  schema: public
+  table: product_category_name_translation
+columns:
+- name: product_category_name
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: product_category_name_english
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+primary_key: product_category_name
+cached: false
+properties: {}

@@ -1,0 +1,39 @@
+name: geolocation
+table_reference:
+  catalog: ''
+  schema: public
+  table: geolocation
+columns:
+- name: geolocation_zip_code_prefix
+  type: BIGINT
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: geolocation_lat
+  type: DOUBLE
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: geolocation_lng
+  type: DOUBLE
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: geolocation_city
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: geolocation_state
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+primary_key: geolocation_zip_code_prefix
+cached: false
+properties: {}

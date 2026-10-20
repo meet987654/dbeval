@@ -1,0 +1,201 @@
+[
+  {
+    "db": "olist",
+    "type": "Count",
+    "prompt": "How many orders are in the database? Return only the SQL query.",
+    "sql": "SELECT COUNT(*) AS total_orders FROM orders;",
+    "result": [
+      [
+        99441
+      ]
+    ],
+    "error": null,
+    "tokens": {
+      "requests": 1,
+      "input_tokens": 2653,
+      "output_tokens": 13,
+      "total_tokens": 2666,
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "reasoning_tokens": 0,
+      "last_call_input_tokens": 2653,
+      "context_length": 0,
+      "delta": {
+        "requests": 1,
+        "input_tokens": 2653,
+        "output_tokens": 13,
+        "total_tokens": 2666,
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "reasoning_tokens": 0
+      }
+    },
+    "seconds": 9.398033142089844
+  },
+  {
+    "db": "olist",
+    "type": "Avg",
+    "prompt": "What is the average payment value across all order payments? Return only the SQL query.",
+    "sql": "SELECT AVG(payment_value) AS average_payment_value\nFROM order_payments;",
+    "result": [
+      [
+        154.10038041698365
+      ]
+    ],
+    "error": null,
+    "tokens": {
+      "requests": 1,
+      "input_tokens": 2656,
+      "output_tokens": 18,
+      "total_tokens": 2674,
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "reasoning_tokens": 0,
+      "last_call_input_tokens": 2656,
+      "context_length": 0,
+      "delta": {
+        "requests": 1,
+        "input_tokens": 2656,
+        "output_tokens": 18,
+        "total_tokens": 2674,
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "reasoning_tokens": 0
+      }
+    },
+    "seconds": 2.0696663856506348
+  },
+  {
+    "db": "olist",
+    "type": "Join",
+    "prompt": "Which 3 seller states have the most order items sold? Return seller state and count, ordered by count descending. Return only the SQL query.",
+    "sql": "SELECT\n    seller_state,\n    COUNT(order_items.order_id) AS order_count\nFROM\n    sellers\nJOIN\n    order_items ON sellers.seller_id = order_items.seller_id\nGROUP BY\n    seller_state\nORDER BY\n    order_count DESC\nLIMIT 3;",
+    "result": [
+      [
+        "SP",
+        80342
+      ],
+      [
+        "MG",
+        8827
+      ],
+      [
+        "PR",
+        8671
+      ]
+    ],
+    "error": null,
+    "tokens": {
+      "requests": 1,
+      "input_tokens": 2668,
+      "output_tokens": 62,
+      "total_tokens": 2730,
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "reasoning_tokens": 0,
+      "last_call_input_tokens": 2668,
+      "context_length": 0,
+      "delta": {
+        "requests": 1,
+        "input_tokens": 2668,
+        "output_tokens": 62,
+        "total_tokens": 2730,
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "reasoning_tokens": 0
+      }
+    },
+    "seconds": 3.6824288368225098
+  },
+  {
+    "db": "appdb",
+    "type": "Count",
+    "prompt": "How many accounts are in the database? Return only the SQL query.",
+    "sql": "SELECT COUNT(*) FROM accounts;",
+    "result": [
+      [
+        2000
+      ]
+    ],
+    "error": null,
+    "tokens": {
+      "requests": 1,
+      "input_tokens": 2653,
+      "output_tokens": 10,
+      "total_tokens": 2663,
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "reasoning_tokens": 0,
+      "last_call_input_tokens": 2653,
+      "context_length": 0,
+      "delta": {
+        "requests": 1,
+        "input_tokens": 2653,
+        "output_tokens": 10,
+        "total_tokens": 2663,
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "reasoning_tokens": 0
+      }
+    },
+    "seconds": 1.804464340209961
+  },
+  {
+    "db": "appdb",
+    "type": "Avg",
+    "prompt": "What is the average invoice amount in dollars? Return only the SQL query.",
+    "sql": "SELECT AVG(total_amount) AS average_invoice_amount\nFROM invoices;",
+    "result": null,
+    "error": "column \"total_amount\" does not exist\nLINE 1: SELECT AVG(total_amount) AS average_invoice_amount\n                   ^\n",
+    "tokens": {
+      "requests": 1,
+      "input_tokens": 2654,
+      "output_tokens": 17,
+      "total_tokens": 2671,
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "reasoning_tokens": 0,
+      "last_call_input_tokens": 2654,
+      "context_length": 0,
+      "delta": {
+        "requests": 1,
+        "input_tokens": 2654,
+        "output_tokens": 17,
+        "total_tokens": 2671,
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "reasoning_tokens": 0
+      }
+    },
+    "seconds": 1.5829391479492188
+  },
+  {
+    "db": "appdb",
+    "type": "Join",
+    "prompt": "What is the count of subscriptions grouped by account plan tier? Return plan tier and count. Return only the SQL query.",
+    "sql": "SELECT\n    account_plan_tier,\n    COUNT(*) AS subscription_count\nFROM\n    subscriptions\nGROUP BY\n    account_plan_tier;",
+    "result": null,
+    "error": "column \"account_plan_tier\" does not exist\nLINE 2:     account_plan_tier,\n            ^\n",
+    "tokens": {
+      "requests": 1,
+      "input_tokens": 2663,
+      "output_tokens": 33,
+      "total_tokens": 2696,
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "reasoning_tokens": 0,
+      "last_call_input_tokens": 2663,
+      "context_length": 0,
+      "delta": {
+        "requests": 1,
+        "input_tokens": 2663,
+        "output_tokens": 33,
+        "total_tokens": 2696,
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "reasoning_tokens": 0
+      }
+    },
+    "seconds": 1.677483081817627
+  }
+]

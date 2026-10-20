@@ -1,0 +1,6 @@
+catalog: wren
+data_source: postgres
+name: wren_olist
+schema: public
+schema_version: 3
+version: '1.0'

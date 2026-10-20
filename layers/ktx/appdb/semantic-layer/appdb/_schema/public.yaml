@@ -1,0 +1,198 @@
+tables:
+  accounts:
+    table: public.accounts
+    columns:
+      - name: id
+        type: number
+        nullable: false
+      - name: name
+        type: string
+        nullable: false
+      - name: plan
+        type: string
+      - name: plan_tier
+        type: string
+      - name: is_test
+        type: boolean
+        nullable: false
+      - name: country
+        type: string
+      - name: currency
+        type: string
+      - name: created_at
+        type: time
+        nullable: false
+      - name: deleted_at
+        type: time
+    joins:
+      - to: events
+        "on": accounts.id = events.account_id
+        relationship: one_to_many
+        source: inferred
+      - to: invoices
+        "on": accounts.id = invoices.account_id
+        relationship: one_to_many
+        source: inferred
+      - to: subscriptions
+        "on": accounts.id = subscriptions.account_id
+        relationship: one_to_many
+        source: inferred
+      - to: users
+        "on": accounts.id = users.account_id
+        relationship: one_to_many
+        source: inferred
+  events:
+    table: public.events
+    columns:
+      - name: id
+        type: number
+        nullable: false
+      - name: account_id
+        type: number
+        nullable: false
+      - name: user_id
+        type: number
+        nullable: false
+      - name: event_type
+        type: string
+        nullable: false
+      - name: occurred_at
+        type: time
+        nullable: false
+    joins:
+      - to: accounts
+        "on": events.account_id = accounts.id
+        relationship: many_to_one
+        source: inferred
+      - to: users
+        "on": events.user_id = users.id
+        relationship: many_to_one
+        source: inferred
+  fx_rates:
+    table: public.fx_rates
+    columns:
+      - name: currency
+        type: string
+        nullable: false
+      - name: usd_per_unit
+        type: number
+        nullable: false
+  invoices:
+    table: public.invoices
+    columns:
+      - name: id
+        type: number
+        nullable: false
+      - name: subscription_id
+        type: number
+        nullable: false
+      - name: account_id
+        type: number
+        nullable: false
+      - name: amount_cents
+        type: number
+        nullable: false
+      - name: currency
+        type: string
+        nullable: false
+      - name: status
+        type: string
+        nullable: false
+      - name: issued_at
+        type: time
+        nullable: false
+      - name: paid_at
+        type: time
+    joins:
+      - to: accounts
+        "on": invoices.account_id = accounts.id
+        relationship: many_to_one
+        source: inferred
+      - to: subscriptions
+        "on": invoices.subscription_id = subscriptions.id
+        relationship: many_to_one
+        source: inferred
+      - to: refunds
+        "on": invoices.id = refunds.invoice_id
+        relationship: one_to_many
+        source: inferred
+  subscriptions:
+    table: public.subscriptions
+    columns:
+      - name: id
+        type: number
+        nullable: false
+      - name: account_id
+        type: number
+        nullable: false
+      - name: plan_tier
+        type: string
+        nullable: false
+      - name: status
+        type: string
+        nullable: false
+      - name: started_at
+        type: time
+        nullable: false
+      - name: trial_ends_at
+        type: time
+      - name: canceled_at
+        type: time
+      - name: cancel_reason
+        type: string
+    joins:
+      - to: invoices
+        "on": subscriptions.id = invoices.subscription_id
+        relationship: one_to_many
+        source: inferred
+      - to: accounts
+        "on": subscriptions.account_id = accounts.id
+        relationship: many_to_one
+        source: inferred
+  refunds:
+    table: public.refunds
+    columns:
+      - name: id
+        type: number
+        nullable: false
+      - name: invoice_id
+        type: number
+        nullable: false
+      - name: amount_cents
+        type: number
+        nullable: false
+      - name: created_at
+        type: time
+        nullable: false
+    joins:
+      - to: invoices
+        "on": refunds.invoice_id = invoices.id
+        relationship: many_to_one
+        source: inferred
+  users:
+    table: public.users
+    columns:
+      - name: id
+        type: number
+        nullable: false
+      - name: account_id
+        type: number
+        nullable: false
+      - name: email
+        type: string
+      - name: role
+        type: string
+      - name: created_at
+        type: time
+        nullable: false
+      - name: deleted_at
+        type: time
+    joins:
+      - to: events
+        "on": users.id = events.user_id
+        relationship: one_to_many
+        source: inferred
+      - to: accounts
+        "on": users.account_id = accounts.id
+        relationship: many_to_one
+        source: inferred

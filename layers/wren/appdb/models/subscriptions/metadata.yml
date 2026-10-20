@@ -1,0 +1,57 @@
+name: subscriptions
+table_reference:
+  catalog: ''
+  schema: public
+  table: subscriptions
+columns:
+- name: id
+  type: INTEGER
+  is_calculated: false
+  not_null: true
+  is_primary_key: false
+  properties: {}
+- name: account_id
+  type: INTEGER
+  is_calculated: false
+  not_null: true
+  is_primary_key: false
+  properties: {}
+- name: plan_tier
+  type: VARCHAR
+  is_calculated: false
+  not_null: true
+  is_primary_key: false
+  properties: {}
+- name: status
+  type: VARCHAR
+  is_calculated: false
+  not_null: true
+  is_primary_key: false
+  properties: {}
+- name: started_at
+  type: TIMESTAMPTZ
+  is_calculated: false
+  not_null: true
+  is_primary_key: false
+  properties: {}
+- name: trial_ends_at
+  type: TIMESTAMPTZ
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: canceled_at
+  type: TIMESTAMPTZ
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: cancel_reason
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+primary_key: id
+cached: false
+properties: {}

@@ -1,0 +1,29 @@
+{
+  "catalog": null,
+  "db": "public",
+  "name": "fx_rates",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": -1,
+  "columns": [
+    {
+      "name": "currency",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "dimensionType": "string",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "usd_per_unit",
+      "nativeType": "numeric(10,5)",
+      "normalizedType": "numeric(10,5)",
+      "dimensionType": "number",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}
