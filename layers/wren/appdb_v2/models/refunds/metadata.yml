@@ -1,0 +1,33 @@
+name: refunds
+table_reference:
+  catalog: ''
+  schema: public
+  table: refunds
+columns:
+- name: id
+  type: INTEGER
+  is_calculated: false
+  not_null: true
+  is_primary_key: true
+  properties: {}
+- name: invoice_id
+  type: INTEGER
+  is_calculated: false
+  not_null: true
+  is_primary_key: false
+  properties: {}
+- name: amount_cents
+  type: INTEGER
+  is_calculated: false
+  not_null: true
+  is_primary_key: false
+  properties: {}
+- name: created_at
+  type: TIMESTAMPTZ
+  is_calculated: false
+  not_null: true
+  is_primary_key: false
+  properties: {}
+primary_key: id
+cached: false
+properties: {}

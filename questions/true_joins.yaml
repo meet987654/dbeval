@@ -1,0 +1,28 @@
+# Ground-truth joins, written by hand from the schemas (not from any tool's output).
+# A join is an unordered pair of columns that mean "same key". Direction does not matter.
+# `kind: core` = a normal business join. `kind: weak` = valid but fuzzy (many-to-many);
+# report precision and recall both with and without the weak ones.
+# `declared_fk: true` = a real foreign key exists in the database.
+
+olist:
+  - {a: orders.customer_id,              b: customers.customer_id,                         kind: core}
+  - {a: order_items.order_id,            b: orders.order_id,                               kind: core}
+  - {a: order_items.product_id,          b: products.product_id,                           kind: core}
+  - {a: order_items.seller_id,           b: sellers.seller_id,                             kind: core}
+  - {a: order_payments.order_id,         b: orders.order_id,                               kind: core}
+  - {a: order_reviews.order_id,          b: orders.order_id,                               kind: core}
+  - {a: products.product_category_name,  b: product_category_name_translation.product_category_name, kind: core}
+  - {a: customers.customer_zip_code_prefix, b: geolocation.geolocation_zip_code_prefix,    kind: weak}
+  - {a: sellers.seller_zip_code_prefix,     b: geolocation.geolocation_zip_code_prefix,    kind: weak}
+  # Olist has no declared foreign keys.
+
+appdb:
+  - {a: subscriptions.account_id,   b: accounts.id,           kind: core, declared_fk: true}
+  - {a: invoices.subscription_id,   b: subscriptions.id,      kind: core, declared_fk: true}
+  - {a: invoices.account_id,        b: accounts.id,           kind: core, declared_fk: true}
+  - {a: users.account_id,           b: accounts.id,           kind: core}
+  - {a: refunds.invoice_id,         b: invoices.id,           kind: core}
+  - {a: events.account_id,          b: accounts.id,           kind: core}
+  - {a: events.user_id,             b: users.id,              kind: core}
+  - {a: invoices.currency,          b: fx_rates.currency,     kind: core}
+  - {a: accounts.currency,          b: fx_rates.currency,     kind: weak}

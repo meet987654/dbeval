@@ -1,0 +1,19 @@
+relationships:
+- condition: invoices.account_id = accounts.id
+  join_type: MANY_TO_ONE
+  models:
+  - invoices
+  - accounts
+  name: invoices_accounts_account_id
+- condition: subscriptions.account_id = accounts.id
+  join_type: MANY_TO_ONE
+  models:
+  - subscriptions
+  - accounts
+  name: subscriptions_accounts_account_id
+- condition: invoices.subscription_id = subscriptions.id
+  join_type: MANY_TO_ONE
+  models:
+  - invoices
+  - subscriptions
+  name: invoices_subscriptions_subscription_id

@@ -1,0 +1,465 @@
+{
+  "catalog": "wren",
+  "schema": "public",
+  "models": [
+    {
+      "name": "accounts",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "accounts"
+      },
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": true,
+          "properties": {}
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "plan",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "plan_tier",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "is_test",
+          "type": "BOOLEAN",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "country",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "currency",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "deleted_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "id",
+      "cached": false,
+      "properties": {}
+    },
+    {
+      "name": "events",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "events"
+      },
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": true,
+          "properties": {}
+        },
+        {
+          "name": "account_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "user_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "event_type",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "occurred_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "id",
+      "cached": false,
+      "properties": {}
+    },
+    {
+      "name": "fx_rates",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "fx_rates"
+      },
+      "columns": [
+        {
+          "name": "currency",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": true,
+          "properties": {}
+        },
+        {
+          "name": "usd_per_unit",
+          "type": "DECIMAL",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "currency",
+      "cached": false,
+      "properties": {}
+    },
+    {
+      "name": "invoices",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "invoices"
+      },
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": true,
+          "properties": {}
+        },
+        {
+          "name": "subscription_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "account_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "amount_cents",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "currency",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "issued_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "paid_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "id",
+      "cached": false,
+      "properties": {}
+    },
+    {
+      "name": "refunds",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "refunds"
+      },
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": true,
+          "properties": {}
+        },
+        {
+          "name": "invoice_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "amount_cents",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "id",
+      "cached": false,
+      "properties": {}
+    },
+    {
+      "name": "subscriptions",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "subscriptions"
+      },
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": true,
+          "properties": {}
+        },
+        {
+          "name": "account_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "plan_tier",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "started_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "trial_ends_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "canceled_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "cancel_reason",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "id",
+      "cached": false,
+      "properties": {}
+    },
+    {
+      "name": "users",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "users"
+      },
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": true,
+          "properties": {}
+        },
+        {
+          "name": "account_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "email",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "role",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "deleted_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "id",
+      "cached": false,
+      "properties": {}
+    }
+  ],
+  "relationships": [
+    {
+      "condition": "invoices.account_id = accounts.id",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "invoices",
+        "accounts"
+      ],
+      "name": "invoices_accounts_account_id"
+    },
+    {
+      "condition": "subscriptions.account_id = accounts.id",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "subscriptions",
+        "accounts"
+      ],
+      "name": "subscriptions_accounts_account_id"
+    },
+    {
+      "condition": "invoices.subscription_id = subscriptions.id",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "invoices",
+        "subscriptions"
+      ],
+      "name": "invoices_subscriptions_subscription_id"
+    }
+  ],
+  "views": [],
+  "dataSource": "postgres",
+  "layoutVersion": 2
+}

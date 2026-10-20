@@ -29,9 +29,9 @@ pgdata/
 
 # Tool working directories / local runners
 ktx_olist/
-ktx_appdb/
+ktx_appdb*/
 wren_olist/
-wren_appdb/
+wren_appdb*/
 .ktx/
 .wren/
 .datus/
