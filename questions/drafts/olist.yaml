@@ -29,9 +29,11 @@
   question: How many product categories had at least one sale?
   gold_sql: |
     SELECT COUNT(DISTINCT COALESCE(t.product_category_name_english, p.product_category_name))
-    FROM order_items oi JOIN products p ON p.product_id = oi.product_id
+    FROM order_items oi JOIN orders o ON o.order_id = oi.order_id
+    JOIN products p ON p.product_id = oi.product_id
     LEFT JOIN product_category_name_translation t ON t.product_category_name = p.product_category_name
     WHERE p.product_category_name IS NOT NULL
+      AND o.order_status NOT IN ('canceled', 'unavailable')
 
 - id: olist-005
   category: metric
@@ -108,17 +110,19 @@
 
 - id: olist-012
   category: multi_join
-  question: Among categories with at least 500 items sold, which 3 have the highest average review score?
+  question: Among categories with at least 500 items sold, which 3 have the highest average review score? Return only the category name.
   ordered: true
   gold_sql: |
     WITH latest AS (
       SELECT DISTINCT ON (order_id) order_id, review_score
       FROM order_reviews ORDER BY order_id, review_creation_date DESC)
     SELECT COALESCE(t.product_category_name_english, p.product_category_name) AS category
-    FROM order_items oi JOIN products p ON p.product_id = oi.product_id
+    FROM order_items oi JOIN orders o ON o.order_id = oi.order_id
+    JOIN products p ON p.product_id = oi.product_id
     LEFT JOIN product_category_name_translation t ON t.product_category_name = p.product_category_name
     JOIN latest l ON l.order_id = oi.order_id
     WHERE p.product_category_name IS NOT NULL
+      AND o.order_status NOT IN ('canceled', 'unavailable')
     GROUP BY 1 HAVING COUNT(*) >= 500
     ORDER BY AVG(l.review_score) DESC LIMIT 3
 
@@ -127,3 +131,73 @@
   question: Who are our best customers?
   gold_sql: null
   expected: Ask what "best" means (spend, order count, reviews) or state the assumption used.
+
+- id: olist-014
+  category: simple
+  question: How many products are in the catalog?
+  gold_sql: |
+    SELECT COUNT(*) FROM products
+
+- id: olist-015
+  category: simple
+  question: How many orders were canceled?
+  gold_sql: |
+    SELECT COUNT(*) FROM orders WHERE order_status = 'canceled'
+
+- id: olist-016
+  category: metric
+  question: What was the average shipping cost per order item, rounded to 2 decimals?
+  gold_sql: |
+    SELECT ROUND(AVG(freight_value)::numeric, 2) FROM order_items
+
+- id: olist-017
+  category: metric
+  question: How many orders contained items from more than one seller?
+  gold_sql: |
+    SELECT COUNT(*) FROM (
+      SELECT order_id FROM order_items GROUP BY order_id HAVING COUNT(DISTINCT seller_id) > 1) t
+
+- id: olist-018
+  category: metric
+  question: What was the average review score of delivered orders, rounded to 2 decimals?
+  gold_sql: |
+    WITH latest AS (
+      SELECT DISTINCT ON (order_id) order_id, review_score
+      FROM order_reviews ORDER BY order_id, review_creation_date DESC)
+    SELECT ROUND(AVG(l.review_score)::numeric, 2)
+    FROM orders o JOIN latest l ON l.order_id = o.order_id
+    WHERE o.order_status = 'delivered'
+
+- id: olist-019
+  category: multi_join
+  question: Which payment type accounted for the highest total payment value on delivered orders?
+  gold_sql: |
+    SELECT p.payment_type FROM order_payments p JOIN orders o ON o.order_id = p.order_id
+    WHERE o.order_status = 'delivered'
+    GROUP BY p.payment_type ORDER BY SUM(p.payment_value) DESC LIMIT 1
+
+- id: olist-020
+  category: multi_join
+  question: How many different people in the state of SP placed at least one delivered order?
+  gold_sql: |
+    SELECT COUNT(DISTINCT c.customer_unique_id)
+    FROM customers c JOIN orders o ON o.customer_id = c.customer_id
+    WHERE c.customer_state = 'SP' AND o.order_status = 'delivered'
+
+- id: olist-021
+  category: multi_join
+  question: Which seller had the highest total sales?
+  gold_sql: |
+    SELECT oi.seller_id FROM order_items oi JOIN orders o ON o.order_id = oi.order_id
+    WHERE o.order_status NOT IN ('canceled', 'unavailable')
+    GROUP BY oi.seller_id ORDER BY SUM(oi.price) DESC LIMIT 1
+
+- id: olist-022
+  category: metric
+  question: What was the average number of items per order, among orders that count as sales, rounded to 2 decimals?
+  gold_sql: |
+    SELECT ROUND(AVG(c)::numeric, 2) FROM (
+      SELECT oi.order_id, COUNT(*) AS c
+      FROM order_items oi JOIN orders o ON o.order_id = oi.order_id
+      WHERE o.order_status NOT IN ('canceled', 'unavailable')
+      GROUP BY oi.order_id) t

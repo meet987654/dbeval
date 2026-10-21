@@ -142,10 +142,10 @@ def call_llm(system, user):
 
         if provider == "groq":
             api_key = os.getenv("GROQ_API_KEY")
-            base_url = os.getenv("OPENAI_BASE_URL") or "https://api.groq.com/openai/v1"
+            base_url = os.getenv("GROQ_BASE_URL") or "https://api.groq.com/openai/v1"
         elif provider == "mistral":
             api_key = os.getenv("MISTRAL_API_KEY") or os.getenv("OPENAI_API_KEY")
-            base_url = os.getenv("OPENAI_BASE_URL") or "https://api.mistral.ai/v1"
+            base_url = os.getenv("MISTRAL_BASE_URL") or os.getenv("OPENAI_BASE_URL") or "https://api.mistral.ai/v1"
         else:
             api_key = os.getenv("OPENAI_API_KEY")
             base_url = os.getenv("OPENAI_BASE_URL")

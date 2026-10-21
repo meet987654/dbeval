@@ -11,6 +11,8 @@ Run:
     python scorer/validate_gold.py --db appdb
     python scorer/validate_gold.py --db olist
     python scorer/validate_gold.py --db appdb --skip-oracle   # only check the hand-written SQL runs
+    python scorer/validate_gold.py --db appdb --only appdb-017,appdb-020,appdb-025   # re-check just these
+                                                # (merges into the existing validated/disputed files)
 
 Reads : questions/drafts/<db>.yaml, docs/business_rules.md
 Writes: questions/<db>.yaml (validated), questions/disputed/<db>.yaml
@@ -76,13 +78,17 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--db", required=True, choices=["olist", "appdb"])
     ap.add_argument("--skip-oracle", action="store_true")
+    ap.add_argument("--only", help="comma-separated question ids to (re)validate and merge into the existing files")
     args = ap.parse_args()
+    only = {x.strip() for x in args.only.split(",")} if args.only else None
 
     drafts = yaml.safe_load(open(os.path.join(ROOT, "questions", "drafts", f"{args.db}.yaml"), encoding="utf-8"))
     validated, disputed = [], []
 
     for q in drafts:
         q = dict(q)
+        if only is not None and q["id"] not in only:
+            continue
         if q.get("category") == "ambiguous":
             validated.append(q)
             print(f"{q['id']}: ambiguous (kept, scored separately)")
@@ -123,6 +129,15 @@ def main():
     out = os.path.join(ROOT, "questions", f"{args.db}.yaml")
     dis = os.path.join(ROOT, "questions", "disputed", f"{args.db}.yaml")
     os.makedirs(os.path.dirname(dis), exist_ok=True)
+
+    if only is not None:  # merge with what is already on disk, replacing the re-checked ids
+        def load(path):
+            return yaml.safe_load(open(path, encoding="utf-8")) or [] if os.path.exists(path) else []
+        redone = {q["id"] for q in validated + disputed}
+        validated = [q for q in load(out) if q["id"] not in redone] + validated
+        disputed = [q for q in load(dis) if q["id"] not in redone] + disputed
+        validated.sort(key=lambda q: q["id"])
+        disputed.sort(key=lambda q: q["id"])
     yaml.safe_dump(validated, open(out, "w", encoding="utf-8"), sort_keys=False, allow_unicode=True)
     yaml.safe_dump(disputed, open(dis, "w", encoding="utf-8"), sort_keys=False, allow_unicode=True)
     print(f"\nvalidated: {len(validated)}   disputed: {len(disputed)}")

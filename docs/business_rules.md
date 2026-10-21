@@ -33,12 +33,22 @@ All timestamps are UTC. A "quarter" is a calendar quarter.
    on a real account. `cancel_reason = 'upgrade'` is NOT churn.
 10. **Active user** in a period: a real user with at least one event in the period.
 
+11. **Paying customer** in a period: a real account with at least one paid invoice
+    (`status = 'paid'`) whose `paid_at` is in the period.
+12. **Average revenue per paying customer (ARPA)** = net revenue in the period divided by
+    the number of paying customers in the period.
+13. **Churned account**: a real account that has at least one churn subscription (rule 9)
+    canceled on or before the date asked about.
+
 ## olist (Brazilian e-commerce)
 
 1. **Customer (a person)** = `customers.customer_unique_id`. `customer_id` is
    created per order, so counting it counts orders, not people.
-2. **Sales** = sum of `order_items.price` (freight is NOT sales), only for orders whose
-   status is not `canceled` or `unavailable`.
+2. **Sales / sold** = order items on orders whose status is not `canceled` or `unavailable`.
+   This applies to anything described as sales, sold or revenue (for example "items sold",
+   "had a sale", "total sales"), and `order_items.price` is the sales amount (freight is NOT
+   sales). Questions about who ordered, or how many orders there were, count every order
+   regardless of status unless the question says otherwise.
 3. **Order payment value** = the SUM of that order's rows in `order_payments`
    (one order can have several payment rows). Never join payments to items; it
    multiplies the rows.

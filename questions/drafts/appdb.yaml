@@ -154,7 +154,7 @@
 
 - id: appdb-017
   category: metric
-  question: How many invoices failed to be paid in Q3 2026, counting by the date they were issued?
+  question: How many invoices with status failed were issued in Q3 2026?
   gold_sql: |
     SELECT COUNT(*) FROM invoices i JOIN accounts a ON a.id = i.account_id
     WHERE i.status = 'failed'
@@ -196,8 +196,7 @@
 
 - id: appdb-020
   category: multi_join
-  question: List the ids of the 5 accounts that paid us the most in 2026 after refunds.
-  ordered: true
+  question: How many accounts paid us more than 2000 USD in 2026 after refunds?
   gold_sql: |
     WITH paid AS (
       SELECT i.account_id, SUM(i.amount_cents::numeric / 100 * f.usd_per_unit) AS v
@@ -211,10 +210,10 @@
       JOIN fx_rates f ON f.currency = i.currency
       WHERE r.created_at >= '2026-01-01 00:00:00+00' AND r.created_at < '2027-01-01 00:00:00+00'
       GROUP BY i.account_id)
-    SELECT p.account_id FROM paid p
+    SELECT COUNT(*) FROM paid p
     JOIN accounts a ON a.id = p.account_id AND a.is_test = false AND a.deleted_at IS NULL
     LEFT JOIN ref r ON r.account_id = p.account_id
-    ORDER BY p.v - COALESCE(r.v, 0) DESC LIMIT 5
+    WHERE p.v - COALESCE(r.v, 0) > 2000
 
 - id: appdb-021
   category: multi_join
@@ -245,3 +244,112 @@
   question: How fast are we growing?
   gold_sql: null
   expected: Ask which metric and period (revenue, accounts, users) or state the assumption used.
+
+- id: appdb-025
+  category: metric
+  question: How many paying customers did we have in September 2026?
+  gold_sql: |
+    SELECT COUNT(DISTINCT i.account_id) FROM invoices i JOIN accounts a ON a.id = i.account_id
+    WHERE i.status = 'paid'
+      AND i.paid_at >= '2026-09-01 00:00:00+00' AND i.paid_at < '2026-10-01 00:00:00+00'
+      AND a.is_test = false AND a.deleted_at IS NULL
+
+- id: appdb-026
+  category: metric
+  question: What was our average revenue per paying customer in Q3 2026, rounded to 2 decimals?
+  gold_sql: |
+    SELECT ROUND((
+      (SELECT COALESCE(SUM(i.amount_cents::numeric / 100 * f.usd_per_unit), 0)
+         FROM invoices i JOIN fx_rates f ON f.currency = i.currency JOIN accounts a ON a.id = i.account_id
+        WHERE i.status = 'paid'
+          AND i.paid_at >= '2026-07-01 00:00:00+00' AND i.paid_at < '2026-10-01 00:00:00+00'
+          AND a.is_test = false AND a.deleted_at IS NULL)
+      -
+      (SELECT COALESCE(SUM(r.amount_cents::numeric / 100 * f.usd_per_unit), 0)
+         FROM refunds r JOIN invoices i ON i.id = r.invoice_id JOIN fx_rates f ON f.currency = i.currency
+         JOIN accounts a ON a.id = i.account_id
+        WHERE r.created_at >= '2026-07-01 00:00:00+00' AND r.created_at < '2026-10-01 00:00:00+00'
+          AND a.is_test = false AND a.deleted_at IS NULL)
+    ) / (
+      SELECT COUNT(DISTINCT i.account_id) FROM invoices i JOIN accounts a ON a.id = i.account_id
+       WHERE i.status = 'paid'
+         AND i.paid_at >= '2026-07-01 00:00:00+00' AND i.paid_at < '2026-10-01 00:00:00+00'
+         AND a.is_test = false AND a.deleted_at IS NULL
+    ), 2)
+
+- id: appdb-027
+  category: simple
+  question: How many accounts have had more than one subscription?
+  gold_sql: |
+    SELECT COUNT(*) FROM (
+      SELECT s.account_id FROM subscriptions s JOIN accounts a ON a.id = s.account_id
+      WHERE a.is_test = false AND a.deleted_at IS NULL
+      GROUP BY s.account_id HAVING COUNT(*) > 1) t
+
+- id: appdb-028
+  category: multi_join
+  question: Which plan tier of the canceled subscription had the most churned subscriptions in 2026?
+  gold_sql: |
+    SELECT s.plan_tier FROM subscriptions s JOIN accounts a ON a.id = s.account_id
+    WHERE s.status = 'canceled' AND s.cancel_reason IN ('voluntary', 'payment_failed')
+      AND s.canceled_at >= '2026-01-01 00:00:00+00' AND s.canceled_at < '2027-01-01 00:00:00+00'
+      AND a.is_test = false AND a.deleted_at IS NULL
+    GROUP BY s.plan_tier ORDER BY COUNT(*) DESC LIMIT 1
+
+- id: appdb-029
+  category: multi_join
+  question: How many accounts created in 2024 currently have an active subscription?
+  gold_sql: |
+    SELECT COUNT(DISTINCT a.id) FROM accounts a JOIN subscriptions s ON s.account_id = a.id
+    WHERE s.status = 'active' AND a.is_test = false AND a.deleted_at IS NULL
+      AND a.created_at >= '2024-01-01 00:00:00+00' AND a.created_at < '2025-01-01 00:00:00+00'
+
+- id: appdb-030
+  category: metric
+  question: What percentage of accounts created in Q1 2025 had churned by 30 September 2026, rounded to 2 decimals?
+  gold_sql: |
+    SELECT ROUND(100.0 * COUNT(DISTINCT s.account_id) / (
+      SELECT COUNT(*) FROM accounts
+       WHERE is_test = false AND deleted_at IS NULL
+         AND created_at >= '2025-01-01 00:00:00+00' AND created_at < '2025-04-01 00:00:00+00'), 2)
+    FROM subscriptions s JOIN accounts a ON a.id = s.account_id
+    WHERE s.status = 'canceled' AND s.cancel_reason IN ('voluntary', 'payment_failed')
+      AND s.canceled_at < '2026-10-01 00:00:00+00'
+      AND a.is_test = false AND a.deleted_at IS NULL
+      AND a.created_at >= '2025-01-01 00:00:00+00' AND a.created_at < '2025-04-01 00:00:00+00'
+
+- id: appdb-031
+  category: metric
+  question: How many distinct users logged in at least once in Q3 2026?
+  gold_sql: |
+    SELECT COUNT(DISTINCT e.user_id) FROM events e
+    JOIN users u ON u.id = e.user_id JOIN accounts a ON a.id = u.account_id
+    WHERE e.event_type = 'login'
+      AND e.occurred_at >= '2026-07-01 00:00:00+00' AND e.occurred_at < '2026-10-01 00:00:00+00'
+      AND u.deleted_at IS NULL AND a.is_test = false AND a.deleted_at IS NULL
+
+- id: appdb-032
+  category: multi_join
+  question: How many accounts have no users left, meaning every user on the account has been deleted?
+  gold_sql: |
+    SELECT COUNT(*) FROM accounts a
+    WHERE a.is_test = false AND a.deleted_at IS NULL
+      AND EXISTS (SELECT 1 FROM users u WHERE u.account_id = a.id)
+      AND NOT EXISTS (SELECT 1 FROM users u WHERE u.account_id = a.id AND u.deleted_at IS NULL)
+
+- id: appdb-033
+  category: multi_join
+  question: How much was refunded in USD on invoices issued in Q2 2026, whenever the refund happened?
+  gold_sql: |
+    SELECT ROUND(SUM(r.amount_cents::numeric / 100 * f.usd_per_unit), 2)
+    FROM refunds r JOIN invoices i ON i.id = r.invoice_id
+    JOIN fx_rates f ON f.currency = i.currency JOIN accounts a ON a.id = i.account_id
+    WHERE i.issued_at >= '2026-04-01 00:00:00+00' AND i.issued_at < '2026-07-01 00:00:00+00'
+      AND a.is_test = false AND a.deleted_at IS NULL
+
+- id: appdb-034
+  category: simple
+  question: How many accounts do we have in each country?
+  gold_sql: |
+    SELECT country, COUNT(*) FROM accounts
+    WHERE is_test = false AND deleted_at IS NULL GROUP BY country

@@ -1,101 +1,104 @@
-- id: olist-002
-  category: simple
-  question: How many different people have placed an order?
-  gold_sql: 'SELECT COUNT(DISTINCT c.customer_unique_id)
-
-    FROM customers c JOIN orders o ON o.customer_id = c.customer_id
+- id: olist-012
+  category: multi_join
+  question: Among categories with at least 500 items sold, which 3 have the highest
+    average review score? Return only the category name.
+  ordered: true
+  gold_sql: "WITH latest AS (\n  SELECT DISTINCT ON (order_id) order_id, review_score\n\
+    \  FROM order_reviews ORDER BY order_id, review_creation_date DESC)\nSELECT COALESCE(t.product_category_name_english,\
+    \ p.product_category_name) AS category\nFROM order_items oi JOIN orders o ON o.order_id\
+    \ = oi.order_id\nJOIN products p ON p.product_id = oi.product_id\nLEFT JOIN product_category_name_translation\
+    \ t ON t.product_category_name = p.product_category_name\nJOIN latest l ON l.order_id\
+    \ = oi.order_id\nWHERE p.product_category_name IS NOT NULL\n  AND o.order_status\
+    \ NOT IN ('canceled', 'unavailable')\nGROUP BY 1 HAVING COUNT(*) >= 500\nORDER\
+    \ BY AVG(l.review_score) DESC LIMIT 3\n"
+  oracles:
+    oracle_a:
+      agrees: true
+      sql: "WITH recent_reviews AS (\n    SELECT DISTINCT ON (orv.order_id)\n    \
+        \       orv.order_id,\n           orv.review_score::numeric AS review_score\n\
+        \    FROM order_reviews orv\n    ORDER BY orv.order_id,\n             orv.review_creation_date::timestamp\
+        \ DESC\n),\nsold_items AS (\n    SELECT oi.order_id,\n           p.product_category_name,\n\
+        \           1 AS item_cnt\n    FROM order_items oi\n    JOIN orders o\n  \
+        \        ON oi.order_id = o.order_id\n         AND o.order_status NOT IN ('canceled',\
+        \ 'unavailable')\n    JOIN products p\n          ON oi.product_id = p.product_id\n\
+        )\nSELECT COALESCE(t.product_category_name_english, si.product_category_name)\
+        \ AS category_name\nFROM sold_items si\nJOIN recent_reviews rr\n      ON si.order_id\
+        \ = rr.order_id\nLEFT JOIN product_category_name_translation t\n       ON\
+        \ si.product_category_name = t.product_category_name\nGROUP BY category_name\n\
+        HAVING COUNT(si.item_cnt) >= 500\nORDER BY AVG(rr.review_score) DESC\nLIMIT\
+        \ 3"
+      error: null
+    oracle_b:
+      agrees: false
+      sql: "WITH valid_orders AS (\n    SELECT order_id\n    FROM orders\n    WHERE\
+        \ order_status NOT IN ('canceled', 'unavailable')\n),\nitems_sold AS (\n \
+        \   SELECT\n        oi.order_id,\n        oi.product_id\n    FROM order_items\
+        \ oi\n    JOIN valid_orders vo ON oi.order_id = vo.order_id\n),\ncategory_counts\
+        \ AS (\n    SELECT\n        COALESCE(t.product_category_name_english, p.product_category_name)\
+        \ AS category_name,\n        COUNT(*) AS items_sold\n    FROM items_sold is_\n\
+        \    JOIN products p ON is_.product_id = p.product_id\n    LEFT JOIN product_category_name_translation\
+        \ t ON p.product_category_name = t.product_category_name\n    WHERE p.product_category_name\
+        \ IS NOT NULL\n    GROUP BY COALESCE(t.product_category_name_english, p.product_category_name)\n\
+        \    HAVING COUNT(*) >= 500\n),\nlatest_reviews AS (\n    SELECT\n       \
+        \ order_id,\n        review_score,\n        ROW_NUMBER() OVER (PARTITION BY\
+        \ order_id ORDER BY review_creation_date DESC) AS rn\n    FROM order_reviews\n\
+        ),\norder_reviews_latest AS (\n    SELECT order_id, review_score\n    FROM\
+        \ latest_reviews\n    WHERE rn = 1\n),\ncategory_avg_scores AS (\n    SELECT\n\
+        \        COALESCE(t.product_category_name_english, p.product_category_name)\
+        \ AS category_name,\n        AVG(CAST(olr.review_score AS DOUBLE PRECISION))\
+        \ AS avg_review_score\n    FROM items_sold is_\n    JOIN products p ON is_.product_id\
+        \ = p.product_id\n    LEFT JOIN product_category_name_translation t ON p.product_category_name\
+        \ = t.product_category_name\n    JOIN order_reviews_latest olr ON is_.order_id\
+        \ = olr.order_id\n    WHERE p.product_category_name IS NOT NULL\n    GROUP\
+        \ BY COALESCE(t.product_category_name_english, p.product_category_name)\n\
+        )\nSELECT\n    cas.category_name\nFROM category_avg_scores cas\nJOIN category_counts\
+        \ cc ON cas.category_name = cc.category_name\nORDER BY cas.avg_review_score\
+        \ DESC\nLIMIT 3"
+      error: null
+- id: olist-016
+  category: metric
+  question: What was the average shipping cost per order item, rounded to 2 decimals?
+  gold_sql: 'SELECT ROUND(AVG(freight_value)::numeric, 2) FROM order_items
 
     '
   oracles:
     oracle_a:
       agrees: true
-      sql: 'SELECT COUNT(DISTINCT c.customer_unique_id) AS unique_customers
+      sql: 'SELECT ROUND(AVG(freight_value)::numeric, 2) AS avg_shipping_cost_per_item
 
-        FROM orders o
-
-        JOIN customers c ON o.customer_id = c.customer_id'
+        FROM order_items'
       error: null
     oracle_b:
       agrees: false
-      sql: 'SELECT COUNT(DISTINCT c.customer_unique_id) AS unique_people
-
-        FROM customers c
-
-        JOIN orders o ON c.customer_id = o.customer_id
-
-        WHERE o.order_status NOT IN (''canceled'', ''unavailable'')'
-      error: null
-- id: olist-007
+      sql: "SELECT \n    ROUND(AVG(oi.freight_value), 2) AS avg_shipping_cost_per_item\n\
+        FROM order_items oi\nJOIN orders o ON oi.order_id = o.order_id\nWHERE o.order_status\
+        \ NOT IN ('canceled', 'unavailable')"
+      error: "ProgrammingError: (psycopg2.errors.UndefinedFunction) function round(double\
+        \ precision, integer) does not exist\nLINE 2:     ROUND(AVG(oi.freight_value),\
+        \ 2) AS avg_shipping_cost_per...\n            ^\nHINT:  No function ma"
+- id: olist-017
   category: metric
-  question: How many customers have ordered more than once?
-  gold_sql: "SELECT COUNT(*) FROM (\n  SELECT c.customer_unique_id\n  FROM customers\
-    \ c JOIN orders o ON o.customer_id = c.customer_id\n  GROUP BY c.customer_unique_id\n\
-    \  HAVING COUNT(DISTINCT o.order_id) > 1) t\n"
+  question: How many orders contained items from more than one seller?
+  gold_sql: "SELECT COUNT(*) FROM (\n  SELECT order_id FROM order_items GROUP BY order_id\
+    \ HAVING COUNT(DISTINCT seller_id) > 1) t\n"
   oracles:
     oracle_a:
       agrees: true
-      sql: "SELECT COUNT(*) AS customers_multiple_orders\nFROM (\n    SELECT c.customer_unique_id\n\
-        \    FROM orders o\n    JOIN customers c ON o.customer_id = c.customer_id\n\
-        \    GROUP BY c.customer_unique_id\n    HAVING COUNT(DISTINCT o.order_id)\
-        \ > 1\n) AS sub"
+      sql: "SELECT COUNT(*) AS orders_with_multiple_sellers\nFROM (\n    SELECT oi.order_id\n\
+        \    FROM order_items oi\n    GROUP BY oi.order_id\n    HAVING COUNT(DISTINCT\
+        \ oi.seller_id) > 1\n) AS sub"
       error: null
     oracle_b:
       agrees: false
-      sql: "SELECT COUNT(*) AS customer_count\nFROM (\n    SELECT c.customer_unique_id\n\
-        \    FROM orders o\n    JOIN customers c ON o.customer_id = c.customer_id\n\
-        \    WHERE o.order_status NOT IN ('canceled', 'unavailable')\n    GROUP BY\
-        \ c.customer_unique_id\n    HAVING COUNT(DISTINCT o.order_id) > 1\n) AS repeat_customers"
-      error: null
-- id: olist-012
-  category: multi_join
-  question: Among categories with at least 500 items sold, which 3 have the highest
-    average review score?
-  ordered: true
-  gold_sql: "WITH latest AS (\n  SELECT DISTINCT ON (order_id) order_id, review_score\n\
-    \  FROM order_reviews ORDER BY order_id, review_creation_date DESC)\nSELECT COALESCE(t.product_category_name_english,\
-    \ p.product_category_name) AS category\nFROM order_items oi JOIN products p ON\
-    \ p.product_id = oi.product_id\nLEFT JOIN product_category_name_translation t\
-    \ ON t.product_category_name = p.product_category_name\nJOIN latest l ON l.order_id\
-    \ = oi.order_id\nWHERE p.product_category_name IS NOT NULL\nGROUP BY 1 HAVING\
-    \ COUNT(*) >= 500\nORDER BY AVG(l.review_score) DESC LIMIT 3\n"
-  oracles:
-    oracle_a:
-      agrees: true
-      sql: "WITH latest_reviews AS (\n    SELECT DISTINCT ON (order_id)\n        order_id,\n\
-        \        review_score\n    FROM order_reviews\n    ORDER BY order_id, CAST(review_creation_date\
-        \ AS timestamp) DESC\n)\nSELECT\n    COALESCE(t.product_category_name_english,\
-        \ p.product_category_name) AS category,\n    COUNT(*) AS items_sold,\n   \
-        \ ROUND(AVG(lr.review_score)::numeric, 2) AS avg_review_score\nFROM order_items\
-        \ oi\nJOIN products p\n    ON oi.product_id = p.product_id\nJOIN latest_reviews\
-        \ lr\n    ON oi.order_id = lr.order_id\nLEFT JOIN product_category_name_translation\
-        \ t\n    ON p.product_category_name = t.product_category_name\nGROUP BY category\n\
-        HAVING COUNT(*) >= 500\nORDER BY avg_review_score DESC\nLIMIT 3"
-      error: null
-    oracle_b:
-      agrees: false
-      sql: "WITH filtered_orders AS (\n    SELECT order_id\n    FROM orders\n    WHERE\
-        \ order_status NOT IN ('canceled', 'unavailable')\n),\nitem_sales AS (\n \
-        \   SELECT\n        oi.order_id,\n        oi.product_id,\n        oi.price\n\
-        \    FROM order_items oi\n    JOIN filtered_orders fo ON oi.order_id = fo.order_id\n\
-        ),\ncategory_sales AS (\n    SELECT\n        COALESCE(pt.product_category_name_english,\
-        \ p.product_category_name) AS category,\n        COUNT(*) AS items_sold,\n\
-        \        SUM(oi.price) AS total_sales\n    FROM item_sales oi\n    JOIN products\
-        \ p ON oi.product_id = p.product_id\n    LEFT JOIN product_category_name_translation\
-        \ pt ON p.product_category_name = pt.product_category_name\n    WHERE p.product_category_name\
-        \ IS NOT NULL\n    GROUP BY COALESCE(pt.product_category_name_english, p.product_category_name)\n\
-        \    HAVING COUNT(*) >= 500\n),\nlatest_reviews AS (\n    SELECT\n       \
-        \ order_id,\n        review_score,\n        ROW_NUMBER() OVER (PARTITION BY\
-        \ order_id ORDER BY review_creation_date DESC) AS rn\n    FROM order_reviews\n\
-        ),\norder_reviews AS (\n    SELECT order_id, review_score\n    FROM latest_reviews\n\
-        \    WHERE rn = 1\n),\ncategory_avg_score AS (\n    SELECT\n        COALESCE(pt.product_category_name_english,\
-        \ p.product_category_name) AS category,\n        AVG(CAST(ors.review_score\
-        \ AS DOUBLE PRECISION)) AS avg_review_score\n    FROM item_sales oi\n    JOIN\
-        \ products p ON oi.product_id = p.product_id\n    LEFT JOIN product_category_name_translation\
-        \ pt ON p.product_category_name = pt.product_category_name\n    JOIN order_reviews\
-        \ ors ON oi.order_id = ors.order_id\n    WHERE p.product_category_name IS\
-        \ NOT NULL\n    GROUP BY COALESCE(pt.product_category_name_english, p.product_category_name)\n\
-        )\nSELECT\n    cs.category,\n    CAST(cas.avg_review_score AS NUMERIC(10,2))\
-        \ AS avg_review_score\nFROM category_sales cs\nJOIN category_avg_score cas\
-        \ ON cs.category = cas.category\nORDER BY cas.avg_review_score DESC\nLIMIT\
-        \ 3"
+      sql: 'SELECT COUNT(DISTINCT oi.order_id) AS order_count
+
+        FROM order_items oi
+
+        JOIN orders o ON oi.order_id = o.order_id
+
+        WHERE o.order_status NOT IN (''canceled'', ''unavailable'')
+
+        GROUP BY oi.order_id
+
+        HAVING COUNT(DISTINCT oi.seller_id) > 1'
       error: null

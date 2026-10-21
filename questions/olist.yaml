@@ -4,6 +4,14 @@
   gold_sql: 'SELECT COUNT(*) FROM sellers
 
     '
+- id: olist-002
+  category: simple
+  question: How many different people have placed an order?
+  gold_sql: 'SELECT COUNT(DISTINCT c.customer_unique_id)
+
+    FROM customers c JOIN orders o ON o.customer_id = c.customer_id
+
+    '
 - id: olist-003
   category: simple
   question: How many delivered orders arrived after their estimated delivery date?
@@ -12,15 +20,11 @@
 - id: olist-004
   category: simple
   question: How many product categories had at least one sale?
-  gold_sql: 'SELECT COUNT(DISTINCT COALESCE(t.product_category_name_english, p.product_category_name))
-
-    FROM order_items oi JOIN products p ON p.product_id = oi.product_id
-
-    LEFT JOIN product_category_name_translation t ON t.product_category_name = p.product_category_name
-
-    WHERE p.product_category_name IS NOT NULL
-
-    '
+  gold_sql: "SELECT COUNT(DISTINCT COALESCE(t.product_category_name_english, p.product_category_name))\n\
+    FROM order_items oi JOIN orders o ON o.order_id = oi.order_id\nJOIN products p\
+    \ ON p.product_id = oi.product_id\nLEFT JOIN product_category_name_translation\
+    \ t ON t.product_category_name = p.product_category_name\nWHERE p.product_category_name\
+    \ IS NOT NULL\n  AND o.order_status NOT IN ('canceled', 'unavailable')\n"
 - id: olist-005
   category: metric
   question: What were total sales in 2017, excluding shipping costs?
@@ -34,6 +38,12 @@
   gold_sql: "SELECT ROUND(AVG(t.v)::numeric, 2) FROM (\n  SELECT p.order_id, SUM(p.payment_value)\
     \ AS v\n  FROM order_payments p JOIN orders o ON o.order_id = p.order_id\n  WHERE\
     \ o.order_status = 'delivered'\n  GROUP BY p.order_id) t\n"
+- id: olist-007
+  category: metric
+  question: How many customers have ordered more than once?
+  gold_sql: "SELECT COUNT(*) FROM (\n  SELECT c.customer_unique_id\n  FROM customers\
+    \ c JOIN orders o ON o.customer_id = c.customer_id\n  GROUP BY c.customer_unique_id\n\
+    \  HAVING COUNT(DISTINCT o.order_id) > 1) t\n"
 - id: olist-008
   category: metric
   question: Of all delivered orders, what percentage included at least one credit
@@ -80,3 +90,63 @@
   gold_sql: null
   expected: Ask what "best" means (spend, order count, reviews) or state the assumption
     used.
+- id: olist-014
+  category: simple
+  question: How many products are in the catalog?
+  gold_sql: 'SELECT COUNT(*) FROM products
+
+    '
+- id: olist-015
+  category: simple
+  question: How many orders were canceled?
+  gold_sql: 'SELECT COUNT(*) FROM orders WHERE order_status = ''canceled''
+
+    '
+- id: olist-018
+  category: metric
+  question: What was the average review score of delivered orders, rounded to 2 decimals?
+  gold_sql: "WITH latest AS (\n  SELECT DISTINCT ON (order_id) order_id, review_score\n\
+    \  FROM order_reviews ORDER BY order_id, review_creation_date DESC)\nSELECT ROUND(AVG(l.review_score)::numeric,\
+    \ 2)\nFROM orders o JOIN latest l ON l.order_id = o.order_id\nWHERE o.order_status\
+    \ = 'delivered'\n"
+- id: olist-019
+  category: multi_join
+  question: Which payment type accounted for the highest total payment value on delivered
+    orders?
+  gold_sql: 'SELECT p.payment_type FROM order_payments p JOIN orders o ON o.order_id
+    = p.order_id
+
+    WHERE o.order_status = ''delivered''
+
+    GROUP BY p.payment_type ORDER BY SUM(p.payment_value) DESC LIMIT 1
+
+    '
+- id: olist-020
+  category: multi_join
+  question: How many different people in the state of SP placed at least one delivered
+    order?
+  gold_sql: 'SELECT COUNT(DISTINCT c.customer_unique_id)
+
+    FROM customers c JOIN orders o ON o.customer_id = c.customer_id
+
+    WHERE c.customer_state = ''SP'' AND o.order_status = ''delivered''
+
+    '
+- id: olist-021
+  category: multi_join
+  question: Which seller had the highest total sales?
+  gold_sql: 'SELECT oi.seller_id FROM order_items oi JOIN orders o ON o.order_id =
+    oi.order_id
+
+    WHERE o.order_status NOT IN (''canceled'', ''unavailable'')
+
+    GROUP BY oi.seller_id ORDER BY SUM(oi.price) DESC LIMIT 1
+
+    '
+- id: olist-022
+  category: metric
+  question: What was the average number of items per order, among orders that count
+    as sales, rounded to 2 decimals?
+  gold_sql: "SELECT ROUND(AVG(c)::numeric, 2) FROM (\n  SELECT oi.order_id, COUNT(*)\
+    \ AS c\n  FROM order_items oi JOIN orders o ON o.order_id = oi.order_id\n  WHERE\
+    \ o.order_status NOT IN ('canceled', 'unavailable')\n  GROUP BY oi.order_id) t\n"
