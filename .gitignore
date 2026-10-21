@@ -6,6 +6,7 @@
 data/*
 !data/.gitkeep
 *.csv
+!results/raw/*.csv
 
 # Python
 __pycache__/

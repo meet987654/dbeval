@@ -1,0 +1,11 @@
+system,run_num,db,question_id,category,passed,seconds,tokens_in,tokens_out,sql,error,candidate_rows_count,gold_rows_count
+baseline,1,olist,olist-001,simple,True,32.14,2786,7,SELECT COUNT(*) FROM sellers,,1,1
+ktx,1,olist,olist-001,simple,True,2.91,661,17,"SELECT COUNT(DISTINCT seller_id) AS number_of_sellers
+FROM sellers",,1,1
+datus,1,olist,olist-001,simple,True,2.73,2970,15,"SELECT COUNT(*) FROM ""olist"".""public"".""sellers""",,1,1
+wren,1,olist,olist-001,simple,True,2.56,653,17,"SELECT COUNT(DISTINCT seller_id) AS number_of_sellers
+FROM sellers",,1,1
+baseline,1,appdb,appdb-001,simple,False,3.23,1759,7,SELECT COUNT(*) FROM accounts,,1,1
+ktx,1,appdb,appdb-001,simple,False,3.33,520,7,SELECT COUNT(*) FROM accounts,,1,1
+datus,1,appdb,appdb-001,simple,False,2.78,1749,7,SELECT COUNT(*) FROM accounts,,1,1
+wren,1,appdb,appdb-001,simple,False,2.99,689,7,SELECT COUNT(*) FROM accounts,,1,1
