@@ -8,7 +8,7 @@
 - [x] **Day 2: Business Rules & Question Suites:** Defined answer-key rules in `docs/business_rules.md`. Created dual-oracle validation harness (`scorer/validate_gold.py`) with Groq models.
 - [x] **Day 3: Out-of-the-Box Layer Generation:** Built and audited semantic layers for ktx, Datus, and Wren Engine across both databases. Benchmarked ktx inferred join quality (100% precision). Rebuilt `appdb_v2` after `REFERENCES` grant. Exported Datus LanceDB metadata to JSON and Parquet.
 - [x] **Question Suite Frozen (`suite-v1`):** 53 validated questions (34 `appdb`, 19 `olist`, consisting of 50 scored and 3 ambiguous). Tagged `suite-v1`.
-- [ ] **Day 4: Test Harness & 3x Full Evaluation:** Implementing `runners/*` and `scorer/run_suite.py` to run 3 full evaluation passes with `codestral-2508`.
+- [x] **Day 4: Test Harness & 3x Full Evaluation:** Built runners and `scorer/run_suite.py`. Completed 3 full evaluation passes (600 queries) with `codestral-2508` across all 4 systems on both databases. Context layers improved Olist accuracy by ~9.3 percentage points over baseline while cutting prompt tokens by up to 75%. Raw logs saved in `results/raw/suite_results_20261021_184203.csv`.
 
 ---
 

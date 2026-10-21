@@ -188,6 +188,26 @@ def print_summary(records, systems, dbs):
             print(f"{sys_name:<12} | {db:<8} | {passed_cnt}/{total_cnt:<10} | {acc:>8.1%} | {avg_sec:>7.2f}s | {avg_tok:>10.0f}")
     print("=" * 75)
 
+    run_nums = sorted({r["run_num"] for r in records})
+    if len(run_nums) > 1:
+        print("\nPER-RUN ACCURACY BREAKDOWN:")
+        hdr_runs = " | ".join(f"{'Run ' + str(rn):<10}" for rn in run_nums)
+        print(f"{'System':<12} | {'DB':<8} | {hdr_runs}")
+        print("-" * (24 + 13 * len(run_nums)))
+        for sys_name in systems:
+            for db in dbs:
+                cols = []
+                for rn in run_nums:
+                    sub = [r for r in records if r["system"] == sys_name and r["db"] == db and r["run_num"] == rn]
+                    if sub:
+                        p = sum(1 for r in sub if r["passed"])
+                        cols.append(f"{p}/{len(sub)} ({p/len(sub):.0%})")
+                    else:
+                        cols.append("N/A")
+                cols_str = " | ".join(f"{c:<10}" for c in cols)
+                print(f"{sys_name:<12} | {db:<8} | {cols_str}")
+        print("=" * 75)
+
 def main():
     ap = argparse.ArgumentParser(description="dbeval comprehensive test suite runner")
     ap.add_argument("--system", choices=["baseline", "ktx", "datus", "wren", "all"], default="all")

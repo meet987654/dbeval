@@ -171,3 +171,46 @@ Evaluated ktx's automatically inferred relationships against the hand-written gr
   - Result: `684.81` (Success, 0.081s)
 - **Smoke 3 (Join SQL):** `SELECT a.plan_tier, count(*) FROM subscriptions s JOIN accounts a ON a.id = s.account_id GROUP BY a.plan_tier;`
   - Result: `[('scale', 246), ('growth', 627), ('starter', 1211)]` (Success, 0.058s)
+
+---
+
+## Day 4: 3x Full Evaluation Benchmark Results
+
+Executed the full frozen test suite (`suite-v1`: 50 scored questions, 3 ambiguous skipped) across all 4 systems on both databases over 3 full passes (600 total queries) using `codestral-2508`. Raw data logged to `results/raw/suite_results_20261021_184203.csv`.
+
+### Accuracy Summary (Pooled Across 3 Runs)
+
+| System | Database | Passed / Total | Accuracy (%) | Avg Latency (s) | Avg Tokens (In + Out) | Token Savings vs Baseline |
+|---|---|:---:|:---:|:---:|:---:|:---:|
+| **baseline** | `olist` | 37 / 54 | 68.5% | 4.51s | 2,842 | — |
+| **ktx** | `olist` | **42 / 54** | **77.8%** | 4.29s | **718** | **-74.7%** |
+| **wren** | `olist` | **42 / 54** | **77.8%** | 4.04s | **710** | **-75.0%** |
+| **datus** | `olist` | 41 / 54 | 75.9% | 3.99s | 3,030 | +6.6% |
+| **baseline** | `appdb` | 14 / 96 | 14.6% | 4.59s | 1,837 | — |
+| **datus** | `appdb` | **15 / 96** | **15.6%** | 4.81s | 1,818 | -1.0% |
+| **ktx** | `appdb` | 12 / 96 | 12.5% | 4.22s | **597** | **-67.5%** |
+| **wren** | `appdb` | 12 / 96 | 12.5% | 4.66s | **770** | **-58.1%** |
+
+### Per-Run Accuracy & Run-to-Run Variance (Temperature 0)
+
+| System | Database | Run 1 | Run 2 | Run 3 | Variance |
+|---|---|:---:|:---:|:---:|:---:|
+| **baseline** | `olist` | 12/18 (66.7%) | 12/18 (66.7%) | 13/18 (72.2%) | Low (1 question flip) |
+| **ktx** | `olist` | 14/18 (77.8%) | 14/18 (77.8%) | 14/18 (77.8%) | **Zero variance** |
+| **wren** | `olist` | 14/18 (77.8%) | 14/18 (77.8%) | 14/18 (77.8%) | **Zero variance** |
+| **datus** | `olist` | 13/18 (72.2%) | 14/18 (77.8%) | 14/18 (77.8%) | Low (1 question flip) |
+| **baseline** | `appdb` | 5/32 (15.6%) | 5/32 (15.6%) | 4/32 (12.5%) | Low (1 question flip) |
+| **ktx** | `appdb` | 4/32 (12.5%) | 4/32 (12.5%) | 4/32 (12.5%) | **Zero variance** |
+| **datus** | `appdb` | 5/32 (15.6%) | 5/32 (15.6%) | 5/32 (15.6%) | **Zero variance** |
+| **wren** | `appdb` | 4/32 (12.5%) | 4/32 (12.5%) | 4/32 (12.5%) | **Zero variance** |
+
+### Key Takeaways from Day 4 Evaluation:
+1. **Context Layers Win on Foreign-Key-Free Relational Databases (Olist):**
+   - On Olist, where Postgres DDL has zero declared foreign keys, both **ktx** and **Wren Engine** improved answer accuracy from **68.5% to 77.8% (+9.3 percentage points)**.
+   - Datus achieved **75.9% (+7.4 percentage points)**.
+2. **Massive Token Efficiency Gains:**
+   - Both **ktx** (~718 tokens) and **Wren Engine** (~710 tokens) reduced prompt token consumption by **~75%** compared to the baseline (~2,842 tokens) by supplying concise, structured relationship graphs rather than dumping raw column samples.
+3. **Out-of-the-Box Layers Cannot Guess Unexpressed Business Logic (appdb):**
+   - On `appdb`, all systems performed identically poorly (12.5% - 15.6%).
+   - The failures on `appdb` stem directly from unexpressed business logic: test account exclusions (`is_test = false`), soft deletes (`deleted_at IS NULL`), multi-currency revenue conversions (`amount_cents * fx_rate`), and canceled subscription definitions.
+   - This sets up the exact goal for **Day 5 (The 30-Minute Human Review)**: testing how much accuracy improves when each tool is given 30 minutes of human business rule enrichment!

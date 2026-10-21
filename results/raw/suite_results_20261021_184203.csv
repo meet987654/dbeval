@@ -1,0 +1,3710 @@
+system,run_num,db,question_id,category,passed,seconds,tokens_in,tokens_out,sql,error,candidate_rows_count,gold_rows_count
+baseline,1,olist,olist-001,simple,True,12.4,2786,7,SELECT COUNT(*) FROM sellers,,1,1
+ktx,1,olist,olist-001,simple,True,3.59,661,17,"SELECT COUNT(DISTINCT seller_id) AS number_of_sellers
+FROM sellers",,1,1
+datus,1,olist,olist-001,simple,True,2.34,2970,15,"SELECT COUNT(*) FROM ""olist"".""public"".""sellers""",,1,1
+wren,1,olist,olist-001,simple,True,3.22,653,17,"SELECT COUNT(DISTINCT seller_id) AS number_of_sellers
+FROM sellers",,1,1
+baseline,1,olist,olist-002,simple,False,2.68,2789,11,SELECT COUNT(DISTINCT customer_id) FROM orders,,1,1
+ktx,1,olist,olist-002,simple,True,3.8,664,31,"SELECT COUNT(DISTINCT customer_unique_id) AS number_of_unique_customers
+FROM customers
+JOIN orders ON customers.customer_id = orders.customer_id",,1,1
+datus,1,olist,olist-002,simple,True,3.28,2973,30,"SELECT COUNT(DISTINCT customer_unique_id) AS distinct_customers
+FROM customers
+WHERE customer_id IN (SELECT DISTINCT customer_id FROM orders)",,1,1
+wren,1,olist,olist-002,simple,True,3.02,656,29,"SELECT COUNT(DISTINCT customer_unique_id) AS unique_customers
+FROM customers
+JOIN orders ON customers.customer_id = orders.customer_id",,1,1
+baseline,1,olist,olist-003,simple,True,2.94,2791,36,"SELECT COUNT(*) AS late_deliveries
+FROM orders
+WHERE order_status = 'delivered'
+  AND order_delivered_customer_date > order_estimated_delivery_date",,1,1
+ktx,1,olist,olist-003,simple,True,2.71,666,36,"SELECT COUNT(*) AS late_deliveries
+FROM orders
+WHERE order_status = 'delivered'
+  AND order_delivered_customer_date > order_estimated_delivery_date",,1,1
+datus,1,olist,olist-003,simple,True,3.27,2975,35,"SELECT COUNT(*) AS late_deliveries
+FROM orders
+WHERE order_status = 'delivered'
+AND order_delivered_customer_date > order_estimated_delivery_date",,1,1
+wren,1,olist,olist-003,simple,True,3.49,658,35,"SELECT COUNT(*) AS late_deliveries
+FROM orders
+WHERE order_status = 'delivered'
+AND order_delivered_customer_date > order_estimated_delivery_date",,1,1
+baseline,1,olist,olist-004,simple,True,2.92,2790,34,"SELECT COUNT(DISTINCT p.product_category_name) AS category_count
+FROM products p
+JOIN order_items oi ON p.product_id = oi.product_id",,1,1
+ktx,1,olist,olist-004,simple,True,2.69,665,30,"SELECT COUNT(DISTINCT p.product_category_name)
+FROM products p
+JOIN order_items oi ON p.product_id = oi.product_id",,1,1
+datus,1,olist,olist-004,simple,True,2.86,2974,37,"SELECT COUNT(DISTINCT p.product_category_name) AS num_categories_with_sales
+FROM products p
+JOIN order_items oi ON p.product_id = oi.product_id",,1,1
+wren,1,olist,olist-004,simple,True,2.5,657,38,"SELECT COUNT(DISTINCT p.product_category_name) AS number_of_categories_with_sales
+FROM products p
+JOIN order_items oi ON p.product_id = oi.product_id",,1,1
+baseline,1,olist,olist-005,metric,False,2.75,2795,65,"SELECT SUM(oi.price) AS total_sales
+FROM order_items oi
+JOIN orders o ON oi.order_id = o.order_id
+WHERE o.order_purchase_timestamp BETWEEN '2017-01-01' AND '2017-12-31'",,1,1
+ktx,1,olist,olist-005,metric,False,2.78,670,70,"SELECT SUM(oi.price) AS total_sales
+FROM order_items oi
+JOIN orders o ON oi.order_id = o.order_id
+WHERE o.order_purchase_timestamp >= '2017-01-01'
+AND o.order_purchase_timestamp < '2018-01-01'",,1,1
+datus,1,olist,olist-005,metric,False,2.69,2979,65,"SELECT SUM(oi.price) AS total_sales
+FROM order_items oi
+JOIN orders o ON oi.order_id = o.order_id
+WHERE o.order_purchase_timestamp BETWEEN '2017-01-01' AND '2017-12-31'",,1,1
+wren,1,olist,olist-005,metric,False,3.09,662,67,"SELECT SUM(op.payment_value) AS total_sales
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE EXTRACT(YEAR FROM TO_TIMESTAMP(o.order_purchase_timestamp, 'YYYY-MM-DD HH24:MI:SS')) = 2017",,1,1
+baseline,1,olist,olist-006,metric,False,2.65,2790,42,"SELECT AVG(op.payment_value) AS average_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'",,1,1
+ktx,1,olist,olist-006,metric,False,2.61,665,42,"SELECT AVG(op.payment_value) AS average_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'",,1,1
+datus,1,olist,olist-006,metric,False,2.54,2974,42,"SELECT AVG(op.payment_value) AS average_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'",,1,1
+wren,1,olist,olist-006,metric,False,2.5,657,42,"SELECT AVG(op.payment_value) AS average_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'",,1,1
+baseline,1,olist,olist-007,metric,False,2.84,2789,50,"SELECT COUNT(DISTINCT customer_id) AS frequent_customers_count
+FROM orders
+WHERE customer_id IN (
+    SELECT customer_id
+    FROM orders
+    GROUP BY customer_id
+    HAVING COUNT(order_id) > 1
+)",,1,1
+ktx,1,olist,olist-007,metric,False,2.7,664,17,"SELECT COUNT(DISTINCT customer_id) AS frequent_customers_count
+FROM orders",,1,1
+datus,1,olist,olist-007,metric,False,2.84,2973,50,"SELECT COUNT(DISTINCT customer_id) AS frequent_customers_count
+FROM orders
+WHERE customer_id IN (
+    SELECT customer_id
+    FROM orders
+    GROUP BY customer_id
+    HAVING COUNT(order_id) > 1
+)",,1,1
+wren,1,olist,olist-007,metric,False,2.78,656,33,"SELECT COUNT(DISTINCT customer_id) AS frequent_customers_count
+FROM orders
+GROUP BY customer_id
+HAVING COUNT(order_id) > 1",,0,1
+baseline,1,olist,olist-008,metric,False,3.41,2795,91,"SELECT
+    ROUND(100.0 * COUNT(DISTINCT o.order_id) / NULLIF(COUNT(DISTINCT CASE WHEN op.payment_type = 'credit_card' THEN o.order_id END), 0), 2) AS percentage_with_credit_card
+FROM
+    orders o
+JOIN
+    order_payments op ON o.order_id = op.order_id
+WHERE
+    o.order_status = 'delivered'",,1,1
+ktx,1,olist,olist-008,metric,True,4.08,670,81,"SELECT
+    (COUNT(DISTINCT CASE WHEN op.payment_type = 'credit_card' THEN o.order_id END) * 100.0 / COUNT(DISTINCT o.order_id)) AS percentage_credit_card_orders
+FROM
+    orders o
+LEFT JOIN
+    order_payments op ON o.order_id = op.order_id
+WHERE
+    o.order_status = 'delivered'",,1,1
+datus,1,olist,olist-008,metric,False,3.19,2979,99,"SELECT
+    ROUND(
+        (COUNT(DISTINCT op.order_id) * 100.0 / NULLIF(COUNT(DISTINCT o.order_id), 0)),
+        2
+    ) AS percentage_credit_card_orders
+FROM
+    orders o
+JOIN
+    order_payments op ON o.order_id = op.order_id
+WHERE
+    o.order_status = 'delivered'
+    AND op.payment_type = 'credit_card'",,1,1
+wren,1,olist,olist-008,metric,True,3.32,662,81,"SELECT
+    (COUNT(DISTINCT CASE WHEN op.payment_type = 'credit_card' THEN o.order_id END) * 100.0 / COUNT(DISTINCT o.order_id)) AS percentage_credit_card_orders
+FROM
+    orders o
+JOIN
+    order_payments op ON o.order_id = op.order_id
+WHERE
+    o.order_status = 'delivered'",,1,1
+baseline,1,olist,olist-009,metric,True,2.84,2797,63,"SELECT SUM(op.payment_value) AS total_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'
+AND EXTRACT(YEAR FROM o.order_purchase_timestamp::timestamp) = 2018",,1,1
+ktx,1,olist,olist-009,metric,True,7.83,672,63,"SELECT SUM(op.payment_value) AS total_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'
+AND EXTRACT(YEAR FROM o.order_purchase_timestamp::timestamp) = 2018",,1,1
+datus,1,olist,olist-009,metric,True,2.67,2981,70,"SELECT SUM(op.payment_value) AS total_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'
+AND EXTRACT(YEAR FROM CAST(o.order_purchase_timestamp AS TIMESTAMP)) = 2018",,1,1
+wren,1,olist,olist-009,metric,True,2.89,664,76,"SELECT SUM(op.payment_value) AS total_payment_value
+FROM orders o
+JOIN order_payments op ON o.order_id = op.order_id
+WHERE o.order_status = 'delivered'
+AND EXTRACT(YEAR FROM TO_TIMESTAMP(o.order_purchase_timestamp, 'YYYY-MM-DD HH24:MI:SS')) = 2018",,1,1
+baseline,1,olist,olist-010,multi_join,True,4.42,2794,58,"SELECT s.seller_state, SUM(oi.price) AS total_sales
+FROM order_items oi
+JOIN sellers s ON oi.seller_id = s.seller_id
+GROUP BY s.seller_state
+ORDER BY total_sales DESC
+LIMIT 3",,3,3
+ktx,1,olist,olist-010,multi_join,True,3.32,669,72,"SELECT s.seller_state, SUM(oi.price) AS total_sales
+FROM sellers s
+JOIN order_items oi ON s.seller_id = oi.seller_id
+JOIN orders o ON oi.order_id = o.order_id
+GROUP BY s.seller_state
+ORDER BY total_sales DESC
+LIMIT 3",,3,3
+datus,1,olist,olist-010,multi_join,True,2.64,2978,62,"SELECT s.seller_state, SUM(oi.price) AS total_sales
+FROM sellers s
+JOIN order_items oi ON s.seller_id = oi.seller_id
+GROUP BY s.seller_state
+ORDER BY total_sales DESC
+LIMIT 3",,3,3
+wren,1,olist,olist-010,multi_join,True,3.05,661,58,"SELECT s.seller_state, SUM(oi.price) AS total_sales
+FROM sellers s
+JOIN order_items oi ON s.seller_id = oi.seller_id
+GROUP BY s.seller_state
+ORDER BY total_sales DESC
+LIMIT 3",,3,3
+baseline,1,olist,olist-011,multi_join,True,5.35,2796,108,"SELECT
+    c.customer_state,
+    AVG(EXTRACT(EPOCH FROM (o.order_delivered_customer_date::timestamp - o.order_purchase_timestamp::timestamp)) / 3600) AS avg_delivery_time_hours
+FROM
+    orders o
+JOIN
+    customers c ON o.customer_id = c.customer_id
+WHERE
+    o.order_status = 'delivered'
+GROUP BY
+    c.customer_state
+ORDER BY
+    avg_delivery_time_hours DESC
+LIMIT 3",,3,3
+ktx,1,olist,olist-011,multi_join,True,4.35,671,108,"SELECT
+    c.customer_state,
+    AVG(EXTRACT(EPOCH FROM (o.order_delivered_customer_date::timestamp - o.order_purchase_timestamp::timestamp)) / 3600) AS avg_delivery_time_hours
+FROM
+    customers c
+JOIN
+    orders o ON c.customer_id = o.customer_id
+WHERE
+    o.order_status = 'delivered'
+GROUP BY
+    c.customer_state
+ORDER BY
+    avg_delivery_time_hours DESC
+LIMIT 3",,3,3
+datus,1,olist,olist-011,multi_join,True,5.7,2980,112,"SELECT
+    c.customer_state,
+    AVG(EXTRACT(EPOCH FROM (o.order_delivered_customer_date::timestamp - o.order_purchase_timestamp::timestamp)) / 3600) AS avg_delivery_time_hours
+FROM
+    orders o
+JOIN
+    customers c ON o.customer_id = c.customer_id
+WHERE
+    o.order_status = 'delivered'
+GROUP BY
+    c.customer_state
+ORDER BY
+    avg_delivery_time_hours DESC
+LIMIT 3",,3,3
+wren,1,olist,olist-011,multi_join,True,4.2,663,110,"SELECT
+    c.customer_state,
+    AVG(EXTRACT(EPOCH FROM (o.order_delivered_customer_date::TIMESTAMP - o.order_purchase_timestamp::TIMESTAMP)) / 3600) AS avg_delivery_time_hours
+FROM
+    orders o
+JOIN
+    customers c ON o.customer_id = c.customer_id
+WHERE
+    o.order_status = 'delivered'
+GROUP BY
+    c.customer_state
+ORDER BY
+    avg_delivery_time_hours DESC
+LIMIT 3",,3,3
+baseline,1,olist,olist-014,simple,True,2.22,2788,10,SELECT COUNT(*) AS product_count FROM products,,1,1
+ktx,1,olist,olist-014,simple,True,2.16,663,11,"SELECT COUNT(*) AS product_count
+FROM products",,1,1
+datus,1,olist,olist-014,simple,True,2.31,2972,14,"SELECT COUNT(*) FROM ""olist"".""public"".""products""",,1,1
+wren,1,olist,olist-014,simple,True,2.17,655,10,SELECT COUNT(*) AS product_count FROM products,,1,1
+baseline,1,olist,olist-015,simple,True,2.31,2786,20,"SELECT COUNT(*) AS canceled_orders_count
+FROM orders
+WHERE order_status = 'canceled'",,1,1
+ktx,1,olist,olist-015,simple,True,2.52,661,20,"SELECT COUNT(*) AS canceled_orders_count
+FROM orders
+WHERE order_status = 'canceled'",,1,1
+datus,1,olist,olist-015,simple,True,2.82,2970,29,"SELECT COUNT(*) AS canceled_orders_count
+FROM ""olist"".""public"".""orders""
+WHERE ""order_status"" = 'canceled'",,1,1
+wren,1,olist,olist-015,simple,True,2.53,653,20,"SELECT COUNT(*) AS canceled_orders_count
+FROM orders
+WHERE order_status = 'canceled'",,1,1
+baseline,1,olist,olist-018,metric,True,4.46,2797,47,"SELECT ROUND(AVG(review_score), 2) AS average_review_score
+FROM order_reviews
+JOIN orders ON order_reviews.order_id = orders.order_id
+WHERE orders.order_status = 'delivered'",,1,1
+ktx,1,olist,olist-018,metric,False,3.93,672,49,"SELECT ROUND(AVG(or.review_score), 2) AS average_review_score
+FROM order_reviews or
+JOIN orders o ON or.order_id = o.order_id
+WHERE o.order_status = 'delivered'","ProgrammingError: (psycopg2.errors.SyntaxError) syntax error at or near ""or""
+LINE 1: SELECT ROUND(AVG(or.review_score), 2) AS average_review_scor...
+                         ^
+
+[SQL: SELECT ROUND(AVG(or.review_score), 2) AS average_review_score
+FROM order_reviews or
+JOIN orders o ON or.order_id = o.order_id
+WHERE o.o",0,1
+datus,1,olist,olist-018,metric,False,6.04,2981,49,"SELECT ROUND(AVG(or.review_score), 2) AS average_review_score
+FROM order_reviews or
+JOIN orders o ON or.order_id = o.order_id
+WHERE o.order_status = 'delivered'","ProgrammingError: (psycopg2.errors.SyntaxError) syntax error at or near ""or""
+LINE 1: SELECT ROUND(AVG(or.review_score), 2) AS average_review_scor...
+                         ^
+
+[SQL: SELECT ROUND(AVG(or.review_score), 2) AS average_review_score
+FROM order_reviews or
+JOIN orders o ON or.order_id = o.order_id
+WHERE o.o",0,1
+wren,1,olist,olist-018,metric,False,6.57,664,49,"SELECT ROUND(AVG(or.review_score), 2) AS average_review_score
+FROM order_reviews or
+JOIN orders o ON or.order_id = o.order_id
+WHERE o.order_status = 'delivered'","ProgrammingError: (psycopg2.errors.SyntaxError) syntax error at or near ""or""
+LINE 1: SELECT ROUND(AVG(or.review_score), 2) AS average_review_scor...
+                         ^
+
+[SQL: SELECT ROUND(AVG(or.review_score), 2) AS average_review_score
+FROM order_reviews or
+JOIN orders o ON or.order_id = o.order_id
+WHERE o.o",0,1
+baseline,1,olist,olist-019,multi_join,True,10.51,2794,63,"SELECT op.payment_type, SUM(op.payment_value) AS total_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'
+GROUP BY op.payment_type
+ORDER BY total_payment_value DESC
+LIMIT 1",,1,1
+ktx,1,olist,olist-019,multi_join,True,7.25,669,76,"SELECT
+    op.payment_type,
+    SUM(op.payment_value) AS total_payment_value
+FROM
+    order_payments op
+JOIN
+    orders o ON op.order_id = o.order_id
+WHERE
+    o.order_status = 'delivered'
+GROUP BY
+    op.payment_type
+ORDER BY
+    total_payment_value DESC
+LIMIT 1",,1,1
+datus,1,olist,olist-019,multi_join,True,3.53,2978,80,"SELECT
+    op.payment_type,
+    SUM(op.payment_value) AS total_payment_value
+FROM
+    order_payments op
+JOIN
+    orders o ON op.order_id = o.order_id
+WHERE
+    o.order_status = 'delivered'
+GROUP BY
+    op.payment_type
+ORDER BY
+    total_payment_value DESC
+LIMIT 1",,1,1
+wren,1,olist,olist-019,multi_join,True,3.56,661,63,"SELECT op.payment_type, SUM(op.payment_value) AS total_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'
+GROUP BY op.payment_type
+ORDER BY total_payment_value DESC
+LIMIT 1",,1,1
+baseline,1,olist,olist-020,multi_join,False,3.38,2796,43,"SELECT COUNT(DISTINCT o.customer_id)
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+WHERE o.order_status = 'delivered' AND c.customer_state = 'SP'",,1,1
+ktx,1,olist,olist-020,multi_join,True,2.75,671,51,"SELECT COUNT(DISTINCT c.customer_unique_id) AS unique_customers_in_sp
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+WHERE c.customer_state = 'SP' AND o.order_status = 'delivered'",,1,1
+datus,1,olist,olist-020,multi_join,True,3.52,2980,44,"SELECT COUNT(DISTINCT c.customer_unique_id)
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+WHERE c.customer_state = 'SP' AND o.order_status = 'delivered'",,1,1
+wren,1,olist,olist-020,multi_join,True,2.66,663,51,"SELECT COUNT(DISTINCT c.customer_unique_id) AS unique_customers_in_sp
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+WHERE c.customer_state = 'SP' AND o.order_status = 'delivered'",,1,1
+baseline,1,olist,olist-021,multi_join,True,2.6,2788,58,"SELECT s.seller_id, SUM(oi.price) AS total_sales
+FROM sellers s
+JOIN order_items oi ON s.seller_id = oi.seller_id
+GROUP BY s.seller_id
+ORDER BY total_sales DESC
+LIMIT 1",,1,1
+ktx,1,olist,olist-021,multi_join,True,2.61,663,58,"SELECT s.seller_id, SUM(oi.price) AS total_sales
+FROM sellers s
+JOIN order_items oi ON s.seller_id = oi.seller_id
+GROUP BY s.seller_id
+ORDER BY total_sales DESC
+LIMIT 1",,1,1
+datus,1,olist,olist-021,multi_join,True,3.69,2972,73,"SELECT
+    s.seller_id,
+    SUM(oi.price) AS total_sales
+FROM
+    sellers s
+JOIN
+    order_items oi ON s.seller_id = oi.seller_id
+GROUP BY
+    s.seller_id
+ORDER BY
+    total_sales DESC
+LIMIT 1",,1,1
+wren,1,olist,olist-021,multi_join,True,2.58,655,44,"SELECT oi.seller_id, SUM(oi.price) AS total_sales
+FROM order_items oi
+GROUP BY oi.seller_id
+ORDER BY total_sales DESC
+LIMIT 1",,1,1
+baseline,1,olist,olist-022,metric,True,3.82,2804,83,"SELECT ROUND(AVG(order_items_count), 2) AS average_items_per_order
+FROM (
+    SELECT o.order_id, COUNT(oi.order_item_id) AS order_items_count
+    FROM orders o
+    JOIN order_items oi ON o.order_id = oi.order_id
+    WHERE o.order_status = 'delivered'
+    GROUP BY o.order_id
+) AS order_items_counts",,1,1
+ktx,1,olist,olist-022,metric,True,3.27,679,83,"SELECT ROUND(AVG(order_items_count), 2) AS average_items_per_order
+FROM (
+    SELECT o.order_id, COUNT(oi.order_item_id) AS order_items_count
+    FROM orders o
+    JOIN order_items oi ON o.order_id = oi.order_id
+    WHERE o.order_status = 'delivered'
+    GROUP BY o.order_id
+) AS order_items_counts",,1,1
+datus,1,olist,olist-022,metric,True,3.27,2988,86,"SELECT ROUND(AVG(order_items_count), 2) AS avg_items_per_order
+FROM (
+    SELECT o.order_id, COUNT(oi.order_item_id) AS order_items_count
+    FROM orders o
+    JOIN order_items oi ON o.order_id = oi.order_id
+    WHERE o.order_status = 'delivered'
+    GROUP BY o.order_id
+) AS subquery",,1,1
+wren,1,olist,olist-022,metric,True,4.78,671,83,"SELECT ROUND(AVG(order_items_count), 2) AS average_items_per_order
+FROM (
+    SELECT o.order_id, COUNT(oi.order_item_id) AS order_items_count
+    FROM orders o
+    JOIN order_items oi ON o.order_id = oi.order_id
+    WHERE o.order_status = 'delivered'
+    GROUP BY o.order_id
+) AS order_items_counts",,1,1
+baseline,1,appdb,appdb-001,simple,False,4.83,1759,7,SELECT COUNT(*) FROM accounts,,1,1
+ktx,1,appdb,appdb-001,simple,False,3.63,520,7,SELECT COUNT(*) FROM accounts,,1,1
+datus,1,appdb,appdb-001,simple,False,3.05,1749,7,SELECT COUNT(*) FROM accounts,,1,1
+wren,1,appdb,appdb-001,simple,False,2.14,689,7,SELECT COUNT(*) FROM accounts,,1,1
+baseline,1,appdb,appdb-002,simple,False,2.18,1759,7,SELECT COUNT(*) FROM users,,1,1
+ktx,1,appdb,appdb-002,simple,False,2.4,520,11,"SELECT COUNT(*) AS user_count
+FROM users",,1,1
+datus,1,appdb,appdb-002,simple,False,2.73,1749,7,SELECT COUNT(*) FROM users,,1,1
+wren,1,appdb,appdb-002,simple,False,2.82,689,11,"SELECT COUNT(*) AS user_count
+FROM users",,1,1
+baseline,1,appdb,appdb-003,simple,False,3.7,1764,38,SELECT COUNT(*) FROM accounts WHERE created_at >= '2025-01-01' AND created_at < '2026-01-01',,1,1
+ktx,1,appdb,appdb-003,simple,False,3.69,525,28,"SELECT COUNT(*) AS account_count
+FROM accounts
+WHERE EXTRACT(YEAR FROM created_at) = 2025",,1,1
+datus,1,appdb,appdb-003,simple,False,2.46,1754,23,SELECT COUNT(*) FROM accounts WHERE EXTRACT(YEAR FROM created_at) = 2025,,1,1
+wren,1,appdb,appdb-003,simple,False,3.46,694,28,"SELECT COUNT(*) AS account_count
+FROM accounts
+WHERE EXTRACT(YEAR FROM created_at) = 2025",,1,1
+baseline,1,appdb,appdb-004,simple,False,19.13,1759,18,"SELECT COUNT(*) AS active_subscriptions
+FROM subscriptions
+WHERE status = 'active'",,1,1
+ktx,1,appdb,appdb-004,simple,False,4.67,520,14,"SELECT COUNT(*)
+FROM subscriptions
+WHERE status = 'active'",,1,1
+datus,1,appdb,appdb-004,simple,False,4.41,1749,12,SELECT COUNT(*) FROM subscriptions WHERE status = 'active',,1,1
+wren,1,appdb,appdb-004,simple,False,5.11,689,14,"SELECT COUNT(*)
+FROM subscriptions
+WHERE status = 'active'",,1,1
+baseline,1,appdb,appdb-005,simple,True,4.94,1761,40,"SELECT plan_tier, COUNT(*) AS active_subscriptions
+FROM subscriptions
+WHERE status = 'active'
+GROUP BY plan_tier
+ORDER BY active_subscriptions DESC
+LIMIT 1",,1,1
+ktx,1,appdb,appdb-005,simple,True,4.79,522,75,"SELECT
+    a.plan_tier,
+    COUNT(s.id) AS active_subscription_count
+FROM
+    accounts a
+JOIN
+    subscriptions s ON a.id = s.account_id
+WHERE
+    s.status = 'active'
+GROUP BY
+    a.plan_tier
+ORDER BY
+    active_subscription_count DESC
+LIMIT 1",,1,1
+datus,1,appdb,appdb-005,simple,True,4.67,1751,40,"SELECT plan_tier, COUNT(*) AS active_subscriptions
+FROM subscriptions
+WHERE status = 'active'
+GROUP BY plan_tier
+ORDER BY active_subscriptions DESC
+LIMIT 1",,1,1
+wren,1,appdb,appdb-005,simple,True,4.5,691,61,"SELECT
+    s.plan_tier,
+    COUNT(s.id) AS active_subscriptions_count
+FROM
+    subscriptions s
+WHERE
+    s.status = 'active'
+GROUP BY
+    s.plan_tier
+ORDER BY
+    active_subscriptions_count DESC
+LIMIT 1",,1,1
+baseline,1,appdb,appdb-006,simple,False,5.18,1762,12,SELECT COUNT(*) FROM accounts WHERE plan = 'scale',,1,1
+ktx,1,appdb,appdb-006,simple,False,5.55,523,18,"SELECT COUNT(*) AS scale_account_count
+FROM accounts
+WHERE plan = 'scale'",,1,1
+datus,1,appdb,appdb-006,simple,False,5.54,1752,12,SELECT COUNT(*) FROM accounts WHERE plan = 'scale',,1,1
+wren,1,appdb,appdb-006,simple,False,3.45,692,14,"SELECT COUNT(*)
+FROM accounts
+WHERE plan = 'scale'",,1,1
+baseline,1,appdb,appdb-007,simple,False,3.87,1759,14,SELECT COUNT(*) FROM subscriptions WHERE status = 'past_due',,1,1
+ktx,1,appdb,appdb-007,simple,False,4.56,520,16,"SELECT COUNT(*)
+FROM subscriptions
+WHERE status = 'past_due'",,1,1
+datus,1,appdb,appdb-007,simple,False,5.14,1749,14,SELECT COUNT(*) FROM subscriptions WHERE status = 'past_due',,1,1
+wren,1,appdb,appdb-007,simple,False,4.06,689,16,"SELECT COUNT(*)
+FROM subscriptions
+WHERE status = 'past_due'",,1,1
+baseline,1,appdb,appdb-008,metric,False,7.86,1768,177,"SELECT
+  SUM(
+    CASE
+      WHEN invoices.currency = 'USD' THEN invoices.amount_cents
+      ELSE invoices.amount_cents / fx_rates.usd_per_unit
+    END
+    -
+    COALESCE(
+      (
+        SELECT SUM(refunds.amount_cents)
+        FROM refunds
+        WHERE refunds.invoice_id = invoices.id
+      ) / fx_rates.usd_per_unit,
+      0
+    )
+  ) AS net_revenue_usd
+FROM
+  invoices
+JOIN
+  fx_rates ON invoices.currency = fx_rates.currency
+WHERE
+  invoices.status = 'paid'
+  AND invoices.paid_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+ktx,1,appdb,appdb-008,metric,False,6.31,529,185,"SELECT
+  SUM(
+    CASE
+      WHEN invoices.currency = 'USD' THEN invoices.amount_cents
+      ELSE invoices.amount_cents * fx_rates.usd_per_unit
+    END
+  ) -
+  SUM(
+    CASE
+      WHEN invoices.currency = 'USD' THEN refunds.amount_cents
+      ELSE refunds.amount_cents * fx_rates.usd_per_unit
+    END
+  ) AS net_revenue_usd
+FROM
+  invoices
+LEFT JOIN
+  refunds ON invoices.id = refunds.invoice_id
+LEFT JOIN
+  fx_rates ON invoices.currency = fx_rates.currency
+WHERE
+  invoices.status = 'paid'
+  AND invoices.paid_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+datus,1,appdb,appdb-008,metric,False,8.8,1758,127,"SELECT
+    SUM(i.amount_cents * fx.usd_per_unit) -
+    COALESCE(SUM(r.amount_cents * fx.usd_per_unit), 0) AS net_revenue_usd
+FROM
+    invoices i
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+LEFT JOIN
+    refunds r ON i.id = r.invoice_id
+WHERE
+    i.status = 'paid'
+    AND i.paid_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+wren,1,appdb,appdb-008,metric,False,6.28,698,185,"SELECT
+  SUM(
+    CASE
+      WHEN invoices.currency = 'USD' THEN invoices.amount_cents
+      ELSE invoices.amount_cents / fx_rates.usd_per_unit
+    END
+  ) -
+  SUM(
+    CASE
+      WHEN invoices.currency = 'USD' THEN refunds.amount_cents
+      ELSE refunds.amount_cents / fx_rates.usd_per_unit
+    END
+  ) AS net_revenue_usd
+FROM
+  invoices
+JOIN
+  fx_rates ON invoices.currency = fx_rates.currency
+LEFT JOIN
+  refunds ON invoices.id = refunds.invoice_id
+WHERE
+  invoices.status = 'paid'
+  AND invoices.paid_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+baseline,1,appdb,appdb-009,metric,False,4.91,1772,94,"SELECT
+    SUM(i.amount_cents * fx.usd_per_unit) / 100 AS gross_revenue_usd
+FROM
+    invoices i
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    i.status = 'paid'
+    AND i.issued_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+ktx,1,appdb,appdb-009,metric,False,5.08,533,97,"SELECT
+    SUM(i.amount_cents * COALESCE(fx.usd_per_unit, 1)) AS gross_revenue_usd
+FROM
+    invoices i
+LEFT JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    i.issued_at BETWEEN '2026-07-01' AND '2026-09-30'
+    AND i.status = 'paid'",,1,1
+datus,1,appdb,appdb-009,metric,False,3.8,1762,78,"SELECT SUM(i.amount_cents * fx.usd_per_unit) / 100 AS gross_revenue_usd
+FROM invoices i
+JOIN fx_rates fx ON i.currency = fx.currency
+WHERE i.issued_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+wren,1,appdb,appdb-009,metric,False,8.54,702,116,"SELECT
+  SUM(i.amount_cents * fx.usd_per_unit) / 100 AS gross_revenue_usd
+FROM
+  invoices i
+JOIN
+  accounts a ON i.account_id = a.id
+JOIN
+  fx_rates fx ON a.currency = fx.currency
+WHERE
+  i.issued_at BETWEEN '2026-07-01' AND '2026-09-30'
+  AND i.status = 'paid'
+  AND a.is_test = FALSE",,1,1
+baseline,1,appdb,appdb-010,metric,False,7.1,1768,92,"SELECT SUM(r.amount_cents * f.usd_per_unit) / 100 AS total_refunded_usd
+FROM refunds r
+JOIN invoices i ON r.invoice_id = i.id
+JOIN fx_rates f ON i.currency = f.currency
+WHERE r.created_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+ktx,1,appdb,appdb-010,metric,False,9.2,529,104,"SELECT SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM refunds r
+JOIN invoices i ON r.invoice_id = i.id
+JOIN accounts a ON i.account_id = a.id
+JOIN fx_rates fx ON a.currency = fx.currency
+WHERE r.created_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+datus,1,appdb,appdb-010,metric,False,5.13,1758,92,"SELECT SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM refunds r
+JOIN invoices i ON r.invoice_id = i.id
+JOIN fx_rates fx ON i.currency = fx.currency
+WHERE r.created_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+wren,1,appdb,appdb-010,metric,False,5.74,698,102,"SELECT
+  SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM
+  refunds r
+JOIN
+  invoices i ON r.invoice_id = i.id
+JOIN
+  fx_rates fx ON i.currency = fx.currency
+WHERE
+  r.created_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+baseline,1,appdb,appdb-011,metric,False,7.15,1765,51,"SELECT COUNT(*) AS churned_subscriptions
+FROM subscriptions
+WHERE canceled_at IS NOT NULL
+AND EXTRACT(MONTH FROM canceled_at) = 9
+AND EXTRACT(YEAR FROM canceled_at) = 2026",,1,1
+ktx,1,appdb,appdb-011,metric,False,6.6,526,41,"SELECT COUNT(*)
+FROM subscriptions
+WHERE canceled_at >= '2026-09-01'
+  AND canceled_at < '2026-10-01'",,1,1
+datus,1,appdb,appdb-011,metric,False,19.08,1755,51,"SELECT COUNT(*) AS churned_subscriptions
+FROM subscriptions
+WHERE canceled_at IS NOT NULL
+AND EXTRACT(YEAR FROM canceled_at) = 2026
+AND EXTRACT(MONTH FROM canceled_at) = 9",,1,1
+wren,1,appdb,appdb-011,metric,False,4.55,695,46,"SELECT COUNT(*)
+FROM subscriptions
+WHERE canceled_at IS NOT NULL
+AND EXTRACT(MONTH FROM canceled_at) = 9
+AND EXTRACT(YEAR FROM canceled_at) = 2026",,1,1
+baseline,1,appdb,appdb-012,metric,False,3.83,1768,43,"SELECT COUNT(*) AS churned_subscriptions
+FROM subscriptions
+WHERE canceled_at BETWEEN '2026-04-01' AND '2026-06-30'",,1,1
+ktx,1,appdb,appdb-012,metric,False,3.64,529,43,"SELECT COUNT(*) AS churned_subscriptions
+FROM subscriptions
+WHERE canceled_at BETWEEN '2026-04-01' AND '2026-06-30'",,1,1
+datus,1,appdb,appdb-012,metric,False,4.24,1758,43,"SELECT COUNT(*) AS churned_subscriptions
+FROM subscriptions
+WHERE canceled_at BETWEEN '2026-04-01' AND '2026-06-30'",,1,1
+wren,1,appdb,appdb-012,metric,False,11.6,698,43,"SELECT COUNT(*) AS churned_subscriptions
+FROM subscriptions
+WHERE canceled_at BETWEEN '2026-04-01' AND '2026-06-30'",,1,1
+baseline,1,appdb,appdb-013,metric,False,3.92,1765,54,"SELECT COUNT(DISTINCT account_id) AS upgraded_customers_count
+FROM events
+WHERE event_type = 'upgrade'
+AND occurred_at BETWEEN '2026-01-01' AND '2026-12-31'",,1,1
+ktx,1,appdb,appdb-013,metric,False,3.51,526,60,"SELECT COUNT(DISTINCT e.account_id) AS upgraded_customers
+FROM events e
+JOIN accounts a ON e.account_id = a.id
+WHERE e.event_type = 'plan_upgrade'
+AND EXTRACT(YEAR FROM e.occurred_at) = 2026",,1,1
+datus,1,appdb,appdb-013,metric,False,3.9,1755,53,"SELECT COUNT(DISTINCT account_id) AS upgraded_customers_2026
+FROM subscriptions
+WHERE started_at >= '2026-01-01' AND started_at < '2027-01-01'",,1,1
+wren,1,appdb,appdb-013,metric,False,3.66,695,61,"SELECT COUNT(DISTINCT e.account_id) AS upgraded_customers_count
+FROM events e
+JOIN accounts a ON e.account_id = a.id
+WHERE e.event_type = 'plan_upgrade'
+AND EXTRACT(YEAR FROM e.occurred_at) = 2026",,1,1
+baseline,1,appdb,appdb-014,metric,False,3.75,1768,48,"SELECT COUNT(DISTINCT user_id) AS monthly_active_users
+FROM events
+WHERE occurred_at >= '2026-09-01' AND occurred_at < '2026-10-01'",,1,1
+ktx,1,appdb,appdb-014,metric,False,3.72,529,46,"SELECT COUNT(DISTINCT user_id) AS monthly_active_users
+FROM events
+WHERE occurred_at BETWEEN '2026-09-01' AND '2026-09-30'",,1,1
+datus,1,appdb,appdb-014,metric,False,3.66,1758,48,"SELECT COUNT(DISTINCT user_id) AS monthly_active_users
+FROM events
+WHERE occurred_at >= '2026-09-01' AND occurred_at < '2026-10-01'",,1,1
+wren,1,appdb,appdb-014,metric,False,4.16,698,46,"SELECT COUNT(DISTINCT user_id) AS monthly_active_users
+FROM events
+WHERE occurred_at BETWEEN '2026-09-01' AND '2026-09-30'",,1,1
+baseline,1,appdb,appdb-015,metric,False,3.89,1768,76,"SELECT AVG(i.amount_cents / 100 * f.usd_per_unit) AS avg_paid_invoice_amount_usd
+FROM invoices i
+JOIN fx_rates f ON i.currency = f.currency
+WHERE i.status = 'paid'
+AND EXTRACT(YEAR FROM i.paid_at) = 2026",,1,1
+ktx,1,appdb,appdb-015,metric,False,4.65,529,83,"SELECT AVG(i.amount_cents / fx.usd_per_unit) AS avg_paid_invoice_amount_usd
+FROM invoices i
+JOIN accounts a ON i.account_id = a.id
+JOIN fx_rates fx ON a.currency = fx.currency
+WHERE i.status = 'paid'
+AND EXTRACT(YEAR FROM i.paid_at) = 2026",,1,1
+datus,1,appdb,appdb-015,metric,False,3.64,1758,57,"SELECT AVG(i.amount_cents / 100.0) AS avg_paid_invoice_amount_usd
+FROM invoices i
+WHERE i.status = 'paid'
+AND EXTRACT(YEAR FROM i.paid_at) = 2026",,1,1
+wren,1,appdb,appdb-015,metric,False,3.7,698,71,"SELECT AVG(i.amount_cents / f.usd_per_unit) AS avg_paid_invoice_amount_usd
+FROM invoices i
+JOIN fx_rates f ON i.currency = f.currency
+WHERE i.status = 'paid'
+AND EXTRACT(YEAR FROM i.paid_at) = 2026",,1,1
+baseline,1,appdb,appdb-016,metric,False,5.17,1768,103,"SELECT
+    (COUNT(DISTINCT r.invoice_id) * 100.0 / NULLIF(COUNT(DISTINCT i.id), 0)) AS refund_percentage
+FROM
+    invoices i
+LEFT JOIN
+    refunds r ON i.id = r.invoice_id
+WHERE
+    i.paid_at BETWEEN '2026-01-01' AND '2026-12-31'
+    AND i.status = 'paid'",,1,1
+ktx,1,appdb,appdb-016,metric,False,4.58,529,95,"SELECT
+    COUNT(DISTINCT CASE WHEN r.id IS NOT NULL THEN i.id END) * 100.0 / COUNT(DISTINCT i.id) AS refund_percentage
+FROM
+    invoices i
+LEFT JOIN
+    refunds r ON i.id = r.invoice_id
+WHERE
+    i.paid_at BETWEEN '2026-01-01' AND '2026-12-31'",,1,1
+datus,1,appdb,appdb-016,metric,False,4.66,1758,88,"SELECT
+    COUNT(DISTINCT r.invoice_id) * 100.0 / COUNT(DISTINCT i.id) AS refund_percentage
+FROM
+    invoices i
+LEFT JOIN
+    refunds r ON i.id = r.invoice_id
+WHERE
+    i.paid_at BETWEEN '2026-01-01' AND '2026-12-31'",,1,1
+wren,1,appdb,appdb-016,metric,False,5.45,698,95,"SELECT
+    COUNT(DISTINCT CASE WHEN r.id IS NOT NULL THEN i.id END) * 100.0 / COUNT(DISTINCT i.id) AS refund_percentage
+FROM
+    invoices i
+LEFT JOIN
+    refunds r ON i.id = r.invoice_id
+WHERE
+    i.paid_at BETWEEN '2026-01-01' AND '2026-12-31'",,1,1
+baseline,1,appdb,appdb-017,metric,False,3.4,1770,45,"SELECT COUNT(*)
+FROM invoices
+WHERE status = 'failed'
+AND issued_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+ktx,1,appdb,appdb-017,metric,False,3.7,531,47,"SELECT COUNT(*)
+FROM invoices
+WHERE status = 'failed'
+AND issued_at >= '2026-07-01'
+AND issued_at < '2026-10-01'",,1,1
+datus,1,appdb,appdb-017,metric,False,4.05,1760,58,"SELECT COUNT(*) AS failed_invoices_q3_2026
+FROM invoices
+WHERE status = 'failed'
+AND issued_at >= '2026-07-01'
+AND issued_at < '2026-10-01'",,1,1
+wren,1,appdb,appdb-017,metric,False,3.51,700,45,"SELECT COUNT(*)
+FROM invoices
+WHERE status = 'failed'
+AND issued_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+baseline,1,appdb,appdb-018,multi_join,True,5.15,1767,167,"SELECT
+    a.country,
+    SUM(i.amount_cents * fx.usd_per_unit) - COALESCE(SUM(r.amount_cents * fx.usd_per_unit), 0) AS net_revenue_usd
+FROM
+    accounts a
+JOIN
+    invoices i ON a.id = i.account_id
+LEFT JOIN
+    refunds r ON i.id = r.invoice_id
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    i.status = 'paid'
+    AND i.paid_at BETWEEN '2026-01-01' AND '2026-12-31'
+GROUP BY
+    a.country
+ORDER BY
+    net_revenue_usd DESC
+LIMIT 1",,1,1
+ktx,1,appdb,appdb-018,multi_join,True,4.7,528,137,"SELECT
+    a.country,
+    SUM(i.amount_cents * COALESCE(f.usd_per_unit, 1)) AS net_revenue_usd
+FROM
+    accounts a
+JOIN
+    invoices i ON a.id = i.account_id
+LEFT JOIN
+    fx_rates f ON i.currency = f.currency
+WHERE
+    i.status = 'paid'
+    AND i.paid_at BETWEEN '2026-01-01' AND '2026-12-31'
+GROUP BY
+    a.country
+ORDER BY
+    net_revenue_usd DESC
+LIMIT 1",,1,1
+datus,1,appdb,appdb-018,multi_join,True,6.17,1757,97,"SELECT a.country, SUM(i.amount_cents * fx.usd_per_unit) AS net_revenue
+FROM invoices i
+JOIN accounts a ON i.account_id = a.id
+JOIN fx_rates fx ON a.currency = fx.currency
+WHERE i.status = 'paid' AND EXTRACT(YEAR FROM i.paid_at) = 2026
+GROUP BY a.country
+ORDER BY net_revenue DESC
+LIMIT 1",,1,1
+wren,1,appdb,appdb-018,multi_join,True,4.59,697,165,"SELECT
+    a.country,
+    SUM(
+        CASE
+            WHEN i.currency = 'USD' THEN i.amount_cents
+            ELSE i.amount_cents * f.usd_per_unit
+        END
+    ) AS net_revenue_usd
+FROM
+    invoices i
+JOIN
+    accounts a ON i.account_id = a.id
+JOIN
+    fx_rates f ON i.currency = f.currency
+WHERE
+    i.status = 'paid'
+    AND i.issued_at BETWEEN '2026-01-01' AND '2026-12-31'
+    AND a.deleted_at IS NULL
+GROUP BY
+    a.country
+ORDER BY
+    net_revenue_usd DESC
+LIMIT 1",,1,1
+baseline,1,appdb,appdb-019,multi_join,True,4.01,1772,93,"SELECT e.event_type, COUNT(DISTINCT e.user_id) AS distinct_active_users
+FROM events e
+JOIN users u ON e.user_id = u.id
+WHERE e.occurred_at BETWEEN '2026-07-01' AND '2026-09-30'
+AND u.deleted_at IS NULL
+GROUP BY e.event_type
+ORDER BY distinct_active_users DESC
+LIMIT 1",,1,1
+ktx,1,appdb,appdb-019,multi_join,True,3.95,533,93,"SELECT e.event_type, COUNT(DISTINCT e.user_id) AS distinct_user_count
+FROM events e
+JOIN users u ON e.user_id = u.id
+WHERE e.occurred_at BETWEEN '2026-07-01' AND '2026-09-30'
+AND u.deleted_at IS NULL
+GROUP BY e.event_type
+ORDER BY distinct_user_count DESC
+LIMIT 1",,1,1
+datus,1,appdb,appdb-019,multi_join,True,4.18,1762,93,"SELECT e.event_type, COUNT(DISTINCT e.user_id) AS distinct_user_count
+FROM events e
+JOIN users u ON e.user_id = u.id
+WHERE e.occurred_at BETWEEN '2026-01-01' AND '2026-03-31'
+AND u.deleted_at IS NULL
+GROUP BY e.event_type
+ORDER BY distinct_user_count DESC
+LIMIT 1",,1,1
+wren,1,appdb,appdb-019,multi_join,True,3.19,702,93,"SELECT e.event_type, COUNT(DISTINCT e.user_id) AS distinct_user_count
+FROM events e
+JOIN users u ON e.user_id = u.id
+WHERE e.occurred_at BETWEEN '2026-07-01' AND '2026-09-30'
+AND u.deleted_at IS NULL
+GROUP BY e.event_type
+ORDER BY distinct_user_count DESC
+LIMIT 1",,1,1
+baseline,1,appdb,appdb-020,multi_join,False,3.09,1775,138,"SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+JOIN fx_rates f ON i.currency = f.currency
+LEFT JOIN refunds r ON i.id = r.invoice_id
+WHERE i.status = 'paid'
+  AND i.paid_at BETWEEN '2026-01-01' AND '2026-12-31'
+  AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * f.usd_per_unit > 2000
+GROUP BY a.id","ProgrammingError: (psycopg2.errors.GroupingError) aggregate functions are not allowed in WHERE
+LINE 8:   AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * ...
+                                         ^
+
+[SQL: SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+J",0,1
+ktx,1,appdb,appdb-020,multi_join,False,4.68,536,126,"SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+JOIN fx_rates f ON a.currency = f.currency
+WHERE i.paid_at BETWEEN '2026-01-01' AND '2026-12-31'
+AND (i.amount_cents - COALESCE((SELECT SUM(r.amount_cents) FROM refunds r WHERE r.invoice_id = i.id), 0)) * f.usd_per_unit > 200000",,1,1
+datus,1,appdb,appdb-020,multi_join,False,3.23,1765,116,"SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+JOIN fx_rates f ON a.currency = f.currency
+LEFT JOIN refunds r ON i.id = r.invoice_id
+WHERE EXTRACT(YEAR FROM i.paid_at) = 2026
+AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * f.usd_per_unit > 2000
+GROUP BY a.id","ProgrammingError: (psycopg2.errors.GroupingError) aggregate functions are not allowed in WHERE
+LINE 7: AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * f....
+                                       ^
+
+[SQL: SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+JOI",0,1
+wren,1,appdb,appdb-020,multi_join,False,5.46,705,140,"SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+JOIN fx_rates f ON i.currency = f.currency
+LEFT JOIN refunds r ON i.id = r.invoice_id
+WHERE i.status = 'paid'
+  AND i.issued_at BETWEEN '2026-01-01' AND '2026-12-31'
+  AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * f.usd_per_unit > 200000
+GROUP BY a.id","ProgrammingError: (psycopg2.errors.GroupingError) aggregate functions are not allowed in WHERE
+LINE 8:   AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * ...
+                                         ^
+
+[SQL: SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+J",0,1
+baseline,1,appdb,appdb-021,multi_join,False,7.89,1779,141,"SELECT COUNT(DISTINCT a.id) AS active_accounts_with_no_events
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+WHERE s.status = 'active'
+AND s.started_at <= '2026-09-30'
+AND (s.canceled_at IS NULL OR s.canceled_at > '2026-09-30')
+AND NOT EXISTS (
+    SELECT 1
+    FROM events e
+    WHERE e.account_id = a.id
+    AND e.occurred_at BETWEEN '2026-07-02' AND '2026-09-30'
+)",,1,1
+ktx,1,appdb,appdb-021,multi_join,False,6.61,540,89,"SELECT COUNT(DISTINCT a.id) AS active_accounts_with_no_events
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+LEFT JOIN events e ON a.id = e.account_id AND e.occurred_at BETWEEN '2026-07-02' AND '2026-09-30'
+WHERE s.status = 'active'
+AND e.id IS NULL",,1,1
+datus,1,appdb,appdb-021,multi_join,False,19.21,1769,93,"SELECT COUNT(DISTINCT a.id) AS active_accounts_with_no_events
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+WHERE s.status = 'active'
+AND a.id NOT IN (
+    SELECT DISTINCT e.account_id
+    FROM events e
+    WHERE e.occurred_at BETWEEN '2026-07-02' AND '2026-09-30'
+)",,1,1
+wren,1,appdb,appdb-021,multi_join,False,11.83,709,89,"SELECT COUNT(DISTINCT a.id) AS active_accounts_with_no_events
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+LEFT JOIN events e ON a.id = e.account_id AND e.occurred_at BETWEEN '2026-07-02' AND '2026-09-30'
+WHERE s.status = 'active'
+AND e.id IS NULL",,1,1
+baseline,1,appdb,appdb-022,multi_join,True,3.43,1770,59,"SELECT COUNT(DISTINCT a.id) AS growth_plan_customers_without_paid_invoices
+FROM accounts a
+LEFT JOIN invoices i ON a.id = i.account_id AND i.status = 'paid'
+WHERE a.plan_tier = 'growth'
+AND i.id IS NULL",,1,1
+ktx,1,appdb,appdb-022,multi_join,False,3.68,531,57,"SELECT COUNT(DISTINCT a.id) AS growth_plan_customers_without_paid_invoices
+FROM accounts a
+LEFT JOIN invoices i ON a.id = i.account_id AND i.status = 'paid'
+WHERE a.plan = 'growth'
+AND i.id IS NULL",,1,1
+datus,1,appdb,appdb-022,multi_join,True,3.83,1760,47,"SELECT COUNT(DISTINCT a.id)
+FROM accounts a
+LEFT JOIN invoices i ON a.id = i.account_id AND i.status = 'paid'
+WHERE a.plan_tier = 'growth' AND i.id IS NULL",,1,1
+wren,1,appdb,appdb-022,multi_join,False,4.01,700,71,"SELECT COUNT(DISTINCT accounts.id) AS growth_plan_customers_without_paid_invoices
+FROM accounts
+LEFT JOIN subscriptions ON accounts.id = subscriptions.account_id
+LEFT JOIN invoices ON subscriptions.id = invoices.subscription_id
+WHERE accounts.plan = 'growth'
+AND (invoices.status IS NULL OR invoices.status != 'paid')",,1,1
+baseline,1,appdb,appdb-025,metric,False,4.28,1767,80,"SELECT COUNT(DISTINCT i.account_id) AS paying_customers_count
+FROM invoices i
+JOIN accounts a ON i.account_id = a.id
+WHERE i.status = 'paid'
+  AND i.paid_at BETWEEN '2026-09-01' AND '2026-09-30'
+  AND a.is_test = false",,1,1
+ktx,1,appdb,appdb-025,metric,False,4.09,528,76,"SELECT COUNT(DISTINCT accounts.id) AS paying_customers_count
+FROM accounts
+JOIN invoices ON accounts.id = invoices.account_id
+WHERE invoices.status = 'paid'
+AND invoices.paid_at >= '2026-09-01'
+AND invoices.paid_at < '2026-10-01'",,1,1
+datus,1,appdb,appdb-025,metric,False,3.79,1757,53,SELECT COUNT(DISTINCT account_id) AS paying_customers FROM invoices WHERE status = 'paid' AND issued_at >= '2026-09-01' AND issued_at < '2026-10-01',,1,1
+wren,1,appdb,appdb-025,metric,False,4.39,697,78,"SELECT COUNT(DISTINCT accounts.id) AS paying_customers_count
+FROM accounts
+JOIN invoices ON accounts.id = invoices.account_id
+WHERE invoices.status = 'paid'
+AND invoices.paid_at BETWEEN '2026-09-01' AND '2026-09-30'
+AND accounts.is_test = FALSE",,1,1
+baseline,1,appdb,appdb-026,metric,False,4.14,1776,93,"SELECT ROUND(AVG(i.amount_cents * fx.usd_per_unit / 100.0), 2) AS avg_revenue_per_customer
+FROM invoices i
+JOIN fx_rates fx ON i.currency = fx.currency
+WHERE i.status = 'paid'
+AND i.paid_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+ktx,1,appdb,appdb-026,metric,False,4.17,537,83,"SELECT
+  ROUND(SUM(i.amount_cents) / COUNT(DISTINCT i.account_id), 2) AS avg_revenue_per_paying_customer
+FROM
+  invoices i
+WHERE
+  i.status = 'paid'
+  AND i.issued_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+datus,1,appdb,appdb-026,metric,False,8.82,1766,111,"SELECT
+    ROUND(SUM(i.amount_cents * fx.usd_per_unit) / COUNT(DISTINCT i.account_id) / 100.0, 2) AS avg_revenue_per_customer
+FROM
+    invoices i
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    i.status = 'paid'
+    AND i.paid_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+wren,1,appdb,appdb-026,metric,False,5.24,706,124,"SELECT
+  ROUND(AVG(i.amount_cents / 100.0 * fx.usd_per_unit), 2) AS avg_revenue_per_customer
+FROM
+  invoices i
+JOIN
+  accounts a ON i.account_id = a.id
+JOIN
+  fx_rates fx ON a.currency = fx.currency
+WHERE
+  i.status = 'paid'
+  AND i.issued_at BETWEEN '2026-07-01' AND '2026-09-30'
+  AND a.is_test = FALSE",,1,1
+baseline,1,appdb,appdb-027,simple,False,4.0,1762,19,"SELECT COUNT(DISTINCT account_id) AS accounts_with_multiple_subscriptions
+FROM subscriptions",,1,1
+ktx,1,appdb,appdb-027,simple,False,4.03,523,44,"SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+GROUP BY a.id
+HAVING COUNT(s.id) > 1",,84,1
+datus,1,appdb,appdb-027,simple,False,3.68,1752,15,"SELECT COUNT(DISTINCT account_id) AS account_count
+FROM subscriptions",,1,1
+wren,1,appdb,appdb-027,simple,False,5.1,692,44,"SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+GROUP BY a.id
+HAVING COUNT(s.id) > 1",,84,1
+baseline,1,appdb,appdb-028,multi_join,True,3.9,1772,69,"SELECT s.plan_tier, COUNT(*) AS churned_subscriptions
+FROM subscriptions s
+WHERE s.canceled_at IS NOT NULL
+AND EXTRACT(YEAR FROM s.canceled_at) = 2026
+GROUP BY s.plan_tier
+ORDER BY churned_subscriptions DESC
+LIMIT 1",,1,1
+ktx,1,appdb,appdb-028,multi_join,True,3.83,533,81,"SELECT
+    s.plan_tier,
+    COUNT(*) AS churned_subscriptions
+FROM
+    subscriptions s
+WHERE
+    s.canceled_at IS NOT NULL
+    AND EXTRACT(YEAR FROM s.canceled_at) = 2026
+GROUP BY
+    s.plan_tier
+ORDER BY
+    churned_subscriptions DESC
+LIMIT 1",,1,1
+datus,1,appdb,appdb-028,multi_join,True,4.16,1762,69,"SELECT s.plan_tier, COUNT(*) AS churned_subscriptions
+FROM subscriptions s
+WHERE s.canceled_at IS NOT NULL
+AND EXTRACT(YEAR FROM s.canceled_at) = 2026
+GROUP BY s.plan_tier
+ORDER BY churned_subscriptions DESC
+LIMIT 1",,1,1
+wren,1,appdb,appdb-028,multi_join,True,3.82,702,69,"SELECT s.plan_tier, COUNT(*) AS churned_subscriptions
+FROM subscriptions s
+WHERE s.canceled_at IS NOT NULL
+AND EXTRACT(YEAR FROM s.canceled_at) = 2026
+GROUP BY s.plan_tier
+ORDER BY churned_subscriptions DESC
+LIMIT 1",,1,1
+baseline,1,appdb,appdb-029,multi_join,False,4.32,1768,55,"SELECT COUNT(*) AS active_accounts_2024
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+WHERE EXTRACT(YEAR FROM a.created_at) = 2024
+AND s.status = 'active'",,1,1
+ktx,1,appdb,appdb-029,multi_join,False,4.32,529,75,"SELECT COUNT(DISTINCT accounts.id) AS active_accounts_2024
+FROM accounts
+JOIN subscriptions ON accounts.id = subscriptions.account_id
+WHERE accounts.created_at >= '2024-01-01'
+  AND accounts.created_at < '2025-01-01'
+  AND subscriptions.status = 'active'",,1,1
+datus,1,appdb,appdb-029,multi_join,False,4.52,1758,49,"SELECT COUNT(DISTINCT a.id)
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+WHERE EXTRACT(YEAR FROM a.created_at) = 2024
+AND s.status = 'active'",,1,1
+wren,1,appdb,appdb-029,multi_join,False,4.49,698,75,"SELECT COUNT(DISTINCT a.id) AS active_accounts_with_subscription
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+WHERE a.created_at >= '2024-01-01'
+  AND a.created_at < '2025-01-01'
+  AND s.status = 'active'",,1,1
+baseline,1,appdb,appdb-030,metric,False,4.45,1786,145,"SELECT ROUND(100.0 * COUNT(DISTINCT a.id) / NULLIF(COUNT(DISTINCT CASE WHEN a.created_at BETWEEN '2025-01-01' AND '2025-03-31' THEN a.id END), 0), 2) AS churn_percentage
+FROM accounts a
+LEFT JOIN subscriptions s ON a.id = s.account_id
+WHERE a.created_at BETWEEN '2025-01-01' AND '2025-03-31'
+AND s.status = 'canceled'
+AND s.canceled_at <= '2026-09-30'",,1,1
+ktx,1,appdb,appdb-030,metric,False,4.41,547,119,"SELECT
+  ROUND(COUNT(DISTINCT CASE WHEN s.canceled_at <= '2026-09-30' THEN a.id END) * 100.0 / NULLIF(COUNT(DISTINCT a.id), 0), 2) AS churn_percentage
+FROM
+  accounts a
+LEFT JOIN
+  subscriptions s ON a.id = s.account_id
+WHERE
+  a.created_at >= '2025-01-01'
+  AND a.created_at < '2025-04-01'",,1,1
+datus,1,appdb,appdb-030,metric,False,4.08,1776,108,"SELECT ROUND(100.0 * COUNT(DISTINCT s.account_id) / NULLIF(COUNT(DISTINCT a.id), 0), 2) AS churn_percentage
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+WHERE a.created_at BETWEEN '2025-01-01' AND '2025-03-31'
+AND s.canceled_at <= '2026-09-30'",,1,1
+wren,1,appdb,appdb-030,metric,False,4.89,716,122,"SELECT
+  ROUND(100.0 * COUNT(DISTINCT CASE WHEN s.canceled_at <= '2026-09-30' THEN a.id END) / NULLIF(COUNT(DISTINCT a.id), 0), 2) AS churn_percentage
+FROM
+  accounts a
+LEFT JOIN
+  subscriptions s ON a.id = s.account_id
+WHERE
+  a.created_at BETWEEN '2025-01-01' AND '2025-03-31'
+  AND a.is_test = FALSE",,1,1
+baseline,1,appdb,appdb-031,metric,False,4.28,1770,83,"SELECT COUNT(DISTINCT e.user_id)
+FROM events e
+WHERE e.event_type = 'login'
+AND e.occurred_at >= '2026-07-01 00:00:00+00'
+AND e.occurred_at < '2026-10-01 00:00:00+00'",,1,1
+ktx,1,appdb,appdb-031,metric,False,5.62,531,66,"SELECT COUNT(DISTINCT e.user_id)
+FROM events e
+JOIN users u ON e.user_id = u.id
+WHERE e.event_type = 'login'
+AND e.occurred_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+datus,1,appdb,appdb-031,metric,False,10.36,1760,47,SELECT COUNT(DISTINCT user_id) FROM events WHERE event_type = 'login' AND occurred_at BETWEEN '2026-07-01' AND '2026-09-30',,1,1
+wren,1,appdb,appdb-031,metric,False,4.24,700,54,"SELECT COUNT(DISTINCT e.user_id)
+FROM events e
+WHERE e.event_type = 'login'
+AND e.occurred_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+baseline,1,appdb,appdb-032,multi_join,False,4.59,1770,37,"SELECT COUNT(*) AS accounts_with_no_users
+FROM accounts
+WHERE id NOT IN (
+    SELECT DISTINCT account_id
+    FROM users
+    WHERE deleted_at IS NULL
+)",,1,1
+ktx,1,appdb,appdb-032,multi_join,False,4.26,531,27,"SELECT COUNT(*)
+FROM accounts a
+LEFT JOIN users u ON a.id = u.account_id
+WHERE u.id IS NULL",,1,1
+datus,1,appdb,appdb-032,multi_join,False,4.19,1760,45,"SELECT COUNT(*) AS deleted_accounts_count
+FROM accounts a
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM users u
+    WHERE u.account_id = a.id AND u.deleted_at IS NULL
+)",,1,1
+wren,1,appdb,appdb-032,multi_join,False,4.41,700,35,"SELECT COUNT(*)
+FROM accounts a
+LEFT JOIN users u ON a.id = u.account_id
+WHERE u.deleted_at IS NOT NULL OR u.id IS NULL",,1,1
+baseline,1,appdb,appdb-033,multi_join,False,4.57,1777,101,"SELECT SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM refunds r
+JOIN invoices i ON r.invoice_id = i.id
+JOIN fx_rates fx ON i.currency = fx.currency
+WHERE i.issued_at BETWEEN '2026-04-01' AND '2026-06-30'
+AND r.created_at IS NOT NULL",,1,1
+ktx,1,appdb,appdb-033,multi_join,False,10.54,538,103,"SELECT
+    SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM
+    refunds r
+JOIN
+    invoices i ON r.invoice_id = i.id
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    i.issued_at BETWEEN '2026-04-01' AND '2026-06-30'",,1,1
+datus,1,appdb,appdb-033,multi_join,False,9.61,1767,93,"SELECT SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM refunds r
+JOIN invoices i ON r.invoice_id = i.id
+JOIN fx_rates fx ON i.currency = fx.currency
+WHERE i.issued_at BETWEEN '2026-04-01' AND '2026-06-30'",,1,1
+wren,1,appdb,appdb-033,multi_join,False,4.67,707,114,"SELECT
+    SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM
+    refunds r
+JOIN
+    invoices i ON r.invoice_id = i.id
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    i.issued_at BETWEEN '2026-04-01' AND '2026-06-30'
+    AND r.created_at >= i.issued_at",,1,1
+baseline,1,appdb,appdb-034,simple,False,13.66,1762,17,"SELECT country, COUNT(*) as account_count
+FROM accounts
+GROUP BY country",,5,5
+ktx,1,appdb,appdb-034,simple,False,4.1,523,24,"SELECT
+    country,
+    COUNT(*) AS account_count
+FROM
+    accounts
+GROUP BY
+    country",,5,5
+datus,1,appdb,appdb-034,simple,False,4.73,1752,17,"SELECT country, COUNT(*) as account_count
+FROM accounts
+GROUP BY country",,5,5
+wren,1,appdb,appdb-034,simple,False,4.54,692,40,"SELECT
+    country,
+    COUNT(*) AS account_count
+FROM
+    accounts
+WHERE
+    deleted_at IS NULL
+GROUP BY
+    country
+ORDER BY
+    account_count DESC",,5,5
+baseline,2,olist,olist-001,simple,True,3.53,2786,7,SELECT COUNT(*) FROM sellers,,1,1
+ktx,2,olist,olist-001,simple,True,4.25,661,17,"SELECT COUNT(DISTINCT seller_id) AS number_of_sellers
+FROM sellers",,1,1
+datus,2,olist,olist-001,simple,True,2.71,2970,15,"SELECT COUNT(*) FROM ""olist"".""public"".""sellers""",,1,1
+wren,2,olist,olist-001,simple,True,2.94,653,17,"SELECT COUNT(DISTINCT seller_id) AS number_of_sellers
+FROM sellers",,1,1
+baseline,2,olist,olist-002,simple,False,4.31,2789,11,SELECT COUNT(DISTINCT customer_id) FROM orders,,1,1
+ktx,2,olist,olist-002,simple,True,4.08,664,31,"SELECT COUNT(DISTINCT customer_unique_id) AS number_of_unique_customers
+FROM customers
+JOIN orders ON customers.customer_id = orders.customer_id",,1,1
+datus,2,olist,olist-002,simple,True,4.48,2973,38,"SELECT COUNT(DISTINCT customer_unique_id) AS distinct_customers
+FROM olist.public.customers
+WHERE customer_id IN (SELECT DISTINCT customer_id FROM olist.public.orders)",,1,1
+wren,2,olist,olist-002,simple,True,4.47,656,29,"SELECT COUNT(DISTINCT customer_unique_id) AS unique_customers
+FROM customers
+JOIN orders ON customers.customer_id = orders.customer_id",,1,1
+baseline,2,olist,olist-003,simple,True,2.84,2791,35,"SELECT COUNT(*) AS late_deliveries
+FROM orders
+WHERE order_status = 'delivered'
+AND order_delivered_customer_date > order_estimated_delivery_date",,1,1
+ktx,2,olist,olist-003,simple,True,2.92,666,35,"SELECT COUNT(*) AS late_deliveries
+FROM orders
+WHERE order_status = 'delivered'
+AND order_delivered_customer_date > order_estimated_delivery_date",,1,1
+datus,2,olist,olist-003,simple,True,4.16,2975,35,"SELECT COUNT(*) AS late_deliveries
+FROM orders
+WHERE order_status = 'delivered'
+AND order_delivered_customer_date > order_estimated_delivery_date",,1,1
+wren,2,olist,olist-003,simple,True,2.84,658,35,"SELECT COUNT(*) AS late_deliveries
+FROM orders
+WHERE order_status = 'delivered'
+AND order_delivered_customer_date > order_estimated_delivery_date",,1,1
+baseline,2,olist,olist-004,simple,True,4.05,2790,37,"SELECT COUNT(DISTINCT p.product_category_name) AS num_categories_with_sales
+FROM products p
+JOIN order_items oi ON p.product_id = oi.product_id",,1,1
+ktx,2,olist,olist-004,simple,True,3.08,665,30,"SELECT COUNT(DISTINCT p.product_category_name)
+FROM products p
+JOIN order_items oi ON p.product_id = oi.product_id",,1,1
+datus,2,olist,olist-004,simple,True,3.11,2974,37,"SELECT COUNT(DISTINCT p.product_category_name) AS product_categories_with_sales
+FROM products p
+JOIN order_items oi ON p.product_id = oi.product_id",,1,1
+wren,2,olist,olist-004,simple,True,3.03,657,38,"SELECT COUNT(DISTINCT p.product_category_name) AS number_of_categories_with_sales
+FROM products p
+JOIN order_items oi ON p.product_id = oi.product_id",,1,1
+baseline,2,olist,olist-005,metric,False,3.18,2795,65,"SELECT SUM(oi.price) AS total_sales
+FROM order_items oi
+JOIN orders o ON oi.order_id = o.order_id
+WHERE o.order_purchase_timestamp BETWEEN '2017-01-01' AND '2017-12-31'",,1,1
+ktx,2,olist,olist-005,metric,False,3.83,670,65,"SELECT SUM(oi.price) AS total_sales
+FROM order_items oi
+JOIN orders o ON oi.order_id = o.order_id
+WHERE o.order_purchase_timestamp BETWEEN '2017-01-01' AND '2017-12-31'",,1,1
+datus,2,olist,olist-005,metric,False,2.92,2979,70,"SELECT SUM(oi.price) AS total_sales_2017
+FROM order_items oi
+JOIN orders o ON oi.order_id = o.order_id
+WHERE o.order_purchase_timestamp BETWEEN '2017-01-01' AND '2017-12-31'",,1,1
+wren,2,olist,olist-005,metric,False,3.97,662,67,"SELECT SUM(op.payment_value) AS total_sales
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE EXTRACT(YEAR FROM TO_TIMESTAMP(o.order_purchase_timestamp, 'YYYY-MM-DD HH24:MI:SS')) = 2017",,1,1
+baseline,2,olist,olist-006,metric,False,3.39,2790,42,"SELECT AVG(op.payment_value) AS average_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'",,1,1
+ktx,2,olist,olist-006,metric,False,3.26,665,42,"SELECT AVG(op.payment_value) AS average_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'",,1,1
+datus,2,olist,olist-006,metric,False,2.59,2974,42,"SELECT AVG(op.payment_value) AS average_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'",,1,1
+wren,2,olist,olist-006,metric,False,2.97,657,42,"SELECT AVG(op.payment_value) AS average_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'",,1,1
+baseline,2,olist,olist-007,metric,False,5.81,2789,54,"SELECT COUNT(DISTINCT customer_id) AS customers_ordered_more_than_once
+FROM orders
+WHERE customer_id IN (
+    SELECT customer_id
+    FROM orders
+    GROUP BY customer_id
+    HAVING COUNT(order_id) > 1
+)",,1,1
+ktx,2,olist,olist-007,metric,False,3.83,664,17,"SELECT COUNT(DISTINCT customer_id) AS frequent_customers_count
+FROM orders",,1,1
+datus,2,olist,olist-007,metric,False,5.71,2973,50,"SELECT COUNT(DISTINCT customer_id) AS frequent_customers_count
+FROM orders
+WHERE customer_id IN (
+    SELECT customer_id
+    FROM orders
+    GROUP BY customer_id
+    HAVING COUNT(order_id) > 1
+)",,1,1
+wren,2,olist,olist-007,metric,False,5.82,656,50,"SELECT COUNT(DISTINCT customer_id) AS frequent_customers_count
+FROM orders
+WHERE customer_id IN (
+    SELECT customer_id
+    FROM orders
+    GROUP BY customer_id
+    HAVING COUNT(order_id) > 1
+)",,1,1
+baseline,2,olist,olist-008,metric,True,6.89,2795,86,"SELECT
+    ROUND(COUNT(DISTINCT CASE WHEN op.payment_type = 'credit_card' THEN o.order_id END) * 100.0 / COUNT(DISTINCT o.order_id), 2) AS percentage_credit_card_orders
+FROM
+    orders o
+LEFT JOIN
+    order_payments op ON o.order_id = op.order_id
+WHERE
+    o.order_status = 'delivered'",,1,1
+ktx,2,olist,olist-008,metric,True,6.7,670,81,"SELECT
+    (COUNT(DISTINCT CASE WHEN op.payment_type = 'credit_card' THEN o.order_id END) * 100.0 / COUNT(DISTINCT o.order_id)) AS percentage_with_credit_card
+FROM
+    orders o
+LEFT JOIN
+    order_payments op ON o.order_id = op.order_id
+WHERE
+    o.order_status = 'delivered'",,1,1
+datus,2,olist,olist-008,metric,True,7.48,2979,109,"SELECT
+    ROUND(
+        (SELECT COUNT(DISTINCT o.order_id)
+         FROM orders o
+         JOIN order_payments op ON o.order_id = op.order_id
+         WHERE o.order_status = 'delivered'
+         AND op.payment_type = 'credit_card') * 100.0 /
+        (SELECT COUNT(DISTINCT order_id)
+         FROM orders
+         WHERE order_status = 'delivered'), 2
+    ) AS percentage_of_delivered_orders_with_credit_card_payment",,1,1
+wren,2,olist,olist-008,metric,True,5.91,662,81,"SELECT
+    (COUNT(DISTINCT CASE WHEN op.payment_type = 'credit_card' THEN o.order_id END) * 100.0 / COUNT(DISTINCT o.order_id)) AS percentage_credit_card_orders
+FROM
+    orders o
+JOIN
+    order_payments op ON o.order_id = op.order_id
+WHERE
+    o.order_status = 'delivered'",,1,1
+baseline,2,olist,olist-009,metric,True,3.99,2797,63,"SELECT SUM(op.payment_value) AS total_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'
+AND EXTRACT(YEAR FROM o.order_purchase_timestamp::timestamp) = 2018",,1,1
+ktx,2,olist,olist-009,metric,True,5.93,672,63,"SELECT SUM(op.payment_value) AS total_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'
+AND EXTRACT(YEAR FROM o.order_purchase_timestamp::timestamp) = 2018",,1,1
+datus,2,olist,olist-009,metric,True,4.13,2981,70,"SELECT SUM(op.payment_value) AS total_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'
+AND EXTRACT(YEAR FROM CAST(o.order_purchase_timestamp AS TIMESTAMP)) = 2018",,1,1
+wren,2,olist,olist-009,metric,True,4.35,664,76,"SELECT SUM(op.payment_value) AS total_payment_value
+FROM orders o
+JOIN order_payments op ON o.order_id = op.order_id
+WHERE o.order_status = 'delivered'
+AND EXTRACT(YEAR FROM TO_TIMESTAMP(o.order_purchase_timestamp, 'YYYY-MM-DD HH24:MI:SS')) = 2018",,1,1
+baseline,2,olist,olist-010,multi_join,True,3.88,2794,58,"SELECT s.seller_state, SUM(oi.price) AS total_sales
+FROM order_items oi
+JOIN sellers s ON oi.seller_id = s.seller_id
+GROUP BY s.seller_state
+ORDER BY total_sales DESC
+LIMIT 3",,3,3
+ktx,2,olist,olist-010,multi_join,True,4.64,669,72,"SELECT s.seller_state, SUM(oi.price) AS total_sales
+FROM sellers s
+JOIN order_items oi ON s.seller_id = oi.seller_id
+JOIN orders o ON oi.order_id = o.order_id
+GROUP BY s.seller_state
+ORDER BY total_sales DESC
+LIMIT 3",,3,3
+datus,2,olist,olist-010,multi_join,True,4.45,2978,58,"SELECT s.seller_state, SUM(oi.price) AS total_sales
+FROM sellers s
+JOIN order_items oi ON s.seller_id = oi.seller_id
+GROUP BY s.seller_state
+ORDER BY total_sales DESC
+LIMIT 3",,3,3
+wren,2,olist,olist-010,multi_join,True,5.22,661,58,"SELECT s.seller_state, SUM(oi.price) AS total_sales
+FROM sellers s
+JOIN order_items oi ON s.seller_id = oi.seller_id
+GROUP BY s.seller_state
+ORDER BY total_sales DESC
+LIMIT 3",,3,3
+baseline,2,olist,olist-011,multi_join,False,4.61,2796,95,"SELECT
+    c.customer_state,
+    AVG(EXTRACT(EPOCH FROM (o.order_delivered_customer_date - o.order_purchase_timestamp))) AS avg_delivery_time_seconds
+FROM
+    orders o
+JOIN
+    customers c ON o.customer_id = c.customer_id
+WHERE
+    o.order_status = 'delivered'
+GROUP BY
+    c.customer_state
+ORDER BY
+    avg_delivery_time_seconds DESC
+LIMIT 3","ProgrammingError: (psycopg2.errors.UndefinedFunction) operator does not exist: text - text
+LINE 3: ...TRACT(EPOCH FROM (o.order_delivered_customer_date - o.order_...
+                                                             ^
+HINT:  No operator matches the given name and argument types. You might need to add expli",0,3
+ktx,2,olist,olist-011,multi_join,True,5.4,671,108,"SELECT
+    c.customer_state,
+    AVG(EXTRACT(EPOCH FROM (o.order_delivered_customer_date::timestamp - o.order_purchase_timestamp::timestamp)) / 3600) AS avg_delivery_time_hours
+FROM
+    customers c
+JOIN
+    orders o ON c.customer_id = o.customer_id
+WHERE
+    o.order_status = 'delivered'
+GROUP BY
+    c.customer_state
+ORDER BY
+    avg_delivery_time_hours DESC
+LIMIT 3",,3,3
+datus,2,olist,olist-011,multi_join,True,4.49,2980,112,"SELECT
+    c.customer_state,
+    AVG(EXTRACT(EPOCH FROM (o.order_delivered_customer_date::timestamp - o.order_purchase_timestamp::timestamp)) / 3600) AS avg_delivery_time_hours
+FROM
+    orders o
+JOIN
+    customers c ON o.customer_id = c.customer_id
+WHERE
+    o.order_status = 'delivered'
+GROUP BY
+    c.customer_state
+ORDER BY
+    avg_delivery_time_hours DESC
+LIMIT 3",,3,3
+wren,2,olist,olist-011,multi_join,True,4.1,663,110,"SELECT
+    c.customer_state,
+    AVG(EXTRACT(EPOCH FROM (o.order_delivered_customer_date::TIMESTAMP - o.order_purchase_timestamp::TIMESTAMP)) / 3600) AS avg_delivery_time_hours
+FROM
+    orders o
+JOIN
+    customers c ON o.customer_id = c.customer_id
+WHERE
+    o.order_status = 'delivered'
+GROUP BY
+    c.customer_state
+ORDER BY
+    avg_delivery_time_hours DESC
+LIMIT 3",,3,3
+baseline,2,olist,olist-014,simple,True,3.38,2788,10,SELECT COUNT(*) AS product_count FROM products,,1,1
+ktx,2,olist,olist-014,simple,True,3.93,663,11,"SELECT COUNT(*) AS product_count
+FROM products",,1,1
+datus,2,olist,olist-014,simple,True,3.31,2972,7,SELECT COUNT(*) FROM products,,1,1
+wren,2,olist,olist-014,simple,True,2.8,655,11,"SELECT COUNT(*) AS product_count
+FROM products",,1,1
+baseline,2,olist,olist-015,simple,True,3.63,2786,20,"SELECT COUNT(*) AS canceled_orders_count
+FROM orders
+WHERE order_status = 'canceled'",,1,1
+ktx,2,olist,olist-015,simple,True,3.32,661,20,"SELECT COUNT(*) AS canceled_orders_count
+FROM orders
+WHERE order_status = 'canceled'",,1,1
+datus,2,olist,olist-015,simple,True,3.29,2970,20,"SELECT COUNT(*) AS canceled_orders_count
+FROM orders
+WHERE order_status = 'canceled'",,1,1
+wren,2,olist,olist-015,simple,True,3.41,653,20,"SELECT COUNT(*) AS canceled_orders_count
+FROM orders
+WHERE order_status = 'canceled'",,1,1
+baseline,2,olist,olist-018,metric,True,4.27,2797,47,"SELECT ROUND(AVG(review_score), 2) AS average_review_score
+FROM order_reviews
+JOIN orders ON order_reviews.order_id = orders.order_id
+WHERE orders.order_status = 'delivered'",,1,1
+ktx,2,olist,olist-018,metric,False,5.53,672,49,"SELECT ROUND(AVG(or.review_score), 2) AS average_review_score
+FROM order_reviews or
+JOIN orders o ON or.order_id = o.order_id
+WHERE o.order_status = 'delivered'","ProgrammingError: (psycopg2.errors.SyntaxError) syntax error at or near ""or""
+LINE 1: SELECT ROUND(AVG(or.review_score), 2) AS average_review_scor...
+                         ^
+
+[SQL: SELECT ROUND(AVG(or.review_score), 2) AS average_review_score
+FROM order_reviews or
+JOIN orders o ON or.order_id = o.order_id
+WHERE o.o",0,1
+datus,2,olist,olist-018,metric,False,3.72,2981,49,"SELECT ROUND(AVG(or.review_score), 2) AS average_review_score
+FROM order_reviews or
+JOIN orders o ON or.order_id = o.order_id
+WHERE o.order_status = 'delivered'","ProgrammingError: (psycopg2.errors.SyntaxError) syntax error at or near ""or""
+LINE 1: SELECT ROUND(AVG(or.review_score), 2) AS average_review_scor...
+                         ^
+
+[SQL: SELECT ROUND(AVG(or.review_score), 2) AS average_review_score
+FROM order_reviews or
+JOIN orders o ON or.order_id = o.order_id
+WHERE o.o",0,1
+wren,2,olist,olist-018,metric,False,3.26,664,49,"SELECT ROUND(AVG(or.review_score), 2) AS average_review_score
+FROM order_reviews or
+JOIN orders o ON or.order_id = o.order_id
+WHERE o.order_status = 'delivered'","ProgrammingError: (psycopg2.errors.SyntaxError) syntax error at or near ""or""
+LINE 1: SELECT ROUND(AVG(or.review_score), 2) AS average_review_scor...
+                         ^
+
+[SQL: SELECT ROUND(AVG(or.review_score), 2) AS average_review_score
+FROM order_reviews or
+JOIN orders o ON or.order_id = o.order_id
+WHERE o.o",0,1
+baseline,2,olist,olist-019,multi_join,True,4.96,2794,63,"SELECT op.payment_type, SUM(op.payment_value) AS total_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'
+GROUP BY op.payment_type
+ORDER BY total_payment_value DESC
+LIMIT 1",,1,1
+ktx,2,olist,olist-019,multi_join,True,3.9,669,76,"SELECT
+    op.payment_type,
+    SUM(op.payment_value) AS total_payment_value
+FROM
+    order_payments op
+JOIN
+    orders o ON op.order_id = o.order_id
+WHERE
+    o.order_status = 'delivered'
+GROUP BY
+    op.payment_type
+ORDER BY
+    total_payment_value DESC
+LIMIT 1",,1,1
+datus,2,olist,olist-019,multi_join,True,3.97,2978,63,"SELECT op.payment_type, SUM(op.payment_value) AS total_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'
+GROUP BY op.payment_type
+ORDER BY total_payment_value DESC
+LIMIT 1",,1,1
+wren,2,olist,olist-019,multi_join,True,3.45,661,63,"SELECT op.payment_type, SUM(op.payment_value) AS total_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'
+GROUP BY op.payment_type
+ORDER BY total_payment_value DESC
+LIMIT 1",,1,1
+baseline,2,olist,olist-020,multi_join,False,3.31,2796,43,"SELECT COUNT(DISTINCT o.customer_id)
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+WHERE o.order_status = 'delivered' AND c.customer_state = 'SP'",,1,1
+ktx,2,olist,olist-020,multi_join,True,3.03,671,51,"SELECT COUNT(DISTINCT c.customer_unique_id) AS unique_customers_in_sp
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+WHERE c.customer_state = 'SP' AND o.order_status = 'delivered'",,1,1
+datus,2,olist,olist-020,multi_join,True,4.47,2980,44,"SELECT COUNT(DISTINCT c.customer_unique_id)
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+WHERE c.customer_state = 'SP' AND o.order_status = 'delivered'",,1,1
+wren,2,olist,olist-020,multi_join,True,4.16,663,51,"SELECT COUNT(DISTINCT c.customer_unique_id) AS unique_customers_in_sp
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+WHERE c.customer_state = 'SP' AND o.order_status = 'delivered'",,1,1
+baseline,2,olist,olist-021,multi_join,True,4.15,2788,58,"SELECT s.seller_id, SUM(oi.price) AS total_sales
+FROM sellers s
+JOIN order_items oi ON s.seller_id = oi.seller_id
+GROUP BY s.seller_id
+ORDER BY total_sales DESC
+LIMIT 1",,1,1
+ktx,2,olist,olist-021,multi_join,True,3.29,663,58,"SELECT s.seller_id, SUM(oi.price) AS total_sales
+FROM sellers s
+JOIN order_items oi ON s.seller_id = oi.seller_id
+GROUP BY s.seller_id
+ORDER BY total_sales DESC
+LIMIT 1",,1,1
+datus,2,olist,olist-021,multi_join,True,4.08,2972,58,"SELECT s.seller_id, SUM(oi.price) AS total_sales
+FROM sellers s
+JOIN order_items oi ON s.seller_id = oi.seller_id
+GROUP BY s.seller_id
+ORDER BY total_sales DESC
+LIMIT 1",,1,1
+wren,2,olist,olist-021,multi_join,True,4.19,655,44,"SELECT oi.seller_id, SUM(oi.price) AS total_sales
+FROM order_items oi
+GROUP BY oi.seller_id
+ORDER BY total_sales DESC
+LIMIT 1",,1,1
+baseline,2,olist,olist-022,metric,True,5.49,2804,91,"SELECT ROUND(AVG(order_items_count), 2) AS average_items_per_order
+FROM (
+    SELECT o.order_id, COUNT(oi.order_item_id) AS order_items_count
+    FROM orders o
+    JOIN order_items oi ON o.order_id = oi.order_id
+    WHERE o.order_status IN ('delivered', 'shipped', 'invoiced')
+    GROUP BY o.order_id
+) AS order_items_counts",,1,1
+ktx,2,olist,olist-022,metric,True,4.56,679,83,"SELECT ROUND(AVG(order_items_count), 2) AS average_items_per_order
+FROM (
+    SELECT o.order_id, COUNT(oi.order_item_id) AS order_items_count
+    FROM orders o
+    JOIN order_items oi ON o.order_id = oi.order_id
+    WHERE o.order_status = 'delivered'
+    GROUP BY o.order_id
+) AS order_items_counts",,1,1
+datus,2,olist,olist-022,metric,True,5.46,2988,83,"SELECT ROUND(AVG(order_items_count), 2) AS avg_items_per_order
+FROM (
+    SELECT o.order_id, COUNT(oi.order_item_id) AS order_items_count
+    FROM orders o
+    JOIN order_items oi ON o.order_id = oi.order_id
+    WHERE o.order_status = 'delivered'
+    GROUP BY o.order_id
+) AS order_items_counts",,1,1
+wren,2,olist,olist-022,metric,True,4.37,671,81,"SELECT ROUND(AVG(item_count), 2) AS average_items_per_order
+FROM (
+    SELECT o.order_id, COUNT(oi.order_item_id) AS item_count
+    FROM orders o
+    JOIN order_items oi ON o.order_id = oi.order_id
+    WHERE o.order_status = 'delivered'
+    GROUP BY o.order_id
+) AS order_item_counts",,1,1
+baseline,2,appdb,appdb-001,simple,False,3.5,1759,7,SELECT COUNT(*) FROM accounts,,1,1
+ktx,2,appdb,appdb-001,simple,False,2.86,520,7,SELECT COUNT(*) FROM accounts,,1,1
+datus,2,appdb,appdb-001,simple,False,2.5,1749,7,SELECT COUNT(*) FROM accounts,,1,1
+wren,2,appdb,appdb-001,simple,False,2.46,689,7,SELECT COUNT(*) FROM accounts,,1,1
+baseline,2,appdb,appdb-002,simple,False,2.27,1759,7,SELECT COUNT(*) FROM users,,1,1
+ktx,2,appdb,appdb-002,simple,False,2.62,520,11,"SELECT COUNT(*) AS user_count
+FROM users",,1,1
+datus,2,appdb,appdb-002,simple,False,2.67,1749,7,SELECT COUNT(*) FROM users,,1,1
+wren,2,appdb,appdb-002,simple,False,2.75,689,11,"SELECT COUNT(*) AS user_count
+FROM users",,1,1
+baseline,2,appdb,appdb-003,simple,False,2.94,1764,36,SELECT COUNT(*) FROM accounts WHERE created_at BETWEEN '2025-01-01' AND '2025-12-31',,1,1
+ktx,2,appdb,appdb-003,simple,False,2.93,525,28,"SELECT COUNT(*) AS account_count
+FROM accounts
+WHERE EXTRACT(YEAR FROM created_at) = 2025",,1,1
+datus,2,appdb,appdb-003,simple,False,3.57,1754,23,SELECT COUNT(*) FROM accounts WHERE EXTRACT(YEAR FROM created_at) = 2025,,1,1
+wren,2,appdb,appdb-003,simple,False,3.22,694,28,"SELECT COUNT(*) AS account_count
+FROM accounts
+WHERE EXTRACT(YEAR FROM created_at) = 2025",,1,1
+baseline,2,appdb,appdb-004,simple,False,2.49,1759,12,SELECT COUNT(*) FROM subscriptions WHERE status = 'active',,1,1
+ktx,2,appdb,appdb-004,simple,False,3.14,520,14,"SELECT COUNT(*)
+FROM subscriptions
+WHERE status = 'active'",,1,1
+datus,2,appdb,appdb-004,simple,False,3.56,1749,12,SELECT COUNT(*) FROM subscriptions WHERE status = 'active',,1,1
+wren,2,appdb,appdb-004,simple,False,3.78,689,14,"SELECT COUNT(*)
+FROM subscriptions
+WHERE status = 'active'",,1,1
+baseline,2,appdb,appdb-005,simple,True,4.63,1761,40,"SELECT plan_tier, COUNT(*) as active_subscriptions
+FROM subscriptions
+WHERE status = 'active'
+GROUP BY plan_tier
+ORDER BY active_subscriptions DESC
+LIMIT 1",,1,1
+ktx,2,appdb,appdb-005,simple,True,3.65,522,75,"SELECT
+    a.plan_tier,
+    COUNT(s.id) AS active_subscription_count
+FROM
+    accounts a
+JOIN
+    subscriptions s ON a.id = s.account_id
+WHERE
+    s.status = 'active'
+GROUP BY
+    a.plan_tier
+ORDER BY
+    active_subscription_count DESC
+LIMIT 1",,1,1
+datus,2,appdb,appdb-005,simple,True,4.25,1751,40,"SELECT plan_tier, COUNT(*) AS active_subscriptions
+FROM subscriptions
+WHERE status = 'active'
+GROUP BY plan_tier
+ORDER BY active_subscriptions DESC
+LIMIT 1",,1,1
+wren,2,appdb,appdb-005,simple,True,3.72,691,61,"SELECT
+    s.plan_tier,
+    COUNT(s.id) AS active_subscriptions_count
+FROM
+    subscriptions s
+WHERE
+    s.status = 'active'
+GROUP BY
+    s.plan_tier
+ORDER BY
+    active_subscriptions_count DESC
+LIMIT 1",,1,1
+baseline,2,appdb,appdb-006,simple,False,2.94,1762,12,SELECT COUNT(*) FROM accounts WHERE plan = 'scale',,1,1
+ktx,2,appdb,appdb-006,simple,False,2.78,523,18,"SELECT COUNT(*) AS scale_account_count
+FROM accounts
+WHERE plan = 'scale'",,1,1
+datus,2,appdb,appdb-006,simple,False,2.7,1752,12,SELECT COUNT(*) FROM accounts WHERE plan = 'scale',,1,1
+wren,2,appdb,appdb-006,simple,False,2.87,692,14,"SELECT COUNT(*)
+FROM accounts
+WHERE plan = 'scale'",,1,1
+baseline,2,appdb,appdb-007,simple,False,2.65,1759,14,SELECT COUNT(*) FROM subscriptions WHERE status = 'past_due',,1,1
+ktx,2,appdb,appdb-007,simple,False,2.84,520,16,"SELECT COUNT(*)
+FROM subscriptions
+WHERE status = 'past_due'",,1,1
+datus,2,appdb,appdb-007,simple,False,2.58,1749,14,SELECT COUNT(*) FROM subscriptions WHERE status = 'past_due',,1,1
+wren,2,appdb,appdb-007,simple,False,3.02,689,16,"SELECT COUNT(*)
+FROM subscriptions
+WHERE status = 'past_due'",,1,1
+baseline,2,appdb,appdb-008,metric,False,4.68,1768,171,"SELECT
+  SUM(
+    CASE
+      WHEN i.currency = 'USD' THEN i.amount_cents
+      ELSE i.amount_cents * f.usd_per_unit
+    END
+  ) -
+  SUM(
+    CASE
+      WHEN i.currency = 'USD' THEN r.amount_cents
+      ELSE r.amount_cents * f.usd_per_unit
+    END
+  ) AS net_revenue_usd
+FROM
+  invoices i
+JOIN
+  fx_rates f ON i.currency = f.currency
+LEFT JOIN
+  refunds r ON i.id = r.invoice_id
+WHERE
+  i.status = 'paid'
+  AND i.paid_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+ktx,2,appdb,appdb-008,metric,False,3.54,529,136,"SELECT
+    SUM(i.amount_cents * fx.usd_per_unit) AS net_revenue_usd
+FROM
+    invoices i
+JOIN
+    accounts a ON i.account_id = a.id
+JOIN
+    fx_rates fx ON a.currency = fx.currency
+LEFT JOIN
+    refunds r ON i.id = r.invoice_id
+WHERE
+    i.status = 'paid'
+    AND i.issued_at BETWEEN '2026-07-01' AND '2026-09-30'
+    AND (r.id IS NULL OR i.paid_at > r.created_at)",,1,1
+datus,2,appdb,appdb-008,metric,False,4.22,1758,186,"SELECT
+    SUM(
+        CASE
+            WHEN i.currency = 'USD' THEN i.amount_cents
+            ELSE i.amount_cents * fx.usd_per_unit
+        END
+    ) -
+    SUM(
+        CASE
+            WHEN i.currency = 'USD' THEN COALESCE(r.amount_cents, 0)
+            ELSE COALESCE(r.amount_cents, 0) * fx.usd_per_unit
+        END
+    ) AS net_revenue_usd
+FROM
+    invoices i
+LEFT JOIN
+    refunds r ON i.id = r.invoice_id
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    i.status = 'paid'
+    AND i.paid_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+wren,2,appdb,appdb-008,metric,False,4.64,698,185,"SELECT
+  SUM(
+    CASE
+      WHEN invoices.currency = 'USD' THEN invoices.amount_cents
+      ELSE invoices.amount_cents / fx_rates.usd_per_unit
+    END
+  ) -
+  SUM(
+    CASE
+      WHEN invoices.currency = 'USD' THEN refunds.amount_cents
+      ELSE refunds.amount_cents / fx_rates.usd_per_unit
+    END
+  ) AS net_revenue_usd
+FROM
+  invoices
+JOIN
+  fx_rates ON invoices.currency = fx_rates.currency
+LEFT JOIN
+  refunds ON invoices.id = refunds.invoice_id
+WHERE
+  invoices.status = 'paid'
+  AND invoices.paid_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+baseline,2,appdb,appdb-009,metric,False,3.36,1772,94,"SELECT
+    SUM(i.amount_cents * fx.usd_per_unit) / 100 AS gross_revenue_usd
+FROM
+    invoices i
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    i.status = 'paid'
+    AND i.paid_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+ktx,2,appdb,appdb-009,metric,False,3.28,533,102,"SELECT
+    SUM(i.amount_cents * COALESCE(fx.usd_per_unit, 1)) / 100 AS gross_revenue_usd
+FROM
+    invoices i
+LEFT JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    i.issued_at BETWEEN '2026-07-01' AND '2026-09-30'
+    AND i.status = 'paid'",,1,1
+datus,2,appdb,appdb-009,metric,False,3.1,1762,78,"SELECT SUM(i.amount_cents * fx.usd_per_unit) / 100 AS gross_revenue_usd
+FROM invoices i
+JOIN fx_rates fx ON i.currency = fx.currency
+WHERE i.issued_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+wren,2,appdb,appdb-009,metric,False,3.19,702,116,"SELECT
+  SUM(i.amount_cents * fx.usd_per_unit) / 100 AS gross_revenue_usd
+FROM
+  invoices i
+JOIN
+  accounts a ON i.account_id = a.id
+JOIN
+  fx_rates fx ON a.currency = fx.currency
+WHERE
+  i.issued_at BETWEEN '2026-07-01' AND '2026-09-30'
+  AND i.status = 'paid'
+  AND a.is_test = FALSE",,1,1
+baseline,2,appdb,appdb-010,metric,False,3.75,1768,102,"SELECT
+    SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM
+    refunds r
+JOIN
+    invoices i ON r.invoice_id = i.id
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    r.created_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+ktx,2,appdb,appdb-010,metric,False,3.8,529,104,"SELECT SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM refunds r
+JOIN invoices i ON r.invoice_id = i.id
+JOIN accounts a ON i.account_id = a.id
+JOIN fx_rates fx ON a.currency = fx.currency
+WHERE r.created_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+datus,2,appdb,appdb-010,metric,False,3.83,1758,92,"SELECT SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM refunds r
+JOIN invoices i ON r.invoice_id = i.id
+JOIN fx_rates fx ON i.currency = fx.currency
+WHERE r.created_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+wren,2,appdb,appdb-010,metric,False,3.93,698,102,"SELECT
+    SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM
+    refunds r
+JOIN
+    invoices i ON r.invoice_id = i.id
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    r.created_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+baseline,2,appdb,appdb-011,metric,False,3.79,1765,51,"SELECT COUNT(*) AS churned_subscriptions
+FROM subscriptions
+WHERE canceled_at IS NOT NULL
+AND EXTRACT(MONTH FROM canceled_at) = 9
+AND EXTRACT(YEAR FROM canceled_at) = 2026",,1,1
+ktx,2,appdb,appdb-011,metric,False,4.11,526,41,"SELECT COUNT(*)
+FROM subscriptions
+WHERE canceled_at >= '2026-09-01'
+  AND canceled_at < '2026-10-01'",,1,1
+datus,2,appdb,appdb-011,metric,False,3.82,1755,51,"SELECT COUNT(*) AS churned_subscriptions
+FROM subscriptions
+WHERE canceled_at IS NOT NULL
+AND EXTRACT(YEAR FROM canceled_at) = 2026
+AND EXTRACT(MONTH FROM canceled_at) = 9",,1,1
+wren,2,appdb,appdb-011,metric,False,4.63,695,46,"SELECT COUNT(*)
+FROM subscriptions
+WHERE canceled_at IS NOT NULL
+AND EXTRACT(MONTH FROM canceled_at) = 9
+AND EXTRACT(YEAR FROM canceled_at) = 2026",,1,1
+baseline,2,appdb,appdb-012,metric,False,4.31,1768,43,"SELECT COUNT(*) AS churned_subscriptions
+FROM subscriptions
+WHERE canceled_at BETWEEN '2026-04-01' AND '2026-06-30'",,1,1
+ktx,2,appdb,appdb-012,metric,False,4.22,529,43,"SELECT COUNT(*) AS churned_subscriptions
+FROM subscriptions
+WHERE canceled_at BETWEEN '2026-04-01' AND '2026-06-30'",,1,1
+datus,2,appdb,appdb-012,metric,False,4.04,1758,43,"SELECT COUNT(*) AS churned_subscriptions
+FROM subscriptions
+WHERE canceled_at BETWEEN '2026-04-01' AND '2026-06-30'",,1,1
+wren,2,appdb,appdb-012,metric,False,4.66,698,43,"SELECT COUNT(*) AS churned_subscriptions
+FROM subscriptions
+WHERE canceled_at BETWEEN '2026-04-01' AND '2026-06-30'",,1,1
+baseline,2,appdb,appdb-013,metric,False,5.36,1765,54,"SELECT COUNT(DISTINCT account_id) AS upgraded_customers_count
+FROM events
+WHERE event_type = 'upgrade'
+AND occurred_at BETWEEN '2026-01-01' AND '2026-12-31'",,1,1
+ktx,2,appdb,appdb-013,metric,False,5.32,526,61,"SELECT COUNT(DISTINCT e.account_id) AS upgraded_customers_count
+FROM events e
+JOIN accounts a ON e.account_id = a.id
+WHERE e.event_type = 'plan_upgrade'
+AND EXTRACT(YEAR FROM e.occurred_at) = 2026",,1,1
+datus,2,appdb,appdb-013,metric,False,4.5,1755,59,"SELECT COUNT(DISTINCT account_id) AS upgraded_customers_2026
+FROM subscriptions
+WHERE status = 'active'
+AND started_at >= '2026-01-01'
+AND started_at < '2027-01-01'",,1,1
+wren,2,appdb,appdb-013,metric,False,4.2,695,68,"SELECT COUNT(DISTINCT e.account_id) AS upgraded_customers_count
+FROM events e
+JOIN accounts a ON e.account_id = a.id
+WHERE e.event_type = 'plan_upgrade'
+AND EXTRACT(YEAR FROM e.occurred_at) = 2026
+AND a.is_test = FALSE",,1,1
+baseline,2,appdb,appdb-014,metric,False,3.91,1768,46,"SELECT COUNT(DISTINCT user_id) AS monthly_active_users
+FROM events
+WHERE occurred_at BETWEEN '2026-09-01' AND '2026-09-30'",,1,1
+ktx,2,appdb,appdb-014,metric,False,4.03,529,55,"SELECT COUNT(DISTINCT user_id) AS monthly_active_users
+FROM events
+WHERE event_type = 'login'
+AND occurred_at >= '2026-09-01'
+AND occurred_at < '2026-10-01'",,1,1
+datus,2,appdb,appdb-014,metric,False,4.01,1758,48,"SELECT COUNT(DISTINCT user_id) AS monthly_active_users
+FROM events
+WHERE occurred_at >= '2026-09-01' AND occurred_at < '2026-10-01'",,1,1
+wren,2,appdb,appdb-014,metric,False,3.87,698,46,"SELECT COUNT(DISTINCT user_id) AS monthly_active_users
+FROM events
+WHERE occurred_at BETWEEN '2026-09-01' AND '2026-09-30'",,1,1
+baseline,2,appdb,appdb-015,metric,False,4.18,1768,76,"SELECT AVG(i.amount_cents * fx.usd_per_unit / 100) AS average_paid_invoice_amount_usd
+FROM invoices i
+JOIN fx_rates fx ON i.currency = fx.currency
+WHERE i.status = 'paid'
+AND EXTRACT(YEAR FROM i.paid_at) = 2026",,1,1
+ktx,2,appdb,appdb-015,metric,False,3.6,529,83,"SELECT AVG(i.amount_cents / fx.usd_per_unit) AS avg_paid_invoice_amount_usd
+FROM invoices i
+JOIN accounts a ON i.account_id = a.id
+JOIN fx_rates fx ON a.currency = fx.currency
+WHERE i.status = 'paid'
+AND EXTRACT(YEAR FROM i.paid_at) = 2026",,1,1
+datus,2,appdb,appdb-015,metric,False,2.93,1758,55,"SELECT AVG(i.amount_cents / 100.0) AS average_paid_amount_usd
+FROM invoices i
+WHERE i.status = 'paid'
+AND EXTRACT(YEAR FROM i.paid_at) = 2026",,1,1
+wren,2,appdb,appdb-015,metric,False,3.05,698,71,"SELECT AVG(i.amount_cents / f.usd_per_unit) AS average_paid_invoice_amount_usd
+FROM invoices i
+JOIN fx_rates f ON i.currency = f.currency
+WHERE i.status = 'paid'
+AND EXTRACT(YEAR FROM i.paid_at) = 2026",,1,1
+baseline,2,appdb,appdb-016,metric,False,4.01,1768,95,"SELECT
+    (COUNT(DISTINCT r.invoice_id) * 100.0 / NULLIF(COUNT(DISTINCT i.id), 0)) AS refund_percentage
+FROM
+    invoices i
+LEFT JOIN
+    refunds r ON i.id = r.invoice_id
+WHERE
+    i.paid_at BETWEEN '2026-01-01' AND '2026-12-31'",,1,1
+ktx,2,appdb,appdb-016,metric,False,3.51,529,95,"SELECT
+    COUNT(DISTINCT CASE WHEN r.id IS NOT NULL THEN i.id END) * 100.0 / COUNT(DISTINCT i.id) AS refund_percentage
+FROM
+    invoices i
+LEFT JOIN
+    refunds r ON i.id = r.invoice_id
+WHERE
+    i.paid_at BETWEEN '2026-01-01' AND '2026-12-31'",,1,1
+datus,2,appdb,appdb-016,metric,False,5.88,1758,88,"SELECT
+    COUNT(DISTINCT r.invoice_id) * 100.0 / COUNT(DISTINCT i.id) AS refund_percentage
+FROM
+    invoices i
+LEFT JOIN
+    refunds r ON i.id = r.invoice_id
+WHERE
+    i.paid_at BETWEEN '2026-01-01' AND '2026-12-31'",,1,1
+wren,2,appdb,appdb-016,metric,False,9.42,698,100,"SELECT
+    COUNT(DISTINCT CASE WHEN refunds.id IS NOT NULL THEN invoices.id END) * 100.0 /
+    COUNT(DISTINCT invoices.id) AS refund_percentage
+FROM
+    invoices
+LEFT JOIN
+    refunds ON invoices.id = refunds.invoice_id
+WHERE
+    invoices.paid_at BETWEEN '2026-01-01' AND '2026-12-31'",,1,1
+baseline,2,appdb,appdb-017,metric,False,3.82,1770,47,"SELECT COUNT(*)
+FROM invoices
+WHERE status = 'failed'
+AND issued_at >= '2026-07-01'
+AND issued_at < '2026-10-01'",,1,1
+ktx,2,appdb,appdb-017,metric,False,3.45,531,47,"SELECT COUNT(*)
+FROM invoices
+WHERE status = 'failed'
+AND issued_at >= '2026-07-01'
+AND issued_at < '2026-10-01'",,1,1
+datus,2,appdb,appdb-017,metric,False,3.66,1760,58,"SELECT COUNT(*) AS failed_invoices_q3_2026
+FROM invoices
+WHERE status = 'failed'
+AND issued_at >= '2026-07-01'
+AND issued_at < '2026-10-01'",,1,1
+wren,2,appdb,appdb-017,metric,False,5.34,700,45,"SELECT COUNT(*)
+FROM invoices
+WHERE status = 'failed'
+AND issued_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+baseline,2,appdb,appdb-018,multi_join,True,5.53,1767,167,"SELECT
+    a.country,
+    SUM(i.amount_cents * fx.usd_per_unit) - COALESCE(SUM(r.amount_cents * fx.usd_per_unit), 0) AS net_revenue_usd
+FROM
+    accounts a
+JOIN
+    invoices i ON a.id = i.account_id
+LEFT JOIN
+    refunds r ON i.id = r.invoice_id
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    i.status = 'paid'
+    AND i.paid_at BETWEEN '2026-01-01' AND '2026-12-31'
+GROUP BY
+    a.country
+ORDER BY
+    net_revenue_usd DESC
+LIMIT 1",,1,1
+ktx,2,appdb,appdb-018,multi_join,True,6.08,528,137,"SELECT
+    a.country,
+    SUM(i.amount_cents * COALESCE(f.usd_per_unit, 1)) AS net_revenue_usd
+FROM
+    accounts a
+JOIN
+    invoices i ON a.id = i.account_id
+LEFT JOIN
+    fx_rates f ON i.currency = f.currency
+WHERE
+    i.status = 'paid'
+    AND i.paid_at BETWEEN '2026-01-01' AND '2026-12-31'
+GROUP BY
+    a.country
+ORDER BY
+    net_revenue_usd DESC
+LIMIT 1",,1,1
+datus,2,appdb,appdb-018,multi_join,True,7.16,1757,97,"SELECT a.country, SUM(i.amount_cents * fx.usd_per_unit) AS net_revenue
+FROM invoices i
+JOIN accounts a ON i.account_id = a.id
+JOIN fx_rates fx ON a.currency = fx.currency
+WHERE i.status = 'paid' AND EXTRACT(YEAR FROM i.paid_at) = 2026
+GROUP BY a.country
+ORDER BY net_revenue DESC
+LIMIT 1",,1,1
+wren,2,appdb,appdb-018,multi_join,True,8.75,697,165,"SELECT
+    a.country,
+    SUM(
+        CASE
+            WHEN i.currency = 'USD' THEN i.amount_cents
+            ELSE i.amount_cents * f.usd_per_unit
+        END
+    ) AS net_revenue_usd
+FROM
+    invoices i
+JOIN
+    accounts a ON i.account_id = a.id
+JOIN
+    fx_rates f ON i.currency = f.currency
+WHERE
+    i.status = 'paid'
+    AND i.issued_at BETWEEN '2026-01-01' AND '2026-12-31'
+    AND a.deleted_at IS NULL
+GROUP BY
+    a.country
+ORDER BY
+    net_revenue_usd DESC
+LIMIT 1",,1,1
+baseline,2,appdb,appdb-019,multi_join,True,8.8,1772,93,"SELECT e.event_type, COUNT(DISTINCT e.user_id) AS distinct_active_users
+FROM events e
+JOIN users u ON e.user_id = u.id
+WHERE e.occurred_at BETWEEN '2026-07-01' AND '2026-09-30'
+AND u.deleted_at IS NULL
+GROUP BY e.event_type
+ORDER BY distinct_active_users DESC
+LIMIT 1",,1,1
+ktx,2,appdb,appdb-019,multi_join,True,6.05,533,113,"SELECT e.event_type, COUNT(DISTINCT e.user_id) AS distinct_user_count
+FROM events e
+JOIN users u ON e.user_id = u.id
+JOIN accounts a ON u.account_id = a.id
+WHERE e.occurred_at BETWEEN '2026-07-01' AND '2026-09-30'
+AND u.deleted_at IS NULL
+AND a.deleted_at IS NULL
+GROUP BY e.event_type
+ORDER BY distinct_user_count DESC
+LIMIT 1",,1,1
+datus,2,appdb,appdb-019,multi_join,True,5.22,1762,93,"SELECT e.event_type, COUNT(DISTINCT e.user_id) AS distinct_user_count
+FROM events e
+JOIN users u ON e.user_id = u.id
+WHERE e.occurred_at BETWEEN '2026-01-01' AND '2026-03-31'
+AND u.deleted_at IS NULL
+GROUP BY e.event_type
+ORDER BY distinct_user_count DESC
+LIMIT 1",,1,1
+wren,2,appdb,appdb-019,multi_join,True,4.68,702,93,"SELECT e.event_type, COUNT(DISTINCT e.user_id) AS distinct_user_count
+FROM events e
+JOIN users u ON e.user_id = u.id
+WHERE e.occurred_at BETWEEN '2026-07-01' AND '2026-09-30'
+AND u.deleted_at IS NULL
+GROUP BY e.event_type
+ORDER BY distinct_user_count DESC
+LIMIT 1",,1,1
+baseline,2,appdb,appdb-020,multi_join,False,5.6,1775,138,"SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+JOIN fx_rates f ON i.currency = f.currency
+LEFT JOIN refunds r ON i.id = r.invoice_id
+WHERE i.status = 'paid'
+  AND i.paid_at BETWEEN '2026-01-01' AND '2026-12-31'
+  AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * f.usd_per_unit > 2000
+GROUP BY a.id","ProgrammingError: (psycopg2.errors.GroupingError) aggregate functions are not allowed in WHERE
+LINE 8:   AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * ...
+                                         ^
+
+[SQL: SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+J",0,1
+ktx,2,appdb,appdb-020,multi_join,False,4.3,536,124,"SELECT COUNT(DISTINCT a.id) AS num_accounts
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+JOIN fx_rates f ON a.currency = f.currency
+LEFT JOIN refunds r ON i.id = r.invoice_id
+WHERE EXTRACT(YEAR FROM i.paid_at) = 2026
+AND i.status = 'paid'
+AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * f.usd_per_unit > 2000
+GROUP BY a.id","ProgrammingError: (psycopg2.errors.GroupingError) aggregate functions are not allowed in WHERE
+LINE 8: AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * f....
+                                       ^
+
+[SQL: SELECT COUNT(DISTINCT a.id) AS num_accounts
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+JOIN",0,1
+datus,2,appdb,appdb-020,multi_join,False,7.05,1765,116,"SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+JOIN fx_rates f ON a.currency = f.currency
+LEFT JOIN refunds r ON i.id = r.invoice_id
+WHERE EXTRACT(YEAR FROM i.paid_at) = 2026
+AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * f.usd_per_unit > 2000
+GROUP BY a.id","ProgrammingError: (psycopg2.errors.GroupingError) aggregate functions are not allowed in WHERE
+LINE 7: AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * f....
+                                       ^
+
+[SQL: SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+JOI",0,1
+wren,2,appdb,appdb-020,multi_join,False,6.14,705,138,"SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+JOIN fx_rates f ON i.currency = f.currency
+LEFT JOIN refunds r ON i.id = r.invoice_id
+WHERE i.status = 'paid'
+  AND i.issued_at BETWEEN '2026-01-01' AND '2026-12-31'
+  AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * f.usd_per_unit > 2000
+GROUP BY a.id","ProgrammingError: (psycopg2.errors.GroupingError) aggregate functions are not allowed in WHERE
+LINE 8:   AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * ...
+                                         ^
+
+[SQL: SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+J",0,1
+baseline,2,appdb,appdb-021,multi_join,False,7.72,1779,88,"SELECT COUNT(DISTINCT a.id) AS active_accounts_with_no_events
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+WHERE s.status = 'active'
+AND a.id NOT IN (
+    SELECT DISTINCT account_id
+    FROM events
+    WHERE occurred_at BETWEEN '2026-07-02' AND '2026-09-30'
+)",,1,1
+ktx,2,appdb,appdb-021,multi_join,False,4.55,540,89,"SELECT COUNT(DISTINCT a.id) AS active_accounts_with_no_events
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+LEFT JOIN events e ON a.id = e.account_id AND e.occurred_at BETWEEN '2026-07-02' AND '2026-09-30'
+WHERE s.status = 'active'
+AND e.id IS NULL",,1,1
+datus,2,appdb,appdb-021,multi_join,False,3.59,1769,97,"SELECT COUNT(DISTINCT a.id) AS active_accounts_with_no_events
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+WHERE s.status = 'active'
+AND NOT EXISTS (
+    SELECT 1
+    FROM events e
+    WHERE e.account_id = a.id
+    AND e.occurred_at BETWEEN '2026-07-02' AND '2026-09-30'
+)",,1,1
+wren,2,appdb,appdb-021,multi_join,False,5.05,709,89,"SELECT COUNT(DISTINCT a.id) AS active_accounts_with_no_events
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+LEFT JOIN events e ON a.id = e.account_id AND e.occurred_at BETWEEN '2026-07-02' AND '2026-09-30'
+WHERE s.status = 'active'
+AND e.id IS NULL",,1,1
+baseline,2,appdb,appdb-022,multi_join,True,5.05,1770,47,"SELECT COUNT(DISTINCT a.id)
+FROM accounts a
+LEFT JOIN invoices i ON a.id = i.account_id AND i.status = 'paid'
+WHERE a.plan_tier = 'growth' AND i.id IS NULL",,1,1
+ktx,2,appdb,appdb-022,multi_join,False,5.66,531,57,"SELECT COUNT(DISTINCT a.id) AS growth_plan_customers_without_paid_invoices
+FROM accounts a
+LEFT JOIN invoices i ON a.id = i.account_id AND i.status = 'paid'
+WHERE a.plan = 'growth'
+AND i.id IS NULL",,1,1
+datus,2,appdb,appdb-022,multi_join,True,4.67,1760,47,"SELECT COUNT(DISTINCT a.id)
+FROM accounts a
+LEFT JOIN invoices i ON a.id = i.account_id AND i.status = 'paid'
+WHERE a.plan_tier = 'growth' AND i.id IS NULL",,1,1
+wren,2,appdb,appdb-022,multi_join,False,4.34,700,71,"SELECT COUNT(DISTINCT a.id) AS growth_plan_customers_without_paid_invoices
+FROM accounts a
+LEFT JOIN subscriptions s ON a.id = s.account_id
+LEFT JOIN invoices i ON s.id = i.subscription_id
+WHERE a.plan = 'growth'
+AND (i.status IS NULL OR i.status != 'paid')",,1,1
+baseline,2,appdb,appdb-025,metric,False,3.89,1767,56,"SELECT COUNT(DISTINCT account_id) AS paying_customers_count
+FROM invoices
+WHERE status = 'paid'
+AND issued_at >= '2026-09-01'
+AND issued_at < '2026-10-01'",,1,1
+ktx,2,appdb,appdb-025,metric,False,4.41,528,76,"SELECT COUNT(DISTINCT accounts.id) AS paying_customers_count
+FROM accounts
+JOIN invoices ON accounts.id = invoices.account_id
+WHERE invoices.status = 'paid'
+AND invoices.paid_at >= '2026-09-01'
+AND invoices.paid_at < '2026-10-01'",,1,1
+datus,2,appdb,appdb-025,metric,False,3.77,1757,49,SELECT COUNT(DISTINCT account_id) FROM invoices WHERE status = 'paid' AND issued_at >= '2026-09-01' AND issued_at < '2026-10-01',,1,1
+wren,2,appdb,appdb-025,metric,False,3.33,697,78,"SELECT COUNT(DISTINCT i.account_id) AS paying_customers_count
+FROM invoices i
+JOIN accounts a ON i.account_id = a.id
+WHERE i.status = 'paid'
+AND i.paid_at BETWEEN '2026-09-01' AND '2026-09-30'
+AND a.is_test = FALSE",,1,1
+baseline,2,appdb,appdb-026,metric,False,3.61,1776,106,"SELECT
+  ROUND(SUM(i.amount_cents * fx.usd_per_unit) / COUNT(DISTINCT i.account_id), 2) AS avg_revenue_per_paying_customer
+FROM
+  invoices i
+JOIN
+  fx_rates fx ON i.currency = fx.currency
+WHERE
+  i.status = 'paid'
+  AND i.paid_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+ktx,2,appdb,appdb-026,metric,False,3.23,537,121,"SELECT
+  ROUND(AVG(invoices.amount_cents / 100.0), 2) AS avg_revenue_per_paying_customer
+FROM
+  invoices
+JOIN
+  subscriptions ON invoices.subscription_id = subscriptions.id
+JOIN
+  accounts ON invoices.account_id = accounts.id
+WHERE
+  invoices.paid_at BETWEEN '2026-07-01' AND '2026-09-30'
+  AND invoices.status = 'paid'
+  AND accounts.is_test = FALSE",,1,1
+datus,2,appdb,appdb-026,metric,False,5.5,1766,112,"SELECT
+    ROUND(SUM(i.amount_cents * fx.usd_per_unit) / COUNT(DISTINCT i.account_id) / 100, 2) AS avg_revenue_per_paying_customer
+FROM
+    invoices i
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    i.status = 'paid'
+    AND i.paid_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+wren,2,appdb,appdb-026,metric,False,4.63,706,124,"SELECT
+  ROUND(AVG(i.amount_cents / 100.0 * fx.usd_per_unit), 2) AS avg_revenue_per_customer
+FROM
+  invoices i
+JOIN
+  accounts a ON i.account_id = a.id
+JOIN
+  fx_rates fx ON a.currency = fx.currency
+WHERE
+  i.status = 'paid'
+  AND i.issued_at BETWEEN '2026-07-01' AND '2026-09-30'
+  AND a.is_test = FALSE",,1,1
+baseline,2,appdb,appdb-027,simple,False,3.66,1762,19,"SELECT COUNT(DISTINCT account_id) AS accounts_with_multiple_subscriptions
+FROM subscriptions",,1,1
+ktx,2,appdb,appdb-027,simple,False,3.62,523,44,"SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+GROUP BY a.id
+HAVING COUNT(s.id) > 1",,84,1
+datus,2,appdb,appdb-027,simple,False,3.84,1752,30,"SELECT COUNT(DISTINCT account_id) AS account_count
+FROM subscriptions
+GROUP BY account_id
+HAVING COUNT(id) > 1",,84,1
+wren,2,appdb,appdb-027,simple,False,3.57,692,44,"SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+GROUP BY a.id
+HAVING COUNT(s.id) > 1",,84,1
+baseline,2,appdb,appdb-028,multi_join,True,4.0,1772,69,"SELECT s.plan_tier, COUNT(*) AS churned_subscriptions
+FROM subscriptions s
+WHERE s.canceled_at IS NOT NULL
+AND EXTRACT(YEAR FROM s.canceled_at) = 2026
+GROUP BY s.plan_tier
+ORDER BY churned_subscriptions DESC
+LIMIT 1",,1,1
+ktx,2,appdb,appdb-028,multi_join,True,3.83,533,81,"SELECT
+    s.plan_tier,
+    COUNT(*) AS churned_subscriptions
+FROM
+    subscriptions s
+WHERE
+    s.canceled_at IS NOT NULL
+    AND EXTRACT(YEAR FROM s.canceled_at) = 2026
+GROUP BY
+    s.plan_tier
+ORDER BY
+    churned_subscriptions DESC
+LIMIT 1",,1,1
+datus,2,appdb,appdb-028,multi_join,True,3.28,1762,69,"SELECT s.plan_tier, COUNT(*) AS churned_subscriptions
+FROM subscriptions s
+WHERE s.canceled_at IS NOT NULL
+AND EXTRACT(YEAR FROM s.canceled_at) = 2026
+GROUP BY s.plan_tier
+ORDER BY churned_subscriptions DESC
+LIMIT 1",,1,1
+wren,2,appdb,appdb-028,multi_join,True,3.24,702,83,"SELECT
+    s.plan_tier,
+    COUNT(*) AS churned_subscriptions_count
+FROM
+    subscriptions s
+WHERE
+    s.canceled_at IS NOT NULL
+    AND EXTRACT(YEAR FROM s.canceled_at) = 2026
+GROUP BY
+    s.plan_tier
+ORDER BY
+    churned_subscriptions_count DESC
+LIMIT 1",,1,1
+baseline,2,appdb,appdb-029,multi_join,False,3.78,1768,59,"SELECT COUNT(DISTINCT a.id) AS active_accounts_2024
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+WHERE EXTRACT(YEAR FROM a.created_at) = 2024
+AND s.status = 'active'",,1,1
+ktx,2,appdb,appdb-029,multi_join,False,3.9,529,75,"SELECT COUNT(DISTINCT accounts.id) AS active_accounts_2024
+FROM accounts
+JOIN subscriptions ON accounts.id = subscriptions.account_id
+WHERE accounts.created_at >= '2024-01-01'
+  AND accounts.created_at < '2025-01-01'
+  AND subscriptions.status = 'active'",,1,1
+datus,2,appdb,appdb-029,multi_join,False,4.84,1758,65,"SELECT COUNT(DISTINCT a.id)
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+WHERE a.created_at >= '2024-01-01' AND a.created_at < '2025-01-01'
+AND s.status = 'active'",,1,1
+wren,2,appdb,appdb-029,multi_join,False,3.48,698,73,"SELECT COUNT(DISTINCT accounts.id) AS active_accounts_with_subscription
+FROM accounts
+JOIN subscriptions ON accounts.id = subscriptions.account_id
+WHERE accounts.created_at >= '2024-01-01'
+  AND accounts.created_at < '2025-01-01'
+  AND subscriptions.status = 'active'",,1,1
+baseline,2,appdb,appdb-030,metric,False,3.53,1786,145,"SELECT ROUND(100.0 * COUNT(DISTINCT a.id) / NULLIF(COUNT(DISTINCT CASE WHEN a.created_at BETWEEN '2025-01-01' AND '2025-03-31' THEN a.id END), 0), 2) AS churn_percentage
+FROM accounts a
+LEFT JOIN subscriptions s ON a.id = s.account_id
+WHERE a.created_at BETWEEN '2025-01-01' AND '2025-03-31'
+AND s.status = 'canceled'
+AND s.canceled_at <= '2026-09-30'",,1,1
+ktx,2,appdb,appdb-030,metric,False,4.32,547,118,"SELECT
+  ROUND(100.0 * COUNT(DISTINCT CASE WHEN s.canceled_at <= '2026-09-30' THEN a.id END) / NULLIF(COUNT(DISTINCT a.id), 0), 2) AS churn_percentage
+FROM
+  accounts a
+LEFT JOIN
+  subscriptions s ON a.id = s.account_id
+WHERE
+  a.created_at >= '2025-01-01'
+  AND a.created_at < '2025-04-01'",,1,1
+datus,2,appdb,appdb-030,metric,False,3.42,1776,108,"SELECT ROUND(100.0 * COUNT(DISTINCT s.account_id) / NULLIF(COUNT(DISTINCT a.id), 0), 2) AS churn_percentage
+FROM accounts a
+LEFT JOIN subscriptions s ON a.id = s.account_id
+WHERE a.created_at BETWEEN '2025-01-01' AND '2025-03-31'
+AND s.canceled_at <= '2026-09-30'",,1,1
+wren,2,appdb,appdb-030,metric,False,5.05,716,159,"SELECT
+  ROUND(
+    (SELECT COUNT(DISTINCT a.id)
+     FROM accounts a
+     JOIN subscriptions s ON a.id = s.account_id
+     WHERE a.created_at BETWEEN '2025-01-01' AND '2025-03-31'
+     AND s.status = 'churned'
+     AND s.canceled_at <= '2026-09-30') * 100.0 /
+    (SELECT COUNT(DISTINCT a.id)
+     FROM accounts a
+     WHERE a.created_at BETWEEN '2025-01-01' AND '2025-03-31'),
+    2
+  ) AS churn_percentage",,1,1
+baseline,2,appdb,appdb-031,metric,False,5.03,1770,59,"SELECT COUNT(DISTINCT e.user_id)
+FROM events e
+WHERE e.event_type = 'login'
+AND e.occurred_at >= '2026-07-01'
+AND e.occurred_at < '2026-10-01'",,1,1
+ktx,2,appdb,appdb-031,metric,False,4.51,531,66,"SELECT COUNT(DISTINCT e.user_id)
+FROM events e
+JOIN users u ON e.user_id = u.id
+WHERE e.event_type = 'login'
+AND e.occurred_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+datus,2,appdb,appdb-031,metric,False,7.1,1760,47,SELECT COUNT(DISTINCT user_id) FROM events WHERE event_type = 'login' AND occurred_at BETWEEN '2026-07-01' AND '2026-09-30',,1,1
+wren,2,appdb,appdb-031,metric,False,7.49,700,54,"SELECT COUNT(DISTINCT e.user_id)
+FROM events e
+WHERE e.event_type = 'login'
+AND e.occurred_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+baseline,2,appdb,appdb-032,multi_join,False,4.17,1770,47,"SELECT COUNT(*) AS accounts_with_no_users
+FROM accounts a
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM users u
+    WHERE u.account_id = a.id
+    AND u.deleted_at IS NULL
+)",,1,1
+ktx,2,appdb,appdb-032,multi_join,False,3.48,531,37,"SELECT COUNT(*) AS deleted_accounts_count
+FROM accounts
+WHERE id NOT IN (
+    SELECT DISTINCT account_id
+    FROM users
+    WHERE deleted_at IS NULL
+)",,1,1
+datus,2,appdb,appdb-032,multi_join,False,3.14,1760,37,"SELECT COUNT(*) AS deleted_accounts_count
+FROM accounts
+WHERE id NOT IN (
+    SELECT DISTINCT account_id
+    FROM users
+    WHERE deleted_at IS NULL
+)",,1,1
+wren,2,appdb,appdb-032,multi_join,False,4.04,700,43,"SELECT COUNT(DISTINCT a.id) AS deleted_accounts_count
+FROM accounts a
+LEFT JOIN users u ON a.id = u.account_id AND u.deleted_at IS NULL
+WHERE u.id IS NULL",,1,1
+baseline,2,appdb,appdb-033,multi_join,False,5.87,1777,112,"SELECT
+    SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM
+    refunds r
+JOIN
+    invoices i ON r.invoice_id = i.id
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    i.issued_at BETWEEN '2026-04-01' AND '2026-06-30'
+    AND r.created_at IS NOT NULL",,1,1
+ktx,2,appdb,appdb-033,multi_join,False,6.14,538,103,"SELECT
+    SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM
+    refunds r
+JOIN
+    invoices i ON r.invoice_id = i.id
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    i.issued_at BETWEEN '2026-04-01' AND '2026-06-30'",,1,1
+datus,2,appdb,appdb-033,multi_join,False,12.2,1767,93,"SELECT SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM refunds r
+JOIN invoices i ON r.invoice_id = i.id
+JOIN fx_rates fx ON i.currency = fx.currency
+WHERE i.issued_at BETWEEN '2026-04-01' AND '2026-06-30'",,1,1
+wren,2,appdb,appdb-033,multi_join,False,6.95,707,114,"SELECT
+    SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM
+    refunds r
+JOIN
+    invoices i ON r.invoice_id = i.id
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    i.issued_at BETWEEN '2026-04-01' AND '2026-06-30'
+    AND r.created_at >= i.issued_at",,1,1
+baseline,2,appdb,appdb-034,simple,False,7.45,1762,17,"SELECT country, COUNT(*) AS account_count
+FROM accounts
+GROUP BY country",,5,5
+ktx,2,appdb,appdb-034,simple,False,8.34,523,24,"SELECT
+    country,
+    COUNT(*) AS account_count
+FROM
+    accounts
+GROUP BY
+    country",,5,5
+datus,2,appdb,appdb-034,simple,False,11.21,1752,17,"SELECT country, COUNT(*) AS account_count
+FROM accounts
+GROUP BY country",,5,5
+wren,2,appdb,appdb-034,simple,False,14.07,692,40,"SELECT
+    country,
+    COUNT(*) AS account_count
+FROM
+    accounts
+WHERE
+    deleted_at IS NULL
+GROUP BY
+    country
+ORDER BY
+    account_count DESC",,5,5
+baseline,3,olist,olist-001,simple,True,11.4,2786,7,SELECT COUNT(*) FROM sellers,,1,1
+ktx,3,olist,olist-001,simple,True,8.05,661,17,"SELECT COUNT(DISTINCT seller_id) AS number_of_sellers
+FROM sellers",,1,1
+datus,3,olist,olist-001,simple,True,6.24,2970,7,SELECT COUNT(*) FROM sellers,,1,1
+wren,3,olist,olist-001,simple,True,3.13,653,17,"SELECT COUNT(DISTINCT seller_id) AS number_of_sellers
+FROM sellers",,1,1
+baseline,3,olist,olist-002,simple,False,6.86,2789,11,SELECT COUNT(DISTINCT customer_id) FROM orders,,1,1
+ktx,3,olist,olist-002,simple,True,8.6,664,31,"SELECT COUNT(DISTINCT customer_unique_id) AS number_of_unique_customers
+FROM customers
+JOIN orders ON customers.customer_id = orders.customer_id",,1,1
+datus,3,olist,olist-002,simple,True,6.11,2973,38,"SELECT COUNT(DISTINCT customer_unique_id) AS distinct_customers
+FROM olist.public.customers
+WHERE customer_id IN (SELECT DISTINCT customer_id FROM olist.public.orders)",,1,1
+wren,3,olist,olist-002,simple,True,5.33,656,29,"SELECT COUNT(DISTINCT customer_unique_id) AS unique_customers
+FROM customers
+JOIN orders ON customers.customer_id = orders.customer_id",,1,1
+baseline,3,olist,olist-003,simple,True,3.94,2791,35,"SELECT COUNT(*) AS late_deliveries
+FROM orders
+WHERE order_status = 'delivered'
+AND order_delivered_customer_date > order_estimated_delivery_date",,1,1
+ktx,3,olist,olist-003,simple,True,3.5,666,35,"SELECT COUNT(*) AS late_deliveries
+FROM orders
+WHERE order_status = 'delivered'
+AND order_delivered_customer_date > order_estimated_delivery_date",,1,1
+datus,3,olist,olist-003,simple,True,4.21,2975,35,"SELECT COUNT(*) AS late_deliveries
+FROM orders
+WHERE order_status = 'delivered'
+AND order_delivered_customer_date > order_estimated_delivery_date",,1,1
+wren,3,olist,olist-003,simple,True,3.53,658,30,"SELECT COUNT(*)
+FROM orders
+WHERE order_status = 'delivered'
+AND order_delivered_customer_date > order_estimated_delivery_date",,1,1
+baseline,3,olist,olist-004,simple,True,6.44,2790,37,"SELECT COUNT(DISTINCT p.product_category_name) AS num_categories_with_sales
+FROM products p
+JOIN order_items oi ON p.product_id = oi.product_id",,1,1
+ktx,3,olist,olist-004,simple,True,3.69,665,30,"SELECT COUNT(DISTINCT p.product_category_name)
+FROM products p
+JOIN order_items oi ON p.product_id = oi.product_id",,1,1
+datus,3,olist,olist-004,simple,True,4.08,2974,38,"SELECT COUNT(DISTINCT p.product_category_name) AS number_of_categories_with_sales
+FROM products p
+JOIN order_items oi ON p.product_id = oi.product_id",,1,1
+wren,3,olist,olist-004,simple,True,4.36,657,38,"SELECT COUNT(DISTINCT p.product_category_name) AS number_of_categories_with_sales
+FROM products p
+JOIN order_items oi ON p.product_id = oi.product_id",,1,1
+baseline,3,olist,olist-005,metric,False,3.49,2795,52,"SELECT SUM(oi.price) AS total_sales
+FROM order_items oi
+JOIN orders o ON oi.order_id = o.order_id
+WHERE EXTRACT(YEAR FROM o.order_purchase_timestamp) = 2017","ProgrammingError: (psycopg2.errors.UndefinedFunction) function pg_catalog.extract(unknown, text) does not exist
+LINE 4: WHERE EXTRACT(YEAR FROM o.order_purchase_timestamp) = 2017
+              ^
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+
+[SQL: SELECT SUM(",0,1
+ktx,3,olist,olist-005,metric,False,3.49,670,54,"SELECT SUM(oi.price) AS total_sales
+FROM order_items oi
+JOIN orders o ON oi.order_id = o.order_id
+WHERE EXTRACT(YEAR FROM o.order_purchase_timestamp::timestamp) = 2017",,1,1
+datus,3,olist,olist-005,metric,False,3.97,2979,70,"SELECT SUM(oi.price) AS total_sales_2017
+FROM order_items oi
+JOIN orders o ON oi.order_id = o.order_id
+WHERE o.order_purchase_timestamp BETWEEN '2017-01-01' AND '2017-12-31'",,1,1
+wren,3,olist,olist-005,metric,False,9.26,662,67,"SELECT SUM(op.payment_value) AS total_sales
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE EXTRACT(YEAR FROM TO_TIMESTAMP(o.order_purchase_timestamp, 'YYYY-MM-DD HH24:MI:SS')) = 2017",,1,1
+baseline,3,olist,olist-006,metric,False,4.73,2790,42,"SELECT AVG(op.payment_value) AS average_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'",,1,1
+ktx,3,olist,olist-006,metric,False,3.55,665,42,"SELECT AVG(op.payment_value) AS average_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'",,1,1
+datus,3,olist,olist-006,metric,False,3.34,2974,42,"SELECT AVG(op.payment_value) AS avg_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'",,1,1
+wren,3,olist,olist-006,metric,False,3.82,657,42,"SELECT AVG(op.payment_value) AS average_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'",,1,1
+baseline,3,olist,olist-007,metric,False,5.21,2789,54,"SELECT COUNT(DISTINCT customer_id) AS customers_ordered_more_than_once
+FROM orders
+WHERE customer_id IN (
+    SELECT customer_id
+    FROM orders
+    GROUP BY customer_id
+    HAVING COUNT(order_id) > 1
+)",,1,1
+ktx,3,olist,olist-007,metric,False,5.94,664,17,"SELECT COUNT(DISTINCT customer_id) AS frequent_customers_count
+FROM orders",,1,1
+datus,3,olist,olist-007,metric,False,5.84,2973,50,"SELECT COUNT(DISTINCT customer_id) AS frequent_customers_count
+FROM orders
+WHERE customer_id IN (
+    SELECT customer_id
+    FROM orders
+    GROUP BY customer_id
+    HAVING COUNT(order_id) > 1
+)",,1,1
+wren,3,olist,olist-007,metric,False,9.88,656,50,"SELECT COUNT(DISTINCT customer_id) AS frequent_customers_count
+FROM orders
+WHERE customer_id IN (
+    SELECT customer_id
+    FROM orders
+    GROUP BY customer_id
+    HAVING COUNT(order_id) > 1
+)",,1,1
+baseline,3,olist,olist-008,metric,True,7.9,2795,86,"SELECT
+    ROUND(COUNT(DISTINCT CASE WHEN op.payment_type = 'credit_card' THEN o.order_id END) * 100.0 / COUNT(DISTINCT o.order_id), 2) AS percentage_credit_card_orders
+FROM
+    orders o
+JOIN
+    order_payments op ON o.order_id = op.order_id
+WHERE
+    o.order_status = 'delivered'",,1,1
+ktx,3,olist,olist-008,metric,True,7.42,670,81,"SELECT
+    (COUNT(DISTINCT CASE WHEN op.payment_type = 'credit_card' THEN o.order_id END) * 100.0 / COUNT(DISTINCT o.order_id)) AS percentage_credit_card_orders
+FROM
+    orders o
+LEFT JOIN
+    order_payments op ON o.order_id = op.order_id
+WHERE
+    o.order_status = 'delivered'",,1,1
+datus,3,olist,olist-008,metric,True,6.43,2979,110,"SELECT
+    ROUND(
+        (SELECT COUNT(DISTINCT o.order_id)
+         FROM orders o
+         JOIN order_payments op ON o.order_id = op.order_id
+         WHERE o.order_status = 'delivered'
+         AND op.payment_type = 'credit_card') * 100.0 /
+        (SELECT COUNT(DISTINCT order_id)
+         FROM orders
+         WHERE order_status = 'delivered'),
+        2
+    ) AS percentage_of_delivered_orders_with_credit_card_payment",,1,1
+wren,3,olist,olist-008,metric,True,6.18,662,81,"SELECT
+    (COUNT(DISTINCT CASE WHEN op.payment_type = 'credit_card' THEN o.order_id END) * 100.0 / COUNT(DISTINCT o.order_id)) AS percentage_credit_card_orders
+FROM
+    orders o
+JOIN
+    order_payments op ON o.order_id = op.order_id
+WHERE
+    o.order_status = 'delivered'",,1,1
+baseline,3,olist,olist-009,metric,True,6.11,2797,63,"SELECT SUM(op.payment_value) AS total_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'
+AND EXTRACT(YEAR FROM o.order_purchase_timestamp::timestamp) = 2018",,1,1
+ktx,3,olist,olist-009,metric,True,6.71,672,63,"SELECT SUM(op.payment_value) AS total_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'
+AND EXTRACT(YEAR FROM o.order_purchase_timestamp::timestamp) = 2018",,1,1
+datus,3,olist,olist-009,metric,True,4.89,2981,70,"SELECT SUM(op.payment_value) AS total_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'
+AND EXTRACT(YEAR FROM CAST(o.order_purchase_timestamp AS TIMESTAMP)) = 2018",,1,1
+wren,3,olist,olist-009,metric,True,6.19,664,75,"SELECT SUM(op.payment_value) AS total_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'
+AND EXTRACT(YEAR FROM TO_DATE(o.order_purchase_timestamp, 'YYYY-MM-DD HH24:MI:SS')) = 2018",,1,1
+baseline,3,olist,olist-010,multi_join,True,3.58,2794,58,"SELECT s.seller_state, SUM(oi.price) AS total_sales
+FROM order_items oi
+JOIN sellers s ON oi.seller_id = s.seller_id
+GROUP BY s.seller_state
+ORDER BY total_sales DESC
+LIMIT 3",,3,3
+ktx,3,olist,olist-010,multi_join,True,4.95,669,69,"SELECT
+    s.seller_state,
+    SUM(oi.price) AS total_sales
+FROM
+    sellers s
+JOIN
+    order_items oi ON s.seller_id = oi.seller_id
+GROUP BY
+    s.seller_state
+ORDER BY
+    total_sales DESC
+LIMIT 3",,3,3
+datus,3,olist,olist-010,multi_join,True,3.61,2978,58,"SELECT s.seller_state, SUM(oi.price) AS total_sales
+FROM sellers s
+JOIN order_items oi ON s.seller_id = oi.seller_id
+GROUP BY s.seller_state
+ORDER BY total_sales DESC
+LIMIT 3",,3,3
+wren,3,olist,olist-010,multi_join,True,3.85,661,58,"SELECT s.seller_state, SUM(oi.price) AS total_sales
+FROM sellers s
+JOIN order_items oi ON s.seller_id = oi.seller_id
+GROUP BY s.seller_state
+ORDER BY total_sales DESC
+LIMIT 3",,3,3
+baseline,3,olist,olist-011,multi_join,True,4.63,2796,108,"SELECT
+    c.customer_state,
+    AVG(EXTRACT(EPOCH FROM (o.order_delivered_customer_date::timestamp - o.order_purchase_timestamp::timestamp)) / 3600) AS avg_delivery_time_hours
+FROM
+    orders o
+JOIN
+    customers c ON o.customer_id = c.customer_id
+WHERE
+    o.order_status = 'delivered'
+GROUP BY
+    c.customer_state
+ORDER BY
+    avg_delivery_time_hours DESC
+LIMIT 3",,3,3
+ktx,3,olist,olist-011,multi_join,True,4.63,671,108,"SELECT
+    c.customer_state,
+    AVG(EXTRACT(EPOCH FROM (o.order_delivered_customer_date::timestamp - o.order_purchase_timestamp::timestamp)) / 3600) AS avg_delivery_time_hours
+FROM
+    customers c
+JOIN
+    orders o ON c.customer_id = o.customer_id
+WHERE
+    o.order_status = 'delivered'
+GROUP BY
+    c.customer_state
+ORDER BY
+    avg_delivery_time_hours DESC
+LIMIT 3",,3,3
+datus,3,olist,olist-011,multi_join,True,4.48,2980,112,"SELECT
+    c.customer_state,
+    AVG(EXTRACT(EPOCH FROM (o.order_delivered_customer_date::timestamp - o.order_purchase_timestamp::timestamp)) / 3600) AS avg_delivery_time_hours
+FROM
+    orders o
+JOIN
+    customers c ON o.customer_id = c.customer_id
+WHERE
+    o.order_status = 'delivered'
+GROUP BY
+    c.customer_state
+ORDER BY
+    avg_delivery_time_hours DESC
+LIMIT 3",,3,3
+wren,3,olist,olist-011,multi_join,True,4.54,663,110,"SELECT
+    c.customer_state,
+    AVG(EXTRACT(EPOCH FROM (o.order_delivered_customer_date::TIMESTAMP - o.order_purchase_timestamp::TIMESTAMP)) / 3600) AS avg_delivery_time_hours
+FROM
+    orders o
+JOIN
+    customers c ON o.customer_id = c.customer_id
+WHERE
+    o.order_status = 'delivered'
+GROUP BY
+    c.customer_state
+ORDER BY
+    avg_delivery_time_hours DESC
+LIMIT 3",,3,3
+baseline,3,olist,olist-014,simple,True,3.43,2788,10,SELECT COUNT(*) AS product_count FROM products,,1,1
+ktx,3,olist,olist-014,simple,True,3.52,663,11,"SELECT COUNT(*) AS product_count
+FROM products",,1,1
+datus,3,olist,olist-014,simple,True,3.66,2972,7,SELECT COUNT(*) FROM products,,1,1
+wren,3,olist,olist-014,simple,True,3.25,655,11,"SELECT COUNT(*) AS product_count
+FROM products",,1,1
+baseline,3,olist,olist-015,simple,True,3.67,2786,20,"SELECT COUNT(*) AS canceled_orders_count
+FROM orders
+WHERE order_status = 'canceled'",,1,1
+ktx,3,olist,olist-015,simple,True,3.5,661,20,"SELECT COUNT(*) AS canceled_orders_count
+FROM orders
+WHERE order_status = 'canceled'",,1,1
+datus,3,olist,olist-015,simple,True,3.64,2970,20,"SELECT COUNT(*) AS canceled_orders_count
+FROM orders
+WHERE order_status = 'canceled'",,1,1
+wren,3,olist,olist-015,simple,True,3.51,653,20,"SELECT COUNT(*) AS canceled_orders_count
+FROM orders
+WHERE order_status = 'canceled'",,1,1
+baseline,3,olist,olist-018,metric,True,4.22,2797,47,"SELECT ROUND(AVG(review_score), 2) AS average_review_score
+FROM order_reviews
+JOIN orders ON order_reviews.order_id = orders.order_id
+WHERE orders.order_status = 'delivered'",,1,1
+ktx,3,olist,olist-018,metric,False,4.12,672,49,"SELECT ROUND(AVG(or.review_score), 2) AS average_review_score
+FROM order_reviews or
+JOIN orders o ON or.order_id = o.order_id
+WHERE o.order_status = 'delivered'","ProgrammingError: (psycopg2.errors.SyntaxError) syntax error at or near ""or""
+LINE 1: SELECT ROUND(AVG(or.review_score), 2) AS average_review_scor...
+                         ^
+
+[SQL: SELECT ROUND(AVG(or.review_score), 2) AS average_review_score
+FROM order_reviews or
+JOIN orders o ON or.order_id = o.order_id
+WHERE o.o",0,1
+datus,3,olist,olist-018,metric,False,3.75,2981,49,"SELECT ROUND(AVG(or.review_score), 2) AS average_review_score
+FROM order_reviews or
+JOIN orders o ON or.order_id = o.order_id
+WHERE o.order_status = 'delivered'","ProgrammingError: (psycopg2.errors.SyntaxError) syntax error at or near ""or""
+LINE 1: SELECT ROUND(AVG(or.review_score), 2) AS average_review_scor...
+                         ^
+
+[SQL: SELECT ROUND(AVG(or.review_score), 2) AS average_review_score
+FROM order_reviews or
+JOIN orders o ON or.order_id = o.order_id
+WHERE o.o",0,1
+wren,3,olist,olist-018,metric,False,3.56,664,49,"SELECT ROUND(AVG(or.review_score), 2) AS average_review_score
+FROM order_reviews or
+JOIN orders o ON or.order_id = o.order_id
+WHERE o.order_status = 'delivered'","ProgrammingError: (psycopg2.errors.SyntaxError) syntax error at or near ""or""
+LINE 1: SELECT ROUND(AVG(or.review_score), 2) AS average_review_scor...
+                         ^
+
+[SQL: SELECT ROUND(AVG(or.review_score), 2) AS average_review_score
+FROM order_reviews or
+JOIN orders o ON or.order_id = o.order_id
+WHERE o.o",0,1
+baseline,3,olist,olist-019,multi_join,True,3.81,2794,63,"SELECT op.payment_type, SUM(op.payment_value) AS total_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'
+GROUP BY op.payment_type
+ORDER BY total_payment_value DESC
+LIMIT 1",,1,1
+ktx,3,olist,olist-019,multi_join,True,4.12,669,76,"SELECT
+    op.payment_type,
+    SUM(op.payment_value) AS total_payment_value
+FROM
+    order_payments op
+JOIN
+    orders o ON op.order_id = o.order_id
+WHERE
+    o.order_status = 'delivered'
+GROUP BY
+    op.payment_type
+ORDER BY
+    total_payment_value DESC
+LIMIT 1",,1,1
+datus,3,olist,olist-019,multi_join,True,4.1,2978,63,"SELECT op.payment_type, SUM(op.payment_value) AS total_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'
+GROUP BY op.payment_type
+ORDER BY total_payment_value DESC
+LIMIT 1",,1,1
+wren,3,olist,olist-019,multi_join,True,4.1,661,63,"SELECT op.payment_type, SUM(op.payment_value) AS total_payment_value
+FROM order_payments op
+JOIN orders o ON op.order_id = o.order_id
+WHERE o.order_status = 'delivered'
+GROUP BY op.payment_type
+ORDER BY total_payment_value DESC
+LIMIT 1",,1,1
+baseline,3,olist,olist-020,multi_join,False,4.88,2796,43,"SELECT COUNT(DISTINCT o.customer_id)
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+WHERE o.order_status = 'delivered'
+AND c.customer_state = 'SP'",,1,1
+ktx,3,olist,olist-020,multi_join,True,4.6,671,51,"SELECT COUNT(DISTINCT c.customer_unique_id) AS unique_customers_in_sp
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+WHERE c.customer_state = 'SP' AND o.order_status = 'delivered'",,1,1
+datus,3,olist,olist-020,multi_join,True,4.25,2980,44,"SELECT COUNT(DISTINCT c.customer_unique_id)
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+WHERE c.customer_state = 'SP' AND o.order_status = 'delivered'",,1,1
+wren,3,olist,olist-020,multi_join,True,4.54,663,51,"SELECT COUNT(DISTINCT c.customer_unique_id) AS unique_customers_in_sp
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+WHERE c.customer_state = 'SP'
+AND o.order_status = 'delivered'",,1,1
+baseline,3,olist,olist-021,multi_join,True,4.08,2788,58,"SELECT s.seller_id, SUM(oi.price) AS total_sales
+FROM sellers s
+JOIN order_items oi ON s.seller_id = oi.seller_id
+GROUP BY s.seller_id
+ORDER BY total_sales DESC
+LIMIT 1",,1,1
+ktx,3,olist,olist-021,multi_join,True,5.09,663,58,"SELECT s.seller_id, SUM(oi.price) AS total_sales
+FROM sellers s
+JOIN order_items oi ON s.seller_id = oi.seller_id
+GROUP BY s.seller_id
+ORDER BY total_sales DESC
+LIMIT 1",,1,1
+datus,3,olist,olist-021,multi_join,True,3.25,2972,62,"SELECT s.seller_id, SUM(oi.price) AS total_sales
+FROM sellers s
+JOIN order_items oi ON s.seller_id = oi.seller_id
+GROUP BY s.seller_id
+ORDER BY total_sales DESC
+LIMIT 1",,1,1
+wren,3,olist,olist-021,multi_join,True,3.76,655,44,"SELECT oi.seller_id, SUM(oi.price) AS total_sales
+FROM order_items oi
+GROUP BY oi.seller_id
+ORDER BY total_sales DESC
+LIMIT 1",,1,1
+baseline,3,olist,olist-022,metric,True,4.73,2804,83,"SELECT ROUND(AVG(order_items_count), 2) AS average_items_per_order
+FROM (
+    SELECT o.order_id, COUNT(oi.order_item_id) AS order_items_count
+    FROM orders o
+    JOIN order_items oi ON o.order_id = oi.order_id
+    WHERE o.order_status = 'delivered'
+    GROUP BY o.order_id
+) AS order_items_counts",,1,1
+ktx,3,olist,olist-022,metric,True,5.84,679,83,"SELECT ROUND(AVG(order_items_count), 2) AS average_items_per_order
+FROM (
+    SELECT o.order_id, COUNT(oi.order_item_id) AS order_items_count
+    FROM orders o
+    JOIN order_items oi ON o.order_id = oi.order_id
+    WHERE o.order_status = 'delivered'
+    GROUP BY o.order_id
+) AS order_items_counts",,1,1
+datus,3,olist,olist-022,metric,True,5.67,2988,83,"SELECT ROUND(AVG(order_items_count), 2) AS avg_items_per_order
+FROM (
+    SELECT o.order_id, COUNT(oi.order_item_id) AS order_items_count
+    FROM orders o
+    JOIN order_items oi ON o.order_id = oi.order_id
+    WHERE o.order_status = 'delivered'
+    GROUP BY o.order_id
+) AS order_items_counts",,1,1
+wren,3,olist,olist-022,metric,True,5.04,671,81,"SELECT ROUND(AVG(item_count), 2) AS average_items_per_order
+FROM (
+    SELECT o.order_id, COUNT(oi.order_item_id) AS item_count
+    FROM orders o
+    JOIN order_items oi ON o.order_id = oi.order_id
+    WHERE o.order_status = 'delivered'
+    GROUP BY o.order_id
+) AS order_item_counts",,1,1
+baseline,3,appdb,appdb-001,simple,False,6.25,1759,7,SELECT COUNT(*) FROM accounts,,1,1
+ktx,3,appdb,appdb-001,simple,False,6.57,520,7,SELECT COUNT(*) FROM accounts,,1,1
+datus,3,appdb,appdb-001,simple,False,7.14,1749,7,SELECT COUNT(*) FROM accounts,,1,1
+wren,3,appdb,appdb-001,simple,False,4.93,689,7,SELECT COUNT(*) FROM accounts,,1,1
+baseline,3,appdb,appdb-002,simple,False,4.46,1759,7,SELECT COUNT(*) FROM users,,1,1
+ktx,3,appdb,appdb-002,simple,False,4.74,520,10,SELECT COUNT(*) AS user_count FROM users,,1,1
+datus,3,appdb,appdb-002,simple,False,5.3,1749,7,SELECT COUNT(*) FROM users,,1,1
+wren,3,appdb,appdb-002,simple,False,4.06,689,7,SELECT COUNT(*) FROM users,,1,1
+baseline,3,appdb,appdb-003,simple,False,3.76,1764,38,SELECT COUNT(*) FROM accounts WHERE created_at >= '2025-01-01' AND created_at < '2026-01-01',,1,1
+ktx,3,appdb,appdb-003,simple,False,3.39,525,28,"SELECT COUNT(*) AS account_count
+FROM accounts
+WHERE EXTRACT(YEAR FROM created_at) = 2025",,1,1
+datus,3,appdb,appdb-003,simple,False,3.9,1754,28,"SELECT COUNT(*) AS account_count
+FROM accounts
+WHERE EXTRACT(YEAR FROM created_at) = 2025",,1,1
+wren,3,appdb,appdb-003,simple,False,3.77,694,28,"SELECT COUNT(*) AS account_count
+FROM accounts
+WHERE EXTRACT(YEAR FROM created_at) = 2025",,1,1
+baseline,3,appdb,appdb-004,simple,False,3.45,1759,18,"SELECT COUNT(*) AS active_subscriptions
+FROM subscriptions
+WHERE status = 'active'",,1,1
+ktx,3,appdb,appdb-004,simple,False,3.54,520,14,"SELECT COUNT(*)
+FROM subscriptions
+WHERE status = 'active'",,1,1
+datus,3,appdb,appdb-004,simple,False,3.37,1749,12,SELECT COUNT(*) FROM subscriptions WHERE status = 'active',,1,1
+wren,3,appdb,appdb-004,simple,False,3.19,689,14,"SELECT COUNT(*)
+FROM subscriptions
+WHERE status = 'active'",,1,1
+baseline,3,appdb,appdb-005,simple,True,3.01,1761,40,"SELECT plan_tier, COUNT(*) AS active_subscriptions
+FROM subscriptions
+WHERE status = 'active'
+GROUP BY plan_tier
+ORDER BY active_subscriptions DESC
+LIMIT 1",,1,1
+ktx,3,appdb,appdb-005,simple,True,2.99,522,75,"SELECT
+    a.plan_tier,
+    COUNT(s.id) AS active_subscription_count
+FROM
+    accounts a
+JOIN
+    subscriptions s ON a.id = s.account_id
+WHERE
+    s.status = 'active'
+GROUP BY
+    a.plan_tier
+ORDER BY
+    active_subscription_count DESC
+LIMIT 1",,1,1
+datus,3,appdb,appdb-005,simple,True,2.91,1751,40,"SELECT plan_tier, COUNT(*) AS active_subscriptions
+FROM subscriptions
+WHERE status = 'active'
+GROUP BY plan_tier
+ORDER BY active_subscriptions DESC
+LIMIT 1",,1,1
+wren,3,appdb,appdb-005,simple,True,3.49,691,61,"SELECT
+    s.plan_tier,
+    COUNT(s.id) AS active_subscription_count
+FROM
+    subscriptions s
+WHERE
+    s.status = 'active'
+GROUP BY
+    s.plan_tier
+ORDER BY
+    active_subscription_count DESC
+LIMIT 1",,1,1
+baseline,3,appdb,appdb-006,simple,False,3.52,1762,12,SELECT COUNT(*) FROM accounts WHERE plan = 'scale',,1,1
+ktx,3,appdb,appdb-006,simple,False,3.27,523,14,"SELECT COUNT(*)
+FROM accounts
+WHERE plan = 'scale'",,1,1
+datus,3,appdb,appdb-006,simple,False,3.37,1752,12,SELECT COUNT(*) FROM accounts WHERE plan = 'scale',,1,1
+wren,3,appdb,appdb-006,simple,False,3.54,692,18,"SELECT COUNT(*) AS scale_account_count
+FROM accounts
+WHERE plan = 'scale'",,1,1
+baseline,3,appdb,appdb-007,simple,False,3.04,1759,14,SELECT COUNT(*) FROM subscriptions WHERE status = 'past_due',,1,1
+ktx,3,appdb,appdb-007,simple,False,3.22,520,16,"SELECT COUNT(*)
+FROM subscriptions
+WHERE status = 'past_due'",,1,1
+datus,3,appdb,appdb-007,simple,False,3.23,1749,14,SELECT COUNT(*) FROM subscriptions WHERE status = 'past_due',,1,1
+wren,3,appdb,appdb-007,simple,False,3.39,689,16,"SELECT COUNT(*)
+FROM subscriptions
+WHERE status = 'past_due'",,1,1
+baseline,3,appdb,appdb-008,metric,False,4.75,1768,171,"SELECT
+    SUM(
+        CASE
+            WHEN i.currency = 'USD' THEN i.amount_cents
+            ELSE i.amount_cents * fx.usd_per_unit
+        END
+    ) -
+    SUM(
+        CASE
+            WHEN i.currency = 'USD' THEN r.amount_cents
+            ELSE r.amount_cents * fx.usd_per_unit
+        END
+    ) AS net_revenue_usd
+FROM
+    invoices i
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+LEFT JOIN
+    refunds r ON i.id = r.invoice_id
+WHERE
+    i.status = 'paid'
+    AND i.paid_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+ktx,3,appdb,appdb-008,metric,False,3.98,529,143,"SELECT
+  SUM(i.amount_cents * fx.usd_per_unit) AS net_revenue_usd
+FROM
+  invoices i
+JOIN
+  accounts a ON i.account_id = a.id
+JOIN
+  fx_rates fx ON a.currency = fx.currency
+LEFT JOIN
+  refunds r ON i.id = r.invoice_id
+WHERE
+  i.status = 'paid'
+  AND i.paid_at BETWEEN '2026-07-01' AND '2026-09-30'
+  AND (r.id IS NULL OR r.created_at > '2026-09-30')",,1,1
+datus,3,appdb,appdb-008,metric,False,4.18,1758,127,"SELECT
+    SUM(i.amount_cents * fx.usd_per_unit) -
+    COALESCE(SUM(r.amount_cents * fx.usd_per_unit), 0) AS net_revenue_usd
+FROM
+    invoices i
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+LEFT JOIN
+    refunds r ON i.id = r.invoice_id
+WHERE
+    i.status = 'paid'
+    AND i.paid_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+wren,3,appdb,appdb-008,metric,False,17.07,698,207,"SELECT
+  SUM(
+    CASE
+      WHEN invoices.currency = 'USD' THEN invoices.amount_cents
+      ELSE invoices.amount_cents / fx_rates.usd_per_unit
+    END
+  ) -
+  SUM(
+    CASE
+      WHEN invoices.currency = 'USD' THEN refunds.amount_cents
+      ELSE refunds.amount_cents / fx_rates.usd_per_unit
+    END
+  ) AS net_revenue_usd
+FROM
+  invoices
+JOIN
+  accounts ON invoices.account_id = accounts.id
+JOIN
+  fx_rates ON invoices.currency = fx_rates.currency
+LEFT JOIN
+  refunds ON invoices.id = refunds.invoice_id
+WHERE
+  invoices.status = 'paid'
+  AND invoices.issued_at BETWEEN '2026-07-01' AND '2026-09-30'
+  AND accounts.is_test = FALSE",,1,1
+baseline,3,appdb,appdb-009,metric,False,4.25,1772,94,"SELECT
+    SUM(i.amount_cents * fx.usd_per_unit) / 100 AS gross_revenue_usd
+FROM
+    invoices i
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    i.status = 'paid'
+    AND i.issued_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+ktx,3,appdb,appdb-009,metric,False,5.05,533,102,"SELECT
+    SUM(i.amount_cents * COALESCE(fx.usd_per_unit, 1)) / 100 AS gross_revenue_usd
+FROM
+    invoices i
+LEFT JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    i.status = 'paid'
+    AND i.issued_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+datus,3,appdb,appdb-009,metric,False,3.88,1762,78,"SELECT SUM(i.amount_cents * fx.usd_per_unit) / 100 AS gross_revenue_usd
+FROM invoices i
+JOIN fx_rates fx ON i.currency = fx.currency
+WHERE i.issued_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+wren,3,appdb,appdb-009,metric,False,3.87,702,116,"SELECT
+  SUM(i.amount_cents * fx.usd_per_unit) / 100 AS gross_revenue_usd
+FROM
+  invoices i
+JOIN
+  accounts a ON i.account_id = a.id
+JOIN
+  fx_rates fx ON i.currency = fx.currency
+WHERE
+  i.issued_at BETWEEN '2026-07-01' AND '2026-09-30'
+  AND i.status = 'paid'
+  AND a.is_test = FALSE",,1,1
+baseline,3,appdb,appdb-010,metric,False,3.76,1768,92,"SELECT SUM(r.amount_cents * f.usd_per_unit) / 100 AS total_refunded_usd
+FROM refunds r
+JOIN invoices i ON r.invoice_id = i.id
+JOIN fx_rates f ON i.currency = f.currency
+WHERE r.created_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+ktx,3,appdb,appdb-010,metric,False,4.08,529,99,"SELECT SUM(r.amount_cents / fx.usd_per_unit) AS total_refunded_usd
+FROM refunds r
+JOIN invoices i ON r.invoice_id = i.id
+JOIN accounts a ON i.account_id = a.id
+JOIN fx_rates fx ON a.currency = fx.currency
+WHERE r.created_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+datus,3,appdb,appdb-010,metric,False,3.61,1758,92,"SELECT SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM refunds r
+JOIN invoices i ON r.invoice_id = i.id
+JOIN fx_rates fx ON i.currency = fx.currency
+WHERE r.created_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+wren,3,appdb,appdb-010,metric,False,3.86,698,102,"SELECT
+  SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM
+  refunds r
+JOIN
+  invoices i ON r.invoice_id = i.id
+JOIN
+  fx_rates fx ON i.currency = fx.currency
+WHERE
+  r.created_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+baseline,3,appdb,appdb-011,metric,False,4.3,1765,51,"SELECT COUNT(*) AS churned_subscriptions
+FROM subscriptions
+WHERE canceled_at IS NOT NULL
+AND EXTRACT(MONTH FROM canceled_at) = 9
+AND EXTRACT(YEAR FROM canceled_at) = 2026",,1,1
+ktx,3,appdb,appdb-011,metric,False,3.37,526,43,"SELECT COUNT(*) AS churned_subscriptions
+FROM subscriptions
+WHERE canceled_at BETWEEN '2026-09-01' AND '2026-09-30'",,1,1
+datus,3,appdb,appdb-011,metric,False,3.83,1755,51,"SELECT COUNT(*) AS churned_subscriptions
+FROM subscriptions
+WHERE canceled_at IS NOT NULL
+AND EXTRACT(YEAR FROM canceled_at) = 2026
+AND EXTRACT(MONTH FROM canceled_at) = 9",,1,1
+wren,3,appdb,appdb-011,metric,False,3.56,695,46,"SELECT COUNT(*)
+FROM subscriptions
+WHERE canceled_at IS NOT NULL
+AND EXTRACT(MONTH FROM canceled_at) = 9
+AND EXTRACT(YEAR FROM canceled_at) = 2026",,1,1
+baseline,3,appdb,appdb-012,metric,False,3.4,1768,43,"SELECT COUNT(*) AS churned_subscriptions
+FROM subscriptions
+WHERE canceled_at BETWEEN '2026-04-01' AND '2026-06-30'",,1,1
+ktx,3,appdb,appdb-012,metric,False,3.52,529,43,"SELECT COUNT(*) AS churned_subscriptions
+FROM subscriptions
+WHERE canceled_at BETWEEN '2026-04-01' AND '2026-06-30'",,1,1
+datus,3,appdb,appdb-012,metric,False,5.02,1758,43,"SELECT COUNT(*) AS churned_subscriptions
+FROM subscriptions
+WHERE canceled_at BETWEEN '2026-04-01' AND '2026-06-30'",,1,1
+wren,3,appdb,appdb-012,metric,False,3.47,698,43,"SELECT COUNT(*) AS churned_subscriptions
+FROM subscriptions
+WHERE canceled_at BETWEEN '2026-04-01' AND '2026-06-30'",,1,1
+baseline,3,appdb,appdb-013,metric,False,4.12,1765,58,"SELECT COUNT(DISTINCT e.account_id) AS upgraded_customers
+FROM events e
+JOIN accounts a ON e.account_id = a.id
+WHERE e.event_type = 'upgrade'
+AND EXTRACT(YEAR FROM e.occurred_at) = 2026",,1,1
+ktx,3,appdb,appdb-013,metric,False,2.7,526,60,"SELECT COUNT(DISTINCT e.account_id) AS upgraded_customers
+FROM events e
+JOIN accounts a ON e.account_id = a.id
+WHERE e.event_type = 'plan_upgrade'
+AND EXTRACT(YEAR FROM e.occurred_at) = 2026",,1,1
+datus,3,appdb,appdb-013,metric,False,3.53,1755,53,"SELECT COUNT(DISTINCT account_id) AS upgraded_customers_2026
+FROM subscriptions
+WHERE started_at >= '2026-01-01' AND started_at < '2027-01-01'",,1,1
+wren,3,appdb,appdb-013,metric,False,3.89,695,61,"SELECT COUNT(DISTINCT e.account_id) AS upgraded_customers_count
+FROM events e
+JOIN accounts a ON e.account_id = a.id
+WHERE e.event_type = 'plan_upgrade'
+AND EXTRACT(YEAR FROM e.occurred_at) = 2026",,1,1
+baseline,3,appdb,appdb-014,metric,False,3.58,1768,48,"SELECT COUNT(DISTINCT user_id) AS monthly_active_users
+FROM events
+WHERE occurred_at >= '2026-09-01' AND occurred_at < '2026-10-01'",,1,1
+ktx,3,appdb,appdb-014,metric,False,3.62,529,53,"SELECT COUNT(DISTINCT user_id) AS monthly_active_users
+FROM events
+WHERE event_type = 'login'
+AND occurred_at BETWEEN '2026-09-01' AND '2026-09-30'",,1,1
+datus,3,appdb,appdb-014,metric,False,3.6,1758,48,"SELECT COUNT(DISTINCT user_id) AS monthly_active_users
+FROM events
+WHERE occurred_at >= '2026-09-01' AND occurred_at < '2026-10-01'",,1,1
+wren,3,appdb,appdb-014,metric,False,3.98,698,46,"SELECT COUNT(DISTINCT user_id) AS monthly_active_users
+FROM events
+WHERE occurred_at BETWEEN '2026-09-01' AND '2026-09-30'",,1,1
+baseline,3,appdb,appdb-015,metric,False,3.73,1768,76,"SELECT AVG(i.amount_cents * f.usd_per_unit / 100) AS avg_paid_invoice_amount_usd
+FROM invoices i
+JOIN fx_rates f ON i.currency = f.currency
+WHERE i.status = 'paid'
+AND EXTRACT(YEAR FROM i.paid_at) = 2026",,1,1
+ktx,3,appdb,appdb-015,metric,False,4.26,529,83,"SELECT AVG(i.amount_cents / fx.usd_per_unit) AS avg_paid_invoice_amount_usd
+FROM invoices i
+JOIN accounts a ON i.account_id = a.id
+JOIN fx_rates fx ON a.currency = fx.currency
+WHERE i.status = 'paid'
+AND EXTRACT(YEAR FROM i.paid_at) = 2026",,1,1
+datus,3,appdb,appdb-015,metric,False,4.24,1758,57,"SELECT AVG(i.amount_cents / 100.0) AS avg_paid_invoice_amount_usd
+FROM invoices i
+WHERE i.status = 'paid'
+AND EXTRACT(YEAR FROM i.paid_at) = 2026",,1,1
+wren,3,appdb,appdb-015,metric,False,4.2,698,71,"SELECT AVG(i.amount_cents / f.usd_per_unit) AS avg_paid_invoice_amount_usd
+FROM invoices i
+JOIN fx_rates f ON i.currency = f.currency
+WHERE i.status = 'paid'
+AND EXTRACT(YEAR FROM i.paid_at) = 2026",,1,1
+baseline,3,appdb,appdb-016,metric,False,4.08,1768,95,"SELECT
+    ROUND(COUNT(DISTINCT r.invoice_id) * 100.0 / NULLIF(COUNT(DISTINCT i.id), 0), 2) AS refund_percentage
+FROM
+    invoices i
+LEFT JOIN
+    refunds r ON i.id = r.invoice_id
+WHERE
+    i.status = 'paid'
+    AND EXTRACT(YEAR FROM i.paid_at) = 2026",,1,1
+ktx,3,appdb,appdb-016,metric,False,4.22,529,95,"SELECT
+    COUNT(DISTINCT CASE WHEN r.id IS NOT NULL THEN i.id END) * 100.0 / COUNT(DISTINCT i.id) AS refund_percentage
+FROM
+    invoices i
+LEFT JOIN
+    refunds r ON i.id = r.invoice_id
+WHERE
+    i.paid_at BETWEEN '2026-01-01' AND '2026-12-31'",,1,1
+datus,3,appdb,appdb-016,metric,False,4.17,1758,88,"SELECT
+    COUNT(DISTINCT r.invoice_id) * 100.0 / COUNT(DISTINCT i.id) AS refund_percentage
+FROM
+    invoices i
+LEFT JOIN
+    refunds r ON i.id = r.invoice_id
+WHERE
+    i.paid_at BETWEEN '2026-01-01' AND '2026-12-31'",,1,1
+wren,3,appdb,appdb-016,metric,False,4.08,698,99,"SELECT
+    COUNT(DISTINCT CASE WHEN refunds.id IS NOT NULL THEN invoices.id END) * 100.0 / COUNT(DISTINCT invoices.id) AS refund_percentage
+FROM
+    invoices
+LEFT JOIN
+    refunds ON invoices.id = refunds.invoice_id
+WHERE
+    invoices.paid_at BETWEEN '2026-01-01' AND '2026-12-31'",,1,1
+baseline,3,appdb,appdb-017,metric,False,6.38,1770,56,"SELECT COUNT(*) AS failed_invoices_q3_2026
+FROM invoices
+WHERE status = 'failed'
+AND issued_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+ktx,3,appdb,appdb-017,metric,False,3.63,531,47,"SELECT COUNT(*)
+FROM invoices
+WHERE status = 'failed'
+AND issued_at >= '2026-07-01'
+AND issued_at < '2026-10-01'",,1,1
+datus,3,appdb,appdb-017,metric,False,3.94,1760,58,"SELECT COUNT(*) AS failed_invoices_q3_2026
+FROM invoices
+WHERE status = 'failed'
+AND issued_at >= '2026-07-01'
+AND issued_at < '2026-10-01'",,1,1
+wren,3,appdb,appdb-017,metric,False,3.89,700,45,"SELECT COUNT(*)
+FROM invoices
+WHERE status = 'failed'
+AND issued_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+baseline,3,appdb,appdb-018,multi_join,True,5.52,1767,223,"SELECT
+    a.country,
+    SUM(
+        CASE
+            WHEN i.currency = 'USD' THEN i.amount_cents
+            ELSE i.amount_cents * f.usd_per_unit
+        END
+    ) - COALESCE(
+        SUM(
+            CASE
+                WHEN i.currency = 'USD' THEN r.amount_cents
+                ELSE r.amount_cents * f.usd_per_unit
+            END
+        ),
+        0
+    ) AS net_revenue_usd
+FROM
+    accounts a
+JOIN
+    invoices i ON a.id = i.account_id
+LEFT JOIN
+    refunds r ON i.id = r.invoice_id
+JOIN
+    fx_rates f ON i.currency = f.currency
+WHERE
+    i.status = 'paid'
+    AND i.paid_at BETWEEN '2026-01-01' AND '2026-12-31'
+GROUP BY
+    a.country
+ORDER BY
+    net_revenue_usd DESC
+LIMIT 1",,1,1
+ktx,3,appdb,appdb-018,multi_join,True,5.18,528,124,"SELECT
+    a.country,
+    SUM(i.amount_cents * COALESCE(f.usd_per_unit, 1)) AS net_revenue_usd
+FROM
+    accounts a
+JOIN
+    invoices i ON a.id = i.account_id
+LEFT JOIN
+    fx_rates f ON i.currency = f.currency
+WHERE
+    i.status = 'paid'
+    AND EXTRACT(YEAR FROM i.paid_at) = 2026
+GROUP BY
+    a.country
+ORDER BY
+    net_revenue_usd DESC
+LIMIT 1",,1,1
+datus,3,appdb,appdb-018,multi_join,True,3.65,1757,114,"SELECT a.country, SUM(i.amount_cents * f.usd_per_unit) AS net_revenue_usd
+FROM invoices i
+JOIN accounts a ON i.account_id = a.id
+JOIN fx_rates f ON i.currency = f.currency
+WHERE i.status = 'paid'
+AND i.paid_at BETWEEN '2026-01-01' AND '2026-12-31'
+GROUP BY a.country
+ORDER BY net_revenue_usd DESC
+LIMIT 1",,1,1
+wren,3,appdb,appdb-018,multi_join,True,3.47,697,178,"SELECT
+    a.country,
+    SUM(i.amount_cents * fx.usd_per_unit / 100) -
+    COALESCE(SUM(r.amount_cents * fx.usd_per_unit / 100), 0) AS net_revenue_usd
+FROM
+    invoices i
+JOIN
+    accounts a ON i.account_id = a.id
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+LEFT JOIN
+    refunds r ON i.id = r.invoice_id
+WHERE
+    i.status = 'paid'
+    AND i.issued_at BETWEEN '2026-01-01' AND '2026-12-31'
+GROUP BY
+    a.country
+ORDER BY
+    net_revenue_usd DESC
+LIMIT 1",,1,1
+baseline,3,appdb,appdb-019,multi_join,True,3.12,1772,93,"SELECT e.event_type, COUNT(DISTINCT e.user_id) AS distinct_active_users
+FROM events e
+JOIN users u ON e.user_id = u.id
+WHERE e.occurred_at BETWEEN '2026-07-01' AND '2026-09-30'
+AND u.deleted_at IS NULL
+GROUP BY e.event_type
+ORDER BY distinct_active_users DESC
+LIMIT 1",,1,1
+ktx,3,appdb,appdb-019,multi_join,True,3.37,533,93,"SELECT e.event_type, COUNT(DISTINCT e.user_id) AS distinct_user_count
+FROM events e
+JOIN users u ON e.user_id = u.id
+WHERE e.occurred_at BETWEEN '2026-07-01' AND '2026-09-30'
+AND u.deleted_at IS NULL
+GROUP BY e.event_type
+ORDER BY distinct_user_count DESC
+LIMIT 1",,1,1
+datus,3,appdb,appdb-019,multi_join,True,4.25,1762,93,"SELECT e.event_type, COUNT(DISTINCT e.user_id) AS distinct_user_count
+FROM events e
+JOIN users u ON e.user_id = u.id
+WHERE e.occurred_at BETWEEN '2026-07-01' AND '2026-09-30'
+AND u.deleted_at IS NULL
+GROUP BY e.event_type
+ORDER BY distinct_user_count DESC
+LIMIT 1",,1,1
+wren,3,appdb,appdb-019,multi_join,True,4.45,702,93,"SELECT e.event_type, COUNT(DISTINCT e.user_id) AS distinct_user_count
+FROM events e
+JOIN users u ON e.user_id = u.id
+WHERE e.occurred_at BETWEEN '2026-07-01' AND '2026-09-30'
+AND u.deleted_at IS NULL
+GROUP BY e.event_type
+ORDER BY distinct_user_count DESC
+LIMIT 1",,1,1
+baseline,3,appdb,appdb-020,multi_join,False,3.26,1775,143,"SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+JOIN fx_rates f ON i.currency = f.currency
+LEFT JOIN refunds r ON i.id = r.invoice_id
+WHERE i.status = 'paid'
+  AND i.paid_at BETWEEN '2026-01-01' AND '2026-12-31'
+  AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * f.usd_per_unit / 100 > 2000
+GROUP BY a.id","ProgrammingError: (psycopg2.errors.GroupingError) aggregate functions are not allowed in WHERE
+LINE 8:   AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * ...
+                                         ^
+
+[SQL: SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+J",0,1
+ktx,3,appdb,appdb-020,multi_join,False,3.18,536,119,"SELECT COUNT(DISTINCT a.id) AS num_accounts
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+JOIN fx_rates f ON a.currency = f.currency
+LEFT JOIN refunds r ON i.id = r.invoice_id
+WHERE EXTRACT(YEAR FROM i.paid_at) = 2026
+AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * f.usd_per_unit > 200000
+GROUP BY a.id","ProgrammingError: (psycopg2.errors.GroupingError) aggregate functions are not allowed in WHERE
+LINE 7: AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * f....
+                                       ^
+
+[SQL: SELECT COUNT(DISTINCT a.id) AS num_accounts
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+JOIN",0,1
+datus,3,appdb,appdb-020,multi_join,False,3.13,1765,116,"SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+JOIN fx_rates f ON a.currency = f.currency
+LEFT JOIN refunds r ON i.id = r.invoice_id
+WHERE EXTRACT(YEAR FROM i.paid_at) = 2026
+AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * f.usd_per_unit > 2000
+GROUP BY a.id","ProgrammingError: (psycopg2.errors.GroupingError) aggregate functions are not allowed in WHERE
+LINE 7: AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * f....
+                                       ^
+
+[SQL: SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+JOI",0,1
+wren,3,appdb,appdb-020,multi_join,False,5.05,705,140,"SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+JOIN fx_rates f ON i.currency = f.currency
+LEFT JOIN refunds r ON i.id = r.invoice_id
+WHERE i.status = 'paid'
+  AND i.issued_at BETWEEN '2026-01-01' AND '2026-12-31'
+  AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * f.usd_per_unit > 200000
+GROUP BY a.id","ProgrammingError: (psycopg2.errors.GroupingError) aggregate functions are not allowed in WHERE
+LINE 8:   AND (i.amount_cents - COALESCE(SUM(r.amount_cents), 0)) * ...
+                                         ^
+
+[SQL: SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN invoices i ON a.id = i.account_id
+J",0,1
+baseline,3,appdb,appdb-021,multi_join,False,5.68,1779,141,"SELECT COUNT(DISTINCT a.id) AS active_accounts_with_no_events
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+WHERE s.status = 'active'
+AND s.started_at <= '2026-09-30'
+AND (s.canceled_at IS NULL OR s.canceled_at > '2026-09-30')
+AND NOT EXISTS (
+    SELECT 1
+    FROM events e
+    WHERE e.account_id = a.id
+    AND e.occurred_at BETWEEN '2026-07-02' AND '2026-09-30'
+)",,1,1
+ktx,3,appdb,appdb-021,multi_join,False,4.02,540,89,"SELECT COUNT(DISTINCT a.id) AS active_accounts_with_no_events
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+LEFT JOIN events e ON a.id = e.account_id AND e.occurred_at BETWEEN '2026-07-02' AND '2026-09-30'
+WHERE s.status = 'active'
+AND e.id IS NULL",,1,1
+datus,3,appdb,appdb-021,multi_join,False,4.15,1769,89,"SELECT COUNT(DISTINCT a.id) AS active_accounts_with_no_events
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+LEFT JOIN events e ON a.id = e.account_id AND e.occurred_at BETWEEN '2026-07-02' AND '2026-09-30'
+WHERE s.status = 'active'
+AND e.id IS NULL",,1,1
+wren,3,appdb,appdb-021,multi_join,False,4.16,709,89,"SELECT COUNT(DISTINCT a.id) AS active_accounts_with_no_events
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+LEFT JOIN events e ON a.id = e.account_id AND e.occurred_at BETWEEN '2026-07-02' AND '2026-09-30'
+WHERE s.status = 'active'
+AND e.id IS NULL",,1,1
+baseline,3,appdb,appdb-022,multi_join,False,6.25,1770,57,"SELECT COUNT(DISTINCT a.id) AS growth_plan_customers_without_paid_invoices
+FROM accounts a
+LEFT JOIN invoices i ON a.id = i.account_id AND i.status = 'paid'
+WHERE a.plan = 'growth' AND i.id IS NULL",,1,1
+ktx,3,appdb,appdb-022,multi_join,False,3.22,531,56,"SELECT COUNT(DISTINCT a.id) AS growth_customers_without_paid_invoices
+FROM accounts a
+LEFT JOIN invoices i ON a.id = i.account_id AND i.status = 'paid'
+WHERE a.plan = 'growth'
+AND i.id IS NULL",,1,1
+datus,3,appdb,appdb-022,multi_join,True,3.86,1760,58,"SELECT COUNT(DISTINCT a.id) AS growth_customers_without_paid_invoices
+FROM accounts a
+LEFT JOIN invoices i ON a.id = i.account_id AND i.status = 'paid'
+WHERE a.plan_tier = 'growth' AND i.id IS NULL",,1,1
+wren,3,appdb,appdb-022,multi_join,False,3.14,700,71,"SELECT COUNT(DISTINCT a.id) AS growth_plan_customers_without_paid_invoices
+FROM accounts a
+LEFT JOIN subscriptions s ON a.id = s.account_id
+LEFT JOIN invoices i ON s.id = i.subscription_id
+WHERE a.plan = 'growth'
+AND (i.status IS NULL OR i.status != 'paid')",,1,1
+baseline,3,appdb,appdb-025,metric,False,2.62,1767,55,"SELECT COUNT(DISTINCT account_id) AS paying_customers
+FROM invoices
+WHERE status = 'paid'
+AND issued_at >= '2026-09-01'
+AND issued_at < '2026-10-01'",,1,1
+ktx,3,appdb,appdb-025,metric,False,3.04,528,76,"SELECT COUNT(DISTINCT accounts.id) AS paying_customers_count
+FROM accounts
+JOIN invoices ON accounts.id = invoices.account_id
+WHERE invoices.status = 'paid'
+AND invoices.paid_at >= '2026-09-01'
+AND invoices.paid_at < '2026-10-01'",,1,1
+datus,3,appdb,appdb-025,metric,False,2.73,1757,49,SELECT COUNT(DISTINCT account_id) FROM invoices WHERE status = 'paid' AND issued_at >= '2026-09-01' AND issued_at < '2026-10-01',,1,1
+wren,3,appdb,appdb-025,metric,False,3.15,697,78,"SELECT COUNT(DISTINCT accounts.id) AS paying_customers_count
+FROM accounts
+JOIN invoices ON accounts.id = invoices.account_id
+WHERE invoices.status = 'paid'
+AND invoices.paid_at BETWEEN '2026-09-01' AND '2026-09-30'
+AND accounts.is_test = FALSE",,1,1
+baseline,3,appdb,appdb-026,metric,False,3.13,1776,96,"SELECT ROUND(AVG(i.amount_cents * fx.usd_per_unit / 100.0), 2) AS avg_revenue_per_paying_customer
+FROM invoices i
+JOIN fx_rates fx ON i.currency = fx.currency
+WHERE i.status = 'paid'
+AND i.paid_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+ktx,3,appdb,appdb-026,metric,False,3.2,537,121,"SELECT
+  ROUND(AVG(invoices.amount_cents / 100.0), 2) AS avg_revenue_per_paying_customer
+FROM
+  invoices
+JOIN
+  subscriptions ON invoices.subscription_id = subscriptions.id
+JOIN
+  accounts ON invoices.account_id = accounts.id
+WHERE
+  invoices.paid_at BETWEEN '2026-07-01' AND '2026-09-30'
+  AND invoices.status = 'paid'
+  AND accounts.is_test = FALSE",,1,1
+datus,3,appdb,appdb-026,metric,False,3.4,1766,110,"SELECT
+    ROUND(AVG(i.amount_cents * fx.usd_per_unit / 100.0), 2) AS avg_revenue_per_customer
+FROM
+    invoices i
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    i.status = 'paid'
+    AND i.paid_at BETWEEN '2026-01-01' AND '2026-03-31'
+GROUP BY
+    i.account_id",,500,1
+wren,3,appdb,appdb-026,metric,False,3.37,706,124,"SELECT
+  ROUND(AVG(i.amount_cents / 100.0 * fx.usd_per_unit), 2) AS avg_revenue_per_customer
+FROM
+  invoices i
+JOIN
+  accounts a ON i.account_id = a.id
+JOIN
+  fx_rates fx ON i.currency = fx.currency
+WHERE
+  i.status = 'paid'
+  AND i.issued_at BETWEEN '2026-07-01' AND '2026-09-30'
+  AND a.is_test = FALSE",,1,1
+baseline,3,appdb,appdb-027,simple,False,2.37,1762,19,"SELECT COUNT(DISTINCT account_id) AS accounts_with_multiple_subscriptions
+FROM subscriptions",,1,1
+ktx,3,appdb,appdb-027,simple,False,2.45,523,44,"SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+GROUP BY a.id
+HAVING COUNT(s.id) > 1",,84,1
+datus,3,appdb,appdb-027,simple,False,3.36,1752,11,SELECT COUNT(DISTINCT account_id) FROM subscriptions,,1,1
+wren,3,appdb,appdb-027,simple,False,4.02,692,44,"SELECT COUNT(DISTINCT a.id) AS account_count
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+GROUP BY a.id
+HAVING COUNT(s.id) > 1",,84,1
+baseline,3,appdb,appdb-028,multi_join,True,5.23,1772,69,"SELECT s.plan_tier, COUNT(*) AS churned_subscriptions
+FROM subscriptions s
+WHERE s.canceled_at IS NOT NULL
+AND EXTRACT(YEAR FROM s.canceled_at) = 2026
+GROUP BY s.plan_tier
+ORDER BY churned_subscriptions DESC
+LIMIT 1",,1,1
+ktx,3,appdb,appdb-028,multi_join,True,4.13,533,81,"SELECT
+    s.plan_tier,
+    COUNT(*) AS churned_subscriptions
+FROM
+    subscriptions s
+WHERE
+    s.canceled_at IS NOT NULL
+    AND EXTRACT(YEAR FROM s.canceled_at) = 2026
+GROUP BY
+    s.plan_tier
+ORDER BY
+    churned_subscriptions DESC
+LIMIT 1",,1,1
+datus,3,appdb,appdb-028,multi_join,True,3.79,1762,69,"SELECT s.plan_tier, COUNT(*) AS churned_subscriptions
+FROM subscriptions s
+WHERE s.canceled_at IS NOT NULL
+AND EXTRACT(YEAR FROM s.canceled_at) = 2026
+GROUP BY s.plan_tier
+ORDER BY churned_subscriptions DESC
+LIMIT 1",,1,1
+wren,3,appdb,appdb-028,multi_join,True,4.11,702,83,"SELECT
+    s.plan_tier,
+    COUNT(*) AS churned_subscriptions_count
+FROM
+    subscriptions s
+WHERE
+    s.canceled_at IS NOT NULL
+    AND EXTRACT(YEAR FROM s.canceled_at) = 2026
+GROUP BY
+    s.plan_tier
+ORDER BY
+    churned_subscriptions_count DESC
+LIMIT 1",,1,1
+baseline,3,appdb,appdb-029,multi_join,False,3.94,1768,59,"SELECT COUNT(DISTINCT a.id) AS active_accounts_2024
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+WHERE EXTRACT(YEAR FROM a.created_at) = 2024
+AND s.status = 'active'",,1,1
+ktx,3,appdb,appdb-029,multi_join,False,3.54,529,59,"SELECT COUNT(DISTINCT a.id) AS active_accounts_2024
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+WHERE EXTRACT(YEAR FROM a.created_at) = 2024
+AND s.status = 'active'",,1,1
+datus,3,appdb,appdb-029,multi_join,False,3.79,1758,65,"SELECT COUNT(DISTINCT a.id)
+FROM accounts a
+JOIN subscriptions s ON a.id = s.account_id
+WHERE a.created_at >= '2024-01-01' AND a.created_at < '2025-01-01'
+AND s.status = 'active'",,1,1
+wren,3,appdb,appdb-029,multi_join,False,3.53,698,73,"SELECT COUNT(DISTINCT accounts.id) AS active_accounts_with_subscription
+FROM accounts
+JOIN subscriptions ON accounts.id = subscriptions.account_id
+WHERE accounts.created_at >= '2024-01-01'
+  AND accounts.created_at < '2025-01-01'
+  AND subscriptions.status = 'active'",,1,1
+baseline,3,appdb,appdb-030,metric,False,4.05,1786,127,"SELECT
+  ROUND(
+    (COUNT(DISTINCT CASE WHEN s.canceled_at <= '2026-09-30' THEN a.id END)::FLOAT /
+    NULLIF(COUNT(DISTINCT CASE WHEN a.created_at >= '2025-01-01' AND a.created_at < '2025-04-01' THEN a.id END), 0)) * 100,
+    2
+  ) AS churn_percentage
+FROM
+  accounts a
+LEFT JOIN
+  subscriptions s ON a.id = s.account_id","ProgrammingError: (psycopg2.errors.UndefinedFunction) function round(double precision, integer) does not exist
+LINE 2:   ROUND(
+          ^
+HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+
+[SQL: SELECT
+  ROUND(
+    (COUNT(DISTINCT CASE WHEN s.canceled_at <= '20",0,1
+ktx,3,appdb,appdb-030,metric,False,3.63,547,122,"SELECT
+  ROUND(
+    (COUNT(DISTINCT CASE WHEN s.canceled_at <= '2026-09-30' THEN a.id END) * 100.0 /
+    NULLIF(COUNT(DISTINCT a.id), 0)), 2) AS churn_percentage
+FROM
+  accounts a
+LEFT JOIN
+  subscriptions s ON a.id = s.account_id
+WHERE
+  a.created_at >= '2025-01-01'
+  AND a.created_at < '2025-04-01'",,1,1
+datus,3,appdb,appdb-030,metric,False,4.99,1776,113,"SELECT
+    ROUND(100.0 * COUNT(DISTINCT s.account_id) / NULLIF(COUNT(DISTINCT a.id), 0), 2) AS churn_percentage
+FROM
+    accounts a
+LEFT JOIN
+    subscriptions s ON a.id = s.account_id
+WHERE
+    a.created_at BETWEEN '2025-01-01' AND '2025-03-31'
+    AND s.canceled_at <= '2026-09-30'",,1,1
+wren,3,appdb,appdb-030,metric,False,3.54,716,115,"SELECT
+  ROUND(COUNT(DISTINCT CASE WHEN s.canceled_at <= '2026-09-30' THEN a.id END) * 100.0 / NULLIF(COUNT(DISTINCT a.id), 0), 2) AS churn_percentage
+FROM
+  accounts a
+LEFT JOIN
+  subscriptions s ON a.id = s.account_id
+WHERE
+  a.created_at BETWEEN '2025-01-01' AND '2025-03-31'",,1,1
+baseline,3,appdb,appdb-031,metric,False,2.88,1770,83,"SELECT COUNT(DISTINCT e.user_id)
+FROM events e
+WHERE e.event_type = 'login'
+AND e.occurred_at >= '2026-07-01 00:00:00+00'
+AND e.occurred_at < '2026-10-01 00:00:00+00'",,1,1
+ktx,3,appdb,appdb-031,metric,False,3.74,531,66,"SELECT COUNT(DISTINCT e.user_id)
+FROM events e
+JOIN users u ON e.user_id = u.id
+WHERE e.event_type = 'login'
+AND e.occurred_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+datus,3,appdb,appdb-031,metric,False,5.62,1760,47,SELECT COUNT(DISTINCT user_id) FROM events WHERE event_type = 'login' AND occurred_at BETWEEN '2026-07-01' AND '2026-09-30',,1,1
+wren,3,appdb,appdb-031,metric,False,4.67,700,54,"SELECT COUNT(DISTINCT e.user_id)
+FROM events e
+WHERE e.event_type = 'login'
+AND e.occurred_at BETWEEN '2026-07-01' AND '2026-09-30'",,1,1
+baseline,3,appdb,appdb-032,multi_join,False,4.53,1770,36,"SELECT COUNT(*) AS deleted_accounts
+FROM accounts
+WHERE id NOT IN (
+    SELECT DISTINCT account_id
+    FROM users
+    WHERE deleted_at IS NULL
+)",,1,1
+ktx,3,appdb,appdb-032,multi_join,False,3.5,531,37,"SELECT COUNT(*) AS deleted_accounts_count
+FROM accounts
+WHERE id NOT IN (
+    SELECT DISTINCT account_id
+    FROM users
+    WHERE deleted_at IS NULL
+)",,1,1
+datus,3,appdb,appdb-032,multi_join,False,3.76,1760,43,"SELECT COUNT(DISTINCT a.id) AS deleted_accounts_count
+FROM accounts a
+LEFT JOIN users u ON a.id = u.account_id AND u.deleted_at IS NULL
+WHERE u.id IS NULL",,1,1
+wren,3,appdb,appdb-032,multi_join,False,3.43,700,35,"SELECT COUNT(*)
+FROM accounts a
+LEFT JOIN users u ON a.id = u.account_id
+WHERE u.id IS NULL OR u.deleted_at IS NOT NULL",,1,1
+baseline,3,appdb,appdb-033,multi_join,False,3.97,1777,112,"SELECT
+    SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM
+    refunds r
+JOIN
+    invoices i ON r.invoice_id = i.id
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    i.issued_at BETWEEN '2026-04-01' AND '2026-06-30'
+    AND r.created_at IS NOT NULL",,1,1
+ktx,3,appdb,appdb-033,multi_join,False,4.05,538,123,"SELECT
+    SUM(refunds.amount_cents * fx_rates.usd_per_unit) / 100 AS total_refunded_usd
+FROM
+    refunds
+JOIN
+    invoices ON refunds.invoice_id = invoices.id
+JOIN
+    fx_rates ON invoices.currency = fx_rates.currency
+WHERE
+    invoices.issued_at BETWEEN '2026-04-01' AND '2026-06-30'
+    AND refunds.created_at >= invoices.issued_at",,1,1
+datus,3,appdb,appdb-033,multi_join,False,4.15,1767,93,"SELECT SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM refunds r
+JOIN invoices i ON r.invoice_id = i.id
+JOIN fx_rates fx ON i.currency = fx.currency
+WHERE i.issued_at BETWEEN '2026-04-01' AND '2026-06-30'",,1,1
+wren,3,appdb,appdb-033,multi_join,False,4.05,707,114,"SELECT
+    SUM(r.amount_cents * fx.usd_per_unit) / 100 AS total_refunded_usd
+FROM
+    refunds r
+JOIN
+    invoices i ON r.invoice_id = i.id
+JOIN
+    fx_rates fx ON i.currency = fx.currency
+WHERE
+    i.issued_at BETWEEN '2026-04-01' AND '2026-06-30'
+    AND r.created_at >= i.issued_at",,1,1
+baseline,3,appdb,appdb-034,simple,False,3.68,1762,17,"SELECT country, COUNT(*) as account_count
+FROM accounts
+GROUP BY country",,5,5
+ktx,3,appdb,appdb-034,simple,False,3.31,523,17,"SELECT country, COUNT(*) AS account_count
+FROM accounts
+GROUP BY country",,5,5
+datus,3,appdb,appdb-034,simple,False,6.97,1752,17,"SELECT country, COUNT(*) AS account_count
+FROM accounts
+GROUP BY country",,5,5
+wren,3,appdb,appdb-034,simple,False,3.98,692,24,"SELECT
+  country,
+  COUNT(*) AS account_count
+FROM
+  accounts
+GROUP BY
+  country",,5,5
