@@ -1,0 +1,72 @@
+[
+  {
+    "identifier": "appdb.public.users",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "users",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"users\" (\n    \"id\" integer NOT NULL,\n    \"account_id\" integer NOT NULL,\n    \"email\" text,\n    \"role\" text,\n    \"created_at\" timestamp with time zone NOT NULL,\n    \"deleted_at\" timestamp with time zone,\n    PRIMARY KEY (\"id\")\n);",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.accounts",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "accounts",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"accounts\" (\n    \"id\" integer NOT NULL,\n    \"name\" text NOT NULL,\n    \"plan\" text,\n    \"plan_tier\" text,\n    \"is_test\" boolean NOT NULL DEFAULT false,\n    \"country\" text,\n    \"currency\" text,\n    \"created_at\" timestamp with time zone NOT NULL,\n    \"deleted_at\" timestamp with time zone,\n    PRIMARY KEY (\"id\")\n);",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.subscriptions",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "subscriptions",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"subscriptions\" (\n    \"id\" integer NOT NULL,\n    \"account_id\" integer NOT NULL,\n    \"plan_tier\" text NOT NULL,\n    \"status\" text NOT NULL,\n    \"started_at\" timestamp with time zone NOT NULL,\n    \"trial_ends_at\" timestamp with time zone,\n    \"canceled_at\" timestamp with time zone,\n    \"cancel_reason\" text,\n    PRIMARY KEY (\"id\")\n);",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.invoices",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "invoices",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"invoices\" (\n    \"id\" integer NOT NULL,\n    \"subscription_id\" integer NOT NULL,\n    \"account_id\" integer NOT NULL,\n    \"amount_cents\" integer NOT NULL,\n    \"currency\" text NOT NULL,\n    \"status\" text NOT NULL,\n    \"issued_at\" timestamp with time zone NOT NULL,\n    \"paid_at\" timestamp with time zone,\n    PRIMARY KEY (\"id\")\n);",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.refunds",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "refunds",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"refunds\" (\n    \"id\" integer NOT NULL,\n    \"invoice_id\" integer NOT NULL,\n    \"amount_cents\" integer NOT NULL,\n    \"created_at\" timestamp with time zone NOT NULL,\n    PRIMARY KEY (\"id\")\n);",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.events",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "events",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"events\" (\n    \"id\" integer NOT NULL,\n    \"account_id\" integer NOT NULL,\n    \"user_id\" integer NOT NULL,\n    \"event_type\" text NOT NULL,\n    \"occurred_at\" timestamp with time zone NOT NULL,\n    PRIMARY KEY (\"id\")\n);",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.fx_rates",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "fx_rates",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"fx_rates\" (\n    \"currency\" text NOT NULL,\n    \"usd_per_unit\" numeric NOT NULL,\n    PRIMARY KEY (\"currency\")\n);",
+    "datasource_id": "appdb"
+  }
+]

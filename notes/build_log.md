@@ -30,8 +30,9 @@ This audit details the exact generation provenance, artifact composition, and ex
 | **ktx (olist)** | `ktx import live-database` + `ktx ingest` | **100% Tool Generated.** No custom scripts or manual edits. Tables & cols from Postgres. | **0** (failed route) | 9 tables, 52 columns, **0 descriptions** (all null), **6 unique inferred joins** (12 bidirectional), 0 metrics | **SQL Only.** (`ktx sql` proxy runner; lacks built-in NL text-to-SQL agent) |
 | **ktx (appdb v1)** | `ktx import live-database` + `ktx ingest` | **100% Tool Generated.** No custom scripts or manual edits. Tables & cols from Postgres. | **0** (failed route) | 7 tables, 42 columns, **0 descriptions** (all null), **7 unique inferred joins** (14 bidirectional), 0 metrics | **SQL Only.** (`ktx sql` proxy runner; lacks built-in NL text-to-SQL agent) |
 | **ktx (appdb v2)** | `ktx ingest` on fresh project | **100% Tool Generated.** Fresh project without resume cache. | **0** (failed route) | 7 tables, 42 columns, **0 descriptions** (all null), **7 unique inferred joins** (14 bidirectional), 0 metrics | **SQL Only.** (`ktx sql` proxy runner; lacks built-in NL text-to-SQL agent) |
-| **Datus (olist)** | `python scratch/build_datus_metadata.py` invoking `init_local_schema_async` | **100% Tool Engine.** Python script only called Datus API to bypass CLI prompts. Schema & samples embedded into LanceDB. | 0 (FastEmbed local) | 9 tables, 52 columns (in DDL definition), **0 descriptions**, **0 explicit joins**, 0 metrics. Stored in LanceDB (`schema_metadata` + `schema_value`). | **Autonomous Agent.** (`PrintModeRunner` NL agent with LanceDB RAG retrieval + LLM SQL loop) |
-| **Datus (appdb v1/v2)** | `python scratch/build_datus_metadata.py` invoking `init_local_schema_async` | **100% Tool Engine.** Python script only called Datus API to bypass CLI prompts. Schema & samples embedded into LanceDB. | 0 (FastEmbed local) | 7 tables, 42 columns (in DDL definition), **0 descriptions**, **0 explicit joins**, 0 metrics. Stored in LanceDB (`schema_metadata` + `schema_value`). | **Autonomous Agent.** (`PrintModeRunner` NL agent with LanceDB RAG retrieval + LLM SQL loop) |
+| **Datus (olist)** | `python scratch/build_datus_metadata.py` invoking `init_local_schema_async` | **100% Tool Engine.** Python script only called Datus API to bypass CLI prompts. Schema & samples embedded into LanceDB and exported to JSON + Parquet. | 0 (FastEmbed local) | 9 tables, 52 columns (in DDL definition), **0 descriptions**, **0 explicit joins**, 0 metrics. Exported to `layers/datus/olist/` (`schema_metadata.json`, `schema_value.json`, `.parquet`). | **Autonomous Agent.** (`PrintModeRunner` NL agent with LanceDB RAG retrieval + LLM SQL loop) |
+| **Datus (appdb v1)** | `python scratch/build_datus_metadata.py` invoking `init_local_schema_async` | **100% Tool Engine.** Python script only called Datus API to bypass CLI prompts. Schema crawled before `REFERENCES` grant. | 0 (FastEmbed local) | 7 tables, 42 columns, **0 descriptions**, **0 explicit joins**, 0 metrics. Exported to `layers/datus/appdb/` (`schema_metadata.json`, `schema_value.json`, `.parquet`). PKs not reflected. | **Autonomous Agent.** (`PrintModeRunner` NL agent with LanceDB RAG retrieval + LLM SQL loop) |
+| **Datus (appdb v2)** | `python scratch/build_datus_metadata.py` invoking `init_local_schema_async` | **100% Tool Engine.** Python script only called Datus API to bypass CLI prompts. Re-crawled after `REFERENCES` grant. | 0 (FastEmbed local) | 7 tables, 42 columns, **0 descriptions**, **0 explicit joins**, 0 metrics. Exported to `layers/datus/appdb_v2/` (`schema_metadata.json`, `schema_value.json`, `.parquet`). PKs reflected (`PRIMARY KEY ("id")`). | **Autonomous Agent.** (`PrintModeRunner` NL agent with LanceDB RAG retrieval + LLM SQL loop) |
 | **Wren Engine (olist)** | `python scratch/build_wren_mdl.py` + `wren context build` | **Custom Script + Engine Compiler.** `scratch/build_wren_mdl.py` introspected Postgres via `reader`, mapped column types to MDL (`VARCHAR`, `INTEGER`, etc.), flagged PKs, and created YAML models. Wren Engine validated & compiled to `target/mdl.json`. | 0 (Deterministic) | 9 tables (models), 52 columns, **0 descriptions**, **0 relationships** (`relationships: []`), 0 metrics | **SQL Only.** (CLI semantic engine & Ibis SQL transpiler; lacks Wren AI Docker agent/UI) |
 | **Wren Engine (appdb v1)** | `python scratch/build_wren_mdl.py` + `wren context build` | **Custom Script + Engine Compiler.** `scratch/build_wren_mdl.py` introspected Postgres via `reader` before `REFERENCES` grant. | 0 (Deterministic) | 7 tables (models), 42 columns, **0 descriptions**, **0 relationships** (`relationships: []`), 0 metrics | **SQL Only.** (CLI semantic engine & Ibis SQL transpiler; lacks Wren AI Docker agent/UI) |
 | **Wren Engine (appdb v2)** | `python scratch/build_wren_mdl.py` + `wren context build` | **Custom Script + Engine Compiler.** Introspected via `referential_constraints` with `REFERENCES` grant. | 0 (Deterministic) | 7 tables (models), 42 columns, **0 descriptions**, **3 declared relationships**, 0 metrics | **SQL Only.** (CLI semantic engine & Ibis SQL transpiler; lacks Wren AI Docker agent/UI) |
@@ -50,12 +51,20 @@ This audit details the exact generation provenance, artifact composition, and ex
    - Rebuilt `appdb_v2` for Wren Engine (now compiles all 3 declared FKs into `relationships.yml` and `target/mdl.json`), ktx, and Datus.
 3. **Wren AI vs. Wren Engine:**
    - We tested `wren-engine 0.6.0` (open-source core Python engine & MDL compiler), **not** the multi-container Docker Wren AI agent product.
+4. **Datus LanceDB Persistence & Schema Introspection Architecture:**
+   - Datus stores its RAG indexes outside the workspace under `~/.datus/data/<project_hash>/datus_db/` (`schema_metadata.lance` and `schema_value.lance`). To ensure full transparency and inspectability, all stored metadata definitions and sampled value rows were exported to `schema_metadata.json`, `schema_value.json`, and `.parquet` in `layers/datus/olist/`, `layers/datus/appdb/` (v1), and `layers/datus/appdb_v2/` (v2).
+   - In v1 (without `REFERENCES`), Datus extracted column definitions without primary keys.
+   - In v2 (with `REFERENCES`), Datus reflects `PRIMARY KEY ("id")` on all tables.
+   - However, code inspection of `datus_postgresql/connector.py:lines 60-120` (`_get_ddl`) reveals that Datus only reconstructs column names, types, nullability, default values, and `PRIMARY KEY (pk_names)`. `datus_postgresql` does not query `pg_constraint` or `information_schema` for foreign keys, so Datus stores 0 explicit foreign keys in its table definitions.
 
 ---
 
 ## Inferred Join Quality Benchmark: Precision & Recall
 
 Evaluated ktx's automatically inferred relationships against the hand-written ground-truth in `questions/true_joins.yaml` using `scorer/evaluate_joins.py`.
+
+> **Note on Unique Counts vs Bidirectional Entries:**
+> Each inferred join in ktx's YAML is recorded bidirectionally under both participating tables (e.g. `orders.customer_id = customers.customer_id` under `orders`, and `customers.customer_id = orders.customer_id` under `customers`). The earlier figures of 12 and 14 entries were double counts; the actual unique undirected join counts are **6 for Olist** and **7 for appdb**.
 
 | Metric | Olist (Core Only) | Olist (Core + Weak) | appdb (Core Only) | appdb (Core + Weak) |
 |---|:---:|:---:|:---:|:---:|
@@ -64,21 +73,27 @@ Evaluated ktx's automatically inferred relationships against the hand-written gr
 | **True Positives (TP)** | 6 | 6 | 7 | 7 |
 | **False Positives (FP)** | **0** | **0** | **0** | **0** |
 | **False Negatives (FN)** | 1 | 3 | 1 | 2 |
-| **Precision** | **100.0%** | **100.0%** | **100.0%** | **100.0%** |
-| **Recall** | **85.7%** | **66.7%** | **87.5%** | **77.8%** |
+| **Precision** | **100.0%** (6/6) | **100.0%** (6/6) | **100.0%** (7/7) | **100.0%** (7/7) |
+| **Recall (Overall)** | **85.7%** (6/7) | **66.7%** (6/9) | **87.5%** (7/8) | **77.8%** (7/9) |
 | **F1 Score** | **0.923** | **0.800** | **0.933** | **0.875** |
+| **Declared FK Recall** | *N/A (0 declared FKs)* | *N/A (0 declared FKs)* | **100.0%** (3/3) | **100.0%** (3/3) |
+| **Undeclared Join Recall** | **85.7%** (6/7) | **66.7%** (6/9) | **80.0%** (4/5) | **66.7%** (4/6) |
 
 ### Join Discovery Analysis:
 - **Precision is perfect (100.0%) across both databases:** ktx hallucinated zero false relationships.
-- **Discovery of Undeclared SaaS Joins on `appdb`:** In addition to recovering all 3 declared FKs, ktx correctly discovered **4 undeclared business joins**:
-  - `accounts.id <--> users.account_id`
-  - `accounts.id <--> events.account_id`
-  - `users.id <--> events.user_id`
-  - `invoices.id <--> refunds.invoice_id`
+- **Declared vs. Undeclared Join Separation:**
+  - On `appdb`, 3 FKs are explicitly declared in Postgres DDL (`subscriptions.account_id`, `invoices.subscription_id`, `invoices.account_id`). Since `reader` now has `REFERENCES`, any standard schema introspection discovers these 3 (100% recall).
+  - The true test of semantic inference is **undeclared business joins**:
+    - **`appdb` (Undeclared Core Recall: 80.0% [4/5]):** ktx discovered 4 of the 5 undeclared SaaS relationships:
+      - `accounts.id <--> users.account_id`
+      - `accounts.id <--> events.account_id`
+      - `users.id <--> events.user_id`
+      - `invoices.id <--> refunds.invoice_id`
+    - **`olist` (Undeclared Core Recall: 85.7% [6/7]):** Olist has zero declared foreign keys in Postgres; all relationships are undeclared. ktx recovered 6 of the 7 core joins.
 - **What ktx missed (False Negatives):**
-  - Currency lookups: `invoices.currency <--> fx_rates.currency` (lacks `_id` suffix convention).
+  - Currency lookups: `invoices.currency <--> fx_rates.currency` (and weak `accounts.currency <--> fx_rates.currency`; missed because it lacks standard `_id` suffix conventions).
   - Category translation: `products.product_category_name <--> product_category_name_translation.product_category_name`.
-  - Weak / fuzzy geospatial prefix joins: `customers.customer_zip_code_prefix <--> geolocation.geolocation_zip_code_prefix`.
+  - Weak / fuzzy geospatial prefix joins: `customers.customer_zip_code_prefix <--> geolocation.geolocation_zip_code_prefix` and `sellers.seller_zip_code_prefix <--> geolocation.geolocation_zip_code_prefix`.
 
 ## Detailed Notes & Smoke Verification Queries (3 per tool/db)
 

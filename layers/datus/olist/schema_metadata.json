@@ -1,0 +1,92 @@
+[
+  {
+    "identifier": "olist.public.order_payments",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "order_payments",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"order_payments\" (\n    \"order_id\" text,\n    \"payment_sequential\" bigint,\n    \"payment_type\" text,\n    \"payment_installments\" bigint,\n    \"payment_value\" double precision\n);",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.customers",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "customers",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"customers\" (\n    \"customer_id\" text,\n    \"customer_unique_id\" text,\n    \"customer_zip_code_prefix\" bigint,\n    \"customer_city\" text,\n    \"customer_state\" text\n);",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.geolocation",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "geolocation",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"geolocation\" (\n    \"geolocation_zip_code_prefix\" bigint,\n    \"geolocation_lat\" double precision,\n    \"geolocation_lng\" double precision,\n    \"geolocation_city\" text,\n    \"geolocation_state\" text\n);",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.orders",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "orders",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"orders\" (\n    \"order_id\" text,\n    \"customer_id\" text,\n    \"order_status\" text,\n    \"order_purchase_timestamp\" text,\n    \"order_approved_at\" text,\n    \"order_delivered_carrier_date\" text,\n    \"order_delivered_customer_date\" text,\n    \"order_estimated_delivery_date\" text\n);",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.order_items",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "order_items",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"order_items\" (\n    \"order_id\" text,\n    \"order_item_id\" bigint,\n    \"product_id\" text,\n    \"seller_id\" text,\n    \"shipping_limit_date\" text,\n    \"price\" double precision,\n    \"freight_value\" double precision\n);",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.order_reviews",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "order_reviews",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"order_reviews\" (\n    \"review_id\" text,\n    \"order_id\" text,\n    \"review_score\" bigint,\n    \"review_comment_title\" text,\n    \"review_comment_message\" text,\n    \"review_creation_date\" text,\n    \"review_answer_timestamp\" text\n);",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.products",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "products",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"products\" (\n    \"product_id\" text,\n    \"product_category_name\" text,\n    \"product_name_lenght\" double precision,\n    \"product_description_lenght\" double precision,\n    \"product_photos_qty\" double precision,\n    \"product_weight_g\" double precision,\n    \"product_length_cm\" double precision,\n    \"product_height_cm\" double precision,\n    \"product_width_cm\" double precision\n);",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.sellers",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "sellers",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"sellers\" (\n    \"seller_id\" text,\n    \"seller_zip_code_prefix\" bigint,\n    \"seller_city\" text,\n    \"seller_state\" text\n);",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.product_category_name_translation",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "product_category_name_translation",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"product_category_name_translation\" (\n    \"product_category_name\" text,\n    \"product_category_name_english\" text\n);",
+    "datasource_id": "olist"
+  }
+]

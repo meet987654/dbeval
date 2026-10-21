@@ -1,0 +1,72 @@
+[
+  {
+    "identifier": "appdb.public.users",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "users",
+    "table_type": "table",
+    "sample_rows": "id,account_id,email,role,created_at,deleted_at\r\n1,1,user1@example.com,member,2024-06-22 22:43:23+00:00,\r\n2,2,user2@example.com,viewer,2024-05-23 01:23:31+00:00,\r\n3,2,user3@example.com,member,2024-05-26 01:23:31+00:00,\r\n4,2,user4@example.com,member,2024-06-01 01:23:31+00:00,\r\n5,2,user5@example.com,viewer,2024-06-10 01:23:31+00:00,\r\n",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.accounts",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "accounts",
+    "table_type": "table",
+    "sample_rows": "id,name,plan,plan_tier,is_test,country,currency,created_at,deleted_at\r\n1,Blue Systems 1,basic,starter,False,US,USD,2024-06-21 22:43:23+00:00,\r\n2,Nimbus Works 2,pro,growth,False,FR,EUR,2024-05-13 01:23:31+00:00,\r\n3,Orbit Works 3,pro,growth,False,IN,INR,2024-05-25 01:43:37+00:00,2025-07-09 10:07:06+00:00\r\n4,Pixel Systems 4,pro,growth,False,DE,EUR,2024-04-28 01:21:14+00:00,\r\n5,Solar Studio 5,basic,starter,False,US,USD,2024-06-25 06:08:13+00:00,\r\n",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.subscriptions",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "subscriptions",
+    "table_type": "table",
+    "sample_rows": "id,account_id,plan_tier,status,started_at,trial_ends_at,canceled_at,cancel_reason\r\n1,1,starter,past_due,2024-06-21 22:43:23+00:00,2024-07-05 22:43:23+00:00,,\r\n2,2,growth,active,2024-05-13 01:23:31+00:00,2024-05-27 01:23:31+00:00,,\r\n3,3,growth,canceled,2024-05-25 01:43:37+00:00,2024-06-08 01:43:37+00:00,2025-07-09 10:07:06+00:00,voluntary\r\n4,4,growth,active,2024-04-28 01:21:14+00:00,2024-05-12 01:21:14+00:00,,\r\n5,5,starter,active,2024-06-25 06:08:13+00:00,2024-07-09 06:08:13+00:00,,\r\n",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.invoices",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "invoices",
+    "table_type": "table",
+    "sample_rows": "id,subscription_id,account_id,amount_cents,currency,status,issued_at,paid_at\r\n1,1,1,2900,USD,paid,2024-07-05 22:43:23+00:00,2024-07-08 22:43:23+00:00\r\n2,1,1,2900,USD,paid,2024-08-05 22:43:23+00:00,2024-08-05 22:43:23+00:00\r\n3,1,1,2900,USD,paid,2024-09-05 22:43:23+00:00,2024-09-08 22:43:23+00:00\r\n4,1,1,2900,USD,paid,2024-10-05 22:43:23+00:00,2024-10-07 22:43:23+00:00\r\n5,1,1,2900,USD,paid,2024-11-05 22:43:23+00:00,2024-11-07 22:43:23+00:00\r\n",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.refunds",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "refunds",
+    "table_type": "table",
+    "sample_rows": "id,invoice_id,amount_cents,created_at\r\n1,28,4583,2024-05-30 01:23:31+00:00\r\n2,76,4583,2024-10-20 01:21:14+00:00\r\n3,167,2685,2026-03-29 05:20:22+00:00\r\n4,168,1342,2026-05-08 05:20:22+00:00\r\n5,218,412500,2025-06-28 07:52:30+00:00\r\n",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.events",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "events",
+    "table_type": "table",
+    "sample_rows": "id,account_id,user_id,event_type,occurred_at\r\n1,1,1,export,2026-09-21 21:32:08+00:00\r\n2,1,1,report_viewed,2024-07-09 18:45:59+00:00\r\n3,1,1,login,2025-08-10 10:41:13+00:00\r\n4,1,1,report_viewed,2024-12-12 05:41:22+00:00\r\n5,1,1,report_viewed,2026-04-28 07:56:47+00:00\r\n",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.fx_rates",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "fx_rates",
+    "table_type": "table",
+    "sample_rows": "currency,usd_per_unit\r\nUSD,1.00000\r\nEUR,1.08000\r\nINR,0.01200\r\n",
+    "datasource_id": "appdb"
+  }
+]
