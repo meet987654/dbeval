@@ -14,11 +14,13 @@
 
 ## The Decision Rule
 
-At the end of Week 0, the project will move forward based on the following criteria:
+At the end of Week 0, the project will move forward based on the following statistical criteria (evaluated question-by-question via `scorer/analyze.py`):
 
-- **Go:** Accuracy differs by more than about 10 points between tools on at least one database, or the ranking changes between databases.
-- **Pivot:** One tool wins on everything. Then the idea shrinks to regression testing for a single layer, which is weaker.
-- **Stop:** No tool beats the plain baseline by much. Then the idea that a layer helps is in doubt on your data. You still keep a solid portfolio project.
+> **Statistical Threshold:** Given our sample size (18 Olist questions, 32 appdb questions), a difference counts only if the paired bootstrap 95% confidence interval excludes 0 (and exact sign-test p < 0.05). Differences whose intervals span 0 cannot be distinguished from noise.
+
+- **Go:** A tool achieves an accuracy improvement over baseline that is statistically distinguishable from noise (paired bootstrap interval excludes 0), or tool ranking changes significantly between databases.
+- **Pivot:** One tool wins on everything by a statistically significant margin. Then the idea shrinks to regression testing for a single layer.
+- **Stop:** No tool beats the plain baseline by a statistically distinguishable margin. Then the idea that a layer helps is in doubt on your data. You still keep a solid portfolio project.
 
 ---
 
@@ -27,7 +29,7 @@ At the end of Week 0, the project will move forward based on the following crite
 A fair, neutral benchmark comparing four ways of letting an LLM answer database questions over Postgres:
 1. **Plain LLM Baseline** (Schema + 3 sample values per column)
 2. **ktx** (`@kaelio/ktx@0.16.0`)
-3. **Datus** (`datus-agent 0.4.3` + `datus-postgresql 0.1.2`)
+3. **Datus (stored context)** (`datus-agent 0.4.3` + `datus-postgresql 0.1.2`)
 4. **Wren Engine** (`wren-engine 0.6.0`)
 
 Evaluated over two distinct databases:
@@ -44,7 +46,7 @@ To maintain strict neutrality, all four systems are evaluated against the identi
 |---|---|---|---|---|
 | **Baseline** | Native Python | Direct DB introspection | Tables, columns, PKs, 3 sample values / col | Raw schema + samples in prompt |
 | **ktx** | `@kaelio/ktx@0.16.0` | `layers/ktx/<db>/semantic-layer/` | Table schemas + Inferred foreign keys (YAML) | Schema + Inferred joins in prompt |
-| **Datus** | `datus-agent 0.4.3` | `layers/datus/<db>/` (`schema_metadata.json`, `schema_value.json`) | LanceDB table DDL, PKs, sample rows | RAG-retrieved definitions & samples in prompt (+ native agent reported separately) |
+| **Datus (stored context)** | `datus-agent 0.4.3` | `layers/datus/<db>/` (`schema_metadata.json`, `schema_value.json`) | LanceDB table DDL, PKs, sample rows | RAG-retrieved definitions & samples in prompt (+ native agent reported separately) |
 | **Wren Engine** | `wren-engine 0.6.0` | `layers/wren/<db>/target/mdl.json` | MDL compiled models, columns, declared relationships | Compiled MDL schemas & relationships in prompt |
 
 ### 1. Plain LLM Baseline (`runners/baseline.py`)
@@ -60,7 +62,7 @@ To maintain strict neutrality, all four systems are evaluated against the identi
 - **Enrichment Caveat:** ktx description enrichment was not evaluated because its `@ai-sdk/gateway` backend requires the Vercel AI Gateway protocol (which returns HTTP 404 on Mistral's OpenAI-compatible endpoint). Join inference was evaluated.
 - **Runner:** `runners/ktx_run.py` reads the semantic layer YAML from `layers/ktx/<db>/semantic-layer/` and formats the inferred join paths (`table1.colA = table2.colB`) alongside table definitions into the prompt.
 
-### 3. Datus (`runners/datus_run.py`)
+### 3. Datus (stored context) (`runners/datus_run.py`)
 - **Architecture & LanceDB Persistence:** Datus crawls the database and builds local LanceDB vector tables (`schema_metadata.lance` and `schema_value.lance`) using local ONNX embeddings (`all-MiniLM-L6-v2-onnx`). These tables are exported into `layers/datus/<db>/` as JSON and Parquet for full inspectability.
 - **Connector Finding:** Inspection of `datus_postgresql/connector.py` reveals that Datus extracts column metadata and `PRIMARY KEY ("id")`, but does not query or extract `FOREIGN KEY` constraints.
 - **Runner Modalities:**
