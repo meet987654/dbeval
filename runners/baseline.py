@@ -191,11 +191,13 @@ def answer(db, question):
     started = time.time()
     result = {"system": "baseline", "db": db, "question": question,
               "sql": None, "columns": [], "rows": [], "error": None,
-              "tokens_in": 0, "tokens_out": 0, "seconds": 0.0}
+              "tokens_in": 0, "tokens_out": 0, "context_tokens": 0, "seconds": 0.0}
     try:
-        user_prompt = f"SCHEMA\n{schema_text(db)}\nQUESTION\n{question}\n\nSQL:"
+        ctx = schema_text(db)
+        user_prompt = f"SCHEMA & SEMANTIC LAYER\n{ctx}\n\nQUESTION\n{question}\n\nSQL:"
         raw, t_in, t_out = call_llm(SYSTEM_PROMPT, user_prompt)
         result["tokens_in"], result["tokens_out"] = t_in, t_out
+        result["context_tokens"] = len(ctx) // 4
         sql = extract_sql(raw)
         result["sql"] = sql
         if not looks_read_only(sql):

@@ -107,11 +107,13 @@ def _execute_runner(sys_name, db, question, user_prompt):
         "error": None,
         "tokens_in": 0,
         "tokens_out": 0,
+        "context_tokens": 0,
         "seconds": 0.0,
     }
     try:
         raw, t_in, t_out = b.call_llm(SYSTEM_PROMPT, user_prompt)
         result["tokens_in"], result["tokens_out"] = t_in, t_out
+        result["context_tokens"] = len(user_prompt) // 4
         sql = b.extract_sql(raw)
         result["sql"] = sql
         if not b.looks_read_only(sql):
@@ -124,17 +126,17 @@ def _execute_runner(sys_name, db, question, user_prompt):
 
 def answer_schema_only(db, question):
     schema = schema_only_text(db)
-    prompt = f"SCHEMA\n{schema}\n\nQUESTION\n{question}\n\nSQL:"
+    prompt = f"SCHEMA & SEMANTIC LAYER\n{schema}\n\nQUESTION\n{question}\n\nSQL:"
     return _execute_runner("schema_only", db, question, prompt)
 
 def answer_schema_true_joins(db, question):
     schema = schema_only_text(db)
     joins = true_joins_text(db)
-    prompt = f"SCHEMA\n{schema}\n\nRELATIONSHIPS / JOINS\n{joins}\n\nQUESTION\n{question}\n\nSQL:"
+    prompt = f"SCHEMA & SEMANTIC LAYER\n{schema}\n\nRELATIONSHIPS / JOINS:\n{joins}\n\nQUESTION\n{question}\n\nSQL:"
     return _execute_runner("schema_true_joins", db, question, prompt)
 
 def answer_baseline_rules(db, question):
     schema = b.schema_text(db)
     rules = rules_for(db)
-    prompt = f"SCHEMA\n{schema}\n\nBUSINESS RULES\n{rules}\n\nQUESTION\n{question}\n\nSQL:"
+    prompt = f"SCHEMA & SEMANTIC LAYER\n{schema}\n\nBUSINESS RULES & INSTRUCTIONS:\n{rules}\n\nQUESTION\n{question}\n\nSQL:"
     return _execute_runner("baseline_rules", db, question, prompt)

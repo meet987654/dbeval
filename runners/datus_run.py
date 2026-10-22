@@ -20,9 +20,7 @@ sys.path.insert(0, HERE)
 import baseline as b  # reuses database connection, execution, and LLM calling
 
 SYSTEM_PROMPT = (
-    "You are a careful PostgreSQL analyst. You are provided with a database schema and sampled values "
-    "retrieved from a Datus LanceDB context index. "
-    "Given a business question, write ONE read-only PostgreSQL query that answers it. "
+    "You are a careful PostgreSQL analyst. Given a business question, write ONE read-only PostgreSQL query that answers it. "
     "Return only the SQL, with no explanation and no markdown."
 )
 
@@ -42,6 +40,7 @@ def datus_context_text(db):
     base_dir = get_datus_dir(db)
     meta_path = os.path.join(base_dir, "schema_metadata.json")
     val_path = os.path.join(base_dir, "schema_value.json")
+    agent_path = os.path.join(base_dir, "agent.yml")
 
     if not os.path.exists(meta_path) or not os.path.exists(val_path):
         raise FileNotFoundError(f"Datus layer files missing in {base_dir}")
@@ -51,21 +50,50 @@ def datus_context_text(db):
     with open(val_path, "r", encoding="utf-8") as f:
         val_data = json.load(f)
 
+    lines = [f"DATABASE: {db}", "DATUS CONTEXT LAYER:"]
+
+    # Check for instructions or rules in agent.yml
+    if os.path.exists(agent_path):
+        try:
+            with open(agent_path, "r", encoding="utf-8") as f:
+                agent_cfg = yaml.safe_load(f) or {}
+            agent_inst = agent_cfg.get("instructions") or agent_cfg.get("rules") or []
+            if agent_inst:
+                lines.append("\nBUSINESS RULES & INSTRUCTIONS:")
+                if isinstance(agent_inst, list):
+                    for inst in agent_inst:
+                        lines.append(f"  - {inst}")
+                else:
+                    lines.append(f"  {agent_inst}")
+        except Exception:
+            pass
+
+    # Check for any custom rules or view files in base_dir
+    rules_file = os.path.join(base_dir, "rules.md")
+    if os.path.exists(rules_file):
+        with open(rules_file, "r", encoding="utf-8") as f:
+            lines.append(f"\nBUSINESS RULES:\n{f.read().strip()}")
+
     val_by_table = {item["table_name"]: item.get("sample_rows", "") for item in val_data}
 
-    lines = [f"DATABASE: {db}", "DATUS CONTEXT LAYER (STORED TABLE DEFINITIONS & SAMPLED VALUES):"]
+    lines.append("\nTABLE DEFINITIONS & SCHEMAS:")
     for item in sorted(meta_data, key=lambda x: x["table_name"]):
         t_name = item["table_name"]
         lines.append(f"\n--- TABLE: {t_name} ---")
+        if item.get("description"):
+            lines.append(f"Description: {item['description']}")
         lines.append(item.get("definition", "").strip())
+        if item.get("metrics"):
+            lines.append("Table Metrics:")
+            for m in item["metrics"]:
+                lines.append(f"  - {m}")
         samples = val_by_table.get(t_name, "").strip()
         if samples:
             lines.append("Sample rows:")
-            # limit sample rows to 3 rows for prompt economy
             sample_lines = samples.splitlines()[:4]
             lines.append("\n".join(sample_lines))
 
-    ctx = "\n".join(lines)
+    ctx = "\n".join(lines).strip()
     _CACHE[db] = ctx
     return ctx
 
@@ -81,13 +109,15 @@ def answer(db, question):
         "error": None,
         "tokens_in": 0,
         "tokens_out": 0,
+        "context_tokens": 0,
         "seconds": 0.0,
     }
     try:
         context = datus_context_text(db)
-        user_prompt = f"DATUS CONTEXT LAYER\n{context}\n\nQUESTION\n{question}\n\nSQL:"
+        user_prompt = f"SCHEMA & SEMANTIC LAYER\n{context}\n\nQUESTION\n{question}\n\nSQL:"
         raw, t_in, t_out = b.call_llm(SYSTEM_PROMPT, user_prompt)
         result["tokens_in"], result["tokens_out"] = t_in, t_out
+        result["context_tokens"] = len(context) // 4
         sql = b.extract_sql(raw)
         result["sql"] = sql
         if not b.looks_read_only(sql):

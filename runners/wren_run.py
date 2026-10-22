@@ -20,10 +20,8 @@ sys.path.insert(0, HERE)
 import baseline as b  # reuses database connection, execution, and LLM calling
 
 SYSTEM_PROMPT = (
-    "You are a careful PostgreSQL analyst. You are provided with a database semantic layer "
-    "compiled in Wren Engine Modeling Definition Language (MDL), including validated models and relationships. "
-    "Given a business question, write ONE read-only PostgreSQL query that answers it. "
-    "Use the declared relationships when joining models. Return only the SQL, with no explanation and no markdown."
+    "You are a careful PostgreSQL analyst. Given a business question, write ONE read-only PostgreSQL query that answers it. "
+    "Return only the SQL, with no explanation and no markdown."
 )
 
 _CACHE = {}
@@ -47,20 +45,64 @@ def wren_context_text(db):
         mdl = json.load(f)
 
     lines = [f"DATABASE: {db}", "WREN ENGINE COMPILED SEMANTIC LAYER (MDL):"]
-    lines.append("\nMODELS:")
+
+    # Global / Schema-level instructions or rules
+    instructions = mdl.get("instructions") or mdl.get("rules") or []
+    if instructions:
+        lines.append("\nBUSINESS RULES & INSTRUCTIONS:")
+        if isinstance(instructions, list):
+            for inst in instructions:
+                lines.append(f"  - {inst}")
+        else:
+            lines.append(f"  {instructions}")
+
+    lines.append("\nMODELS & SCHEMAS:")
     for model in sorted(mdl.get("models", []), key=lambda m: m["name"]):
         m_name = model["name"]
+        m_desc = model.get("description") or model.get("properties", {}).get("description", "")
+        desc_str = f" -- {m_desc}" if m_desc else ""
+        lines.append(f"  MODEL {m_name}{desc_str} (")
         cols = model.get("columns", [])
         col_strs = []
         for c in cols:
-            flags = []
+            parts = [c["name"], f"({c.get('type', 'VARCHAR')})"]
             if c.get("isPrimaryKey"):
-                flags.append("PRIMARY KEY")
+                parts.append("[PRIMARY KEY]")
             if c.get("notNull"):
-                flags.append("NOT NULL")
-            flag_str = f", {', '.join(flags)}" if flags else ""
-            col_strs.append(f"{c['name']} ({c.get('type', 'VARCHAR')}{flag_str})")
-        lines.append(f"  MODEL {m_name} (\n    " + ",\n    ".join(col_strs) + "\n  )")
+                parts.append("[NOT NULL]")
+            if c.get("isCalculated") and c.get("expression"):
+                parts.append(f"[CALCULATED: {c['expression']}]")
+            c_desc = c.get("description") or c.get("properties", {}).get("description", "")
+            if c_desc:
+                parts.append(f"-- {c_desc}")
+            col_strs.append("    " + " ".join(parts))
+        lines.append(",\n".join(col_strs))
+        lines.append("  )")
+
+    # Views
+    views = mdl.get("views", [])
+    if views:
+        lines.append("\nVIEWS & VIRTUAL TABLES:")
+        for v in views:
+            v_name = v.get("name", "")
+            v_desc = v.get("description") or v.get("properties", {}).get("description", "")
+            desc_str = f" -- {v_desc}" if v_desc else ""
+            lines.append(f"  VIEW {v_name}{desc_str}:")
+            stmt = v.get("statement") or v.get("sql", "")
+            if stmt:
+                lines.append(f"    SQL: {stmt.strip()}")
+
+    # Metrics
+    metrics = mdl.get("metrics", []) + mdl.get("cumulativeMetrics", [])
+    if metrics:
+        lines.append("\nMETRICS & MEASURES:")
+        for m in metrics:
+            m_name = m.get("name", "")
+            m_model = m.get("baseModel", "")
+            m_measure = m.get("measure", "")
+            m_desc = m.get("description") or m.get("properties", {}).get("description", "")
+            desc_str = f" ({m_desc})" if m_desc else ""
+            lines.append(f"  - {m_name} ON {m_model}: {m_measure}{desc_str}")
 
     relationships = mdl.get("relationships", [])
     lines.append("\nRELATIONSHIPS:")
@@ -73,7 +115,7 @@ def wren_context_text(db):
     else:
         lines.append("  (No explicit foreign keys / relationships declared in schema)")
 
-    ctx = "\n".join(lines)
+    ctx = "\n".join(lines).strip()
     _CACHE[db] = ctx
     return ctx
 
@@ -89,13 +131,15 @@ def answer(db, question):
         "error": None,
         "tokens_in": 0,
         "tokens_out": 0,
+        "context_tokens": 0,
         "seconds": 0.0,
     }
     try:
         context = wren_context_text(db)
-        user_prompt = f"WREN ENGINE SEMANTIC LAYER (MDL)\n{context}\n\nQUESTION\n{question}\n\nSQL:"
+        user_prompt = f"SCHEMA & SEMANTIC LAYER\n{context}\n\nQUESTION\n{question}\n\nSQL:"
         raw, t_in, t_out = b.call_llm(SYSTEM_PROMPT, user_prompt)
         result["tokens_in"], result["tokens_out"] = t_in, t_out
+        result["context_tokens"] = len(context) // 4
         sql = b.extract_sql(raw)
         result["sql"] = sql
         if not b.looks_read_only(sql):
