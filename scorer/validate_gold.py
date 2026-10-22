@@ -1,17 +1,25 @@
 """Promote draft questions to validated questions.
 
-A question is VALIDATED only when three independent answers agree:
+A question is VALIDATED when your hand-written gold_sql and the LLM oracles agree:
   1. your hand-written gold_sql
-  2. an LLM "oracle" A (schema + business rules)
-  3. an LLM "oracle" B (same inputs, different instructions, optional different model)
+  2. LLM "oracle" A (schema + business rules)
+  3. LLM "oracle" B (same inputs, different instructions, optional different model)
 
-Disagreements go to questions/disputed/<db>.yaml. That folder is a finding, so keep it.
+How disagreements are handled:
+  - An oracle whose SQL FAILS gets one repair attempt (the error is shown to it).
+    If it still fails, it ABSTAINS. An abstaining oracle is not counted as a disagreement,
+    but at least one oracle must still agree with the gold answer.
+  - If an oracle returns a valid but different answer, the question is DISPUTED
+    (questions/disputed/<db>.yaml). Read it: sometimes the gold is wrong, sometimes the
+    question is vague, sometimes the oracle misread it.
+  - A human can settle a dispute by editing the draft: set `adjudicated: true` and
+    `adjudication_reason: ...`. The question is then validated, and the reason is kept in the
+    file. Report how many questions were adjudicated by hand.
 
 Run:
     python scorer/validate_gold.py --db appdb
-    python scorer/validate_gold.py --db olist
-    python scorer/validate_gold.py --db appdb --skip-oracle   # only check the hand-written SQL runs
-    python scorer/validate_gold.py --db appdb --only appdb-017,appdb-020,appdb-025   # re-check just these
+    python scorer/validate_gold.py --db olist --skip-oracle   # only check the hand-written SQL runs
+    python scorer/validate_gold.py --db olist --only olist-012,olist-016   # re-check just these
                                                 # (merges into the existing validated/disputed files)
 
 Reads : questions/drafts/<db>.yaml, docs/business_rules.md
@@ -54,8 +62,12 @@ def rules_for(db):
     return ""
 
 
-def oracle_sql(db, question, system, model=None):
-    prompt = f"SCHEMA\n{b.schema_text(db)}\nBUSINESS RULES\n{rules_for(db)}\nQUESTION\n{question}\n\nSQL:"
+def ask_oracle(db, question, system, model=None, bad_sql=None, error=None):
+    prompt = f"SCHEMA\n{b.schema_text(db)}\nBUSINESS RULES\n{rules_for(db)}\nQUESTION\n{question}\n"
+    if bad_sql:
+        prompt += (f"\nYOUR PREVIOUS SQL\n{bad_sql}\nIT FAILED WITH\n{error}\n"
+                   "Return a corrected single query.\n")
+    prompt += "\nSQL:"
     old = os.environ.get("LLM_MODEL")
     if model:
         os.environ["LLM_MODEL"] = model
@@ -68,10 +80,31 @@ def oracle_sql(db, question, system, model=None):
 
 
 def try_run(db, sql):
+    if not b.looks_read_only(sql):
+        return None, "not a single SELECT/WITH statement"
     try:
         return b.run_sql(db, sql)[1], None
     except Exception as e:
         return None, f"{type(e).__name__}: {str(e)[:200]}"
+
+
+def run_oracle(db, question, system, model, gold_rows, ordered):
+    """Returns a verdict dict with status: agrees | differs | abstain."""
+    sql = rows = err = None
+    try:
+        sql = ask_oracle(db, question, system, model)
+        rows, err = try_run(db, sql)
+        repaired = False
+        if err:  # one repair attempt, showing the error
+            sql = ask_oracle(db, question, system, model, bad_sql=sql, error=err)
+            rows, err = try_run(db, sql)
+            repaired = True
+    except Exception as e:
+        return {"status": "abstain", "sql": sql, "error": f"{type(e).__name__}: {str(e)[:200]}"}
+    if err:
+        return {"status": "abstain", "sql": sql, "error": err, "repaired": repaired}
+    status = "agrees" if same(gold_rows, rows, ordered) else "differs"
+    return {"status": status, "sql": sql, "error": None, "repaired": repaired}
 
 
 def main():
@@ -109,22 +142,21 @@ def main():
         ordered = bool(q.get("ordered"))
         verdicts = {}
         for name, system, model in [("oracle_a", PROMPT_A, None), ("oracle_b", PROMPT_B, os.getenv("GOLD_MODEL_B"))]:
-            try:
-                sql = oracle_sql(args.db, q["question"], system, model)
-                rows, err = try_run(args.db, sql) if b.looks_read_only(sql) else (None, "not a single SELECT")
-            except Exception as e:
-                sql, rows, err = None, None, f"{type(e).__name__}: {str(e)[:200]}"
-            ok = rows is not None and same(gold_rows, rows, ordered)
-            verdicts[name] = {"agrees": ok, "sql": sql, "error": err}
+            verdicts[name] = run_oracle(args.db, q["question"], system, model, gold_rows, ordered)
 
-        if all(v["agrees"] for v in verdicts.values()):
-            validated.append(q)
-            print(f"{q['id']}: validated")
+        statuses = [v["status"] for v in verdicts.values()]
+        q["oracles"] = verdicts
+        if "differs" not in statuses and "agrees" in statuses:
+            note = " (one oracle abstained)" if "abstain" in statuses else ""
+            validated.append({k: v for k, v in q.items() if k != "oracles"})
+            print(f"{q['id']}: validated{note}")
+        elif q.get("adjudicated"):
+            validated.append({k: v for k, v in q.items() if k != "oracles"})
+            print(f"{q['id']}: validated by hand adjudication")
         else:
-            q["oracles"] = verdicts
             disputed.append(q)
-            who = [n for n, v in verdicts.items() if not v["agrees"]]
-            print(f"{q['id']}: DISPUTED ({', '.join(who)} disagree)")
+            who = [n for n, v in verdicts.items() if v["status"] != "agrees"]
+            print(f"{q['id']}: DISPUTED ({', '.join(who)} did not agree)")
 
     out = os.path.join(ROOT, "questions", f"{args.db}.yaml")
     dis = os.path.join(ROOT, "questions", "disputed", f"{args.db}.yaml")
@@ -132,15 +164,17 @@ def main():
 
     if only is not None:  # merge with what is already on disk, replacing the re-checked ids
         def load(path):
-            return yaml.safe_load(open(path, encoding="utf-8")) or [] if os.path.exists(path) else []
+            return (yaml.safe_load(open(path, encoding="utf-8")) or []) if os.path.exists(path) else []
         redone = {q["id"] for q in validated + disputed}
         validated = [q for q in load(out) if q["id"] not in redone] + validated
         disputed = [q for q in load(dis) if q["id"] not in redone] + disputed
         validated.sort(key=lambda q: q["id"])
         disputed.sort(key=lambda q: q["id"])
+
     yaml.safe_dump(validated, open(out, "w", encoding="utf-8"), sort_keys=False, allow_unicode=True)
     yaml.safe_dump(disputed, open(dis, "w", encoding="utf-8"), sort_keys=False, allow_unicode=True)
-    print(f"\nvalidated: {len(validated)}   disputed: {len(disputed)}")
+    adj = sum(1 for q in validated if q.get("adjudicated"))
+    print(f"\nvalidated: {len(validated)} (hand-adjudicated: {adj})   disputed: {len(disputed)}")
     print(f"wrote {out}\nwrote {dis}")
 
 
