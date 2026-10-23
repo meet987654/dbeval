@@ -38,6 +38,21 @@ Runner templates changed after the first benchmark, so the old numbers are not c
 - Then a **30 minute timer per tool per database**. When it ends, stop. Whatever is not finished is "ran out of time".
 - Do not edit a layer after you freeze it.
 
+## Who reviews, and in what order
+
+**The reviewer must be blind to the test.** The editor-agent session that wrote the suite, read the gold SQL and
+diagnosed the failures has already seen it, and cannot un-see it. So do one of these:
+
+- You do the encoding yourself, using only the rules file and the tool's docs, or
+- use a **fresh agent session in a separate copy of the repo** with `questions/`, `results/`, `scorer/`,
+  `scratch/` and `notes/build_log.md` deleted. It gets `docs/business_rules.md`, this protocol, and the
+  tool project folders only. Copy the finished layers back afterwards.
+
+Say which one you used in the report.
+
+**Counterbalance the order.** The reviewer learns the rules while encoding, so whichever tool goes first is at a
+disadvantage. Use `ktx, wren, datus` for appdb and `datus, wren, ktx` for olist, and write the order in the log.
+
 ## Step 2: what to encode, in this order
 
 Do the biggest-impact rules first, so every tool gets the same chance to fit them in 30 minutes.

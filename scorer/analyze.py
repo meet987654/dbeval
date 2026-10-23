@@ -83,6 +83,10 @@ def main():
     for k in CANDIDATES:
         ap.add_argument(f"--col-{k}")
     ap.add_argument("--matrix", default="results/per_question.csv")
+    ap.add_argument("--ties", choices=["fail", "half"], default="fail",
+                    help="how to score a question that passed in only some runs: 'fail' = majority vote "
+                         "(a 1-of-2 split counts as a fail), 'half' = use the pass rate (1 of 2 = 0.5). "
+                         "Use 'half' when you have only 2 runs.")
     args = ap.parse_args()
 
     with open(args.csv_path, encoding="utf-8") as f:
@@ -111,6 +115,11 @@ def main():
     def majority(vals):
         return sum(vals) * 2 > len(vals)
 
+    def score(vals):
+        if args.ties == "half":
+            return sum(vals) / len(vals) if vals else 0.0
+        return 1.0 if majority(vals) else 0.0
+
     out = []
     out.append("# dbeval analysis (question-level)\n")
     out.append(f"Source: `{args.csv_path}`. Rows dropped for infrastructure errors: {dropped_infra}.\n")
@@ -126,7 +135,7 @@ def main():
         for s in present:
             for q in qs:
                 vals = runs.get((db, s, q), [])
-                per[s].append(1 if majority(vals) else 0)
+                per[s].append(score(vals))
                 if vals and 0 < sum(vals) < len(vals):
                     flaky[s] += 1
                 matrix[(db, q)][s] = f"{sum(vals)}/{len(vals)}" if vals else "-"
@@ -135,20 +144,22 @@ def main():
         out.append("| system | questions passed | accuracy | flaky questions* |")
         out.append("|---|---|---|---|")
         for s in present:
-            out.append(f"| {s} | {sum(per[s])}/{n} | {sum(per[s]) / n * 100:.1f}% | {flaky[s]} |")
+            out.append(f"| {s} | {sum(per[s]):g}/{n} | {sum(per[s]) / n * 100:.1f}% | {flaky[s]} |")
         out.append("\n*flaky = passed in some runs but not all.\n")
-        out.append(f"\nPaired comparison against `{args.baseline}` (a question counts as passed if it passed in most runs):\n")
+        how = "pass rate across runs" if args.ties == "half" else "pass if it passed in most runs"
+        out.append(f"\nPaired comparison against `{args.baseline}` (question score: {how}):\n")
         out.append("| system | fixed (tool right, baseline wrong) | broke (baseline right, tool wrong) | net questions | diff (points) | 95% bootstrap interval | sign-test p |")
         out.append("|---|---|---|---|---|---|---|")
         base = per[args.baseline]
         for s in present:
             if s == args.baseline:
                 continue
-            fixed = sum(1 for t, bse in zip(per[s], base) if t and not bse)
-            broke = sum(1 for t, bse in zip(per[s], base) if bse and not t)
+            fixed = sum(1 for t, bse in zip(per[s], base) if t > bse)
+            broke = sum(1 for t, bse in zip(per[s], base) if t < bse)
             lo, hi = bootstrap_diff(per[s], base)
-            diff = (sum(per[s]) - sum(base)) / n * 100
-            out.append(f"| {s} | {fixed} | {broke} | {fixed - broke:+d} | {diff:+.1f} | [{lo:+.1f}, {hi:+.1f}] | {sign_test_p(fixed, broke):.3f} |")
+            net = sum(per[s]) - sum(base)
+            diff = net / n * 100
+            out.append(f"| {s} | {fixed} | {broke} | {net:+g} | {diff:+.1f} | [{lo:+.1f}, {hi:+.1f}] | {sign_test_p(fixed, broke):.3f} |")
         out.append(f"\nOne question is worth {100 / n:.1f} points on this database. "
                    "An interval that includes 0, or p above 0.05, means the difference is not distinguishable from noise.\n")
 
