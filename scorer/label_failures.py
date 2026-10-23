@@ -3,6 +3,10 @@
 Inspects failed questions by comparing rule features in the system's generated SQL
 against the gold SQL, detects SQL syntax/runtime errors, and assigns precise labels.
 
+Counting: each (db, system, question_id) is counted ONCE -- the majority failure label
+across all runs is used. Ties break alphabetically toward the stricter label.
+This means totals equal the number of distinct failed questions, not run-rows.
+
 Usage:
     python scorer/label_failures.py results/raw/suite_results_with_controls.csv --out results/FAILURES.md
 """
@@ -97,6 +101,9 @@ def extract_features_appdb(sql_text):
         features.add("user_events")
     if "plan_tier" in s:
         features.add("plan_tier")
+    # Detect BETWEEN anti-pattern for date windows (should be half-open)
+    if re.search(r"between\s+['\"]\d{4}-\d{2}-\d{2}", s):
+        features.add("half_open_date")
     return features
 
 def extract_features_olist(sql_text):
@@ -167,9 +174,11 @@ def main():
     headers = list(rows[0].keys())
     col = {k: detect(headers, k, getattr(args, f"col_{k}")) for k in CANDIDATES}
 
-    labeled_rows = []
-    failure_counts = defaultdict(lambda: defaultdict(int)) # (db, system) -> label -> count
-    total_failures = defaultdict(int) # (db, system) -> int
+    # -------------------------------------------------------------------
+    # First pass: collect all run-level results keyed by (db, sys, qid)
+    # -------------------------------------------------------------------
+    # key -> list of (passed, label, sql, err, row_dict)
+    question_runs = defaultdict(list)
 
     for r in rows:
         passed_str = str(r[col["passed"]]).strip().lower()
@@ -186,14 +195,41 @@ def main():
         gold_q = golds.get((db, qid), {})
         gold_sql = gold_q.get("gold_sql", "")
 
-        label = "PASS"
-        if not passed:
-            label = label_failure(db, sql, gold_sql, err)
-            failure_counts[(db, sys_name)][label] += 1
+        if passed:
+            lbl = "PASS"
+        else:
+            lbl = label_failure(db, sql, gold_sql, err)
+
+        question_runs[(db, sys_name, qid)].append((passed, lbl, sql, err, r, gold_sql))
+
+    # -------------------------------------------------------------------
+    # Second pass: pick per-question label (majority vote across runs)
+    # -------------------------------------------------------------------
+    labeled_rows = []
+    failure_counts = defaultdict(lambda: defaultdict(int))  # (db, system) -> label -> count
+    total_failures = defaultdict(int)  # (db, system) -> int
+
+    for (db, sys_name, qid), run_list in question_runs.items():
+        labels_this_q = [lbl for (_p, lbl, _s, _e, _r, _g) in run_list]
+        # Majority label; any run passing => count as PASS for that question
+        pass_count = sum(1 for lbl in labels_this_q if lbl == "PASS")
+        if pass_count > len(labels_this_q) / 2:
+            chosen_label = "PASS"
+        else:
+            # Most common failure label; ties: alphabetical
+            from collections import Counter
+            cnt = Counter(lbl for lbl in labels_this_q if lbl != "PASS")
+            chosen_label = min(cnt, key=lambda l: (-cnt[l], l))
+
+        # Use the last run's row as representative
+        _, _, best_sql, best_err, best_row, gold_sql = run_list[-1]
+
+        if chosen_label != "PASS":
+            failure_counts[(db, sys_name)][chosen_label] += 1
             total_failures[(db, sys_name)] += 1
 
-        rec = dict(r)
-        rec["failure_label"] = label
+        rec = dict(best_row)
+        rec["failure_label"] = chosen_label
         rec["gold_sql"] = gold_sql
         labeled_rows.append(rec)
 
@@ -236,7 +272,7 @@ def main():
     md.append("Below are questions where `failure_label` is `other` or where `baseline_rules` failed:\n\n")
 
     seen_inspect = set()
-    for r in labeled_rows:
+    for r in sorted(labeled_rows, key=lambda x: (x[col["db"]], x[col["question"]], x[col["system"]])):
         if r["failure_label"] == "PASS":
             continue
         db = r[col["db"]]
@@ -245,7 +281,7 @@ def main():
         lbl = r["failure_label"]
 
         if lbl == "other" or (sys_name == "baseline_rules" and db == "appdb"):
-            key = (db, qid, sys_name, lbl)
+            key = (db, qid, sys_name)  # deduplicate per question, not per label
             if key in seen_inspect:
                 continue
             seen_inspect.add(key)

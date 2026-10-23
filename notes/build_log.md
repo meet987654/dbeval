@@ -214,3 +214,72 @@ Executed the full frozen test suite (`suite-v1`: 50 scored questions, 3 ambiguou
    - On `appdb`, all systems performed identically poorly (12.5% - 15.6%).
    - The failures on `appdb` stem directly from unexpressed business logic: test account exclusions (`is_test = false`), soft deletes (`deleted_at IS NULL`), multi-currency revenue conversions (`amount_cents * fx_rate`), and canceled subscription definitions.
    - This sets up the exact goal for **Day 5 (The 30-Minute Human Review)**: testing how much accuracy improves when each tool is given 30 minutes of human business rule enrichment!
+
+## Day 4 Post-hoc: Failure Analysis Corrections (pre-Day-5)
+
+### Correction 1: BETWEEN truncation is a real, significant bug
+
+BETWEEN '2026-09-01' AND '2026-09-30' is midnight on 2026-09-30 00:00+00, which drops
+all 2,427 ? 2,388 active users logged in on the last day of September. This explains the six
+questions whose gold answer uses half-open windows (appdb-011, 014, 019, 022, 025, 031).
+Fixed in business_rules.md v2 as **rule 14**: use >= start AND < next period start; never
+use BETWEEN with an end date.
+
+### Correction 2: Integer division came from our rules file (v1)
+
+Rule 4 (v1) said mount_cents / 100 * fx_rates.usd_per_unit. Postgres evaluates integer /
+integer as integer, giving ,373.95 for Q3 gross instead of the correct ,974.59.
+Codestral copied exactly what we wrote. This is a self-inflicted ceiling, not a model error.
+Fixed in business_rules.md v2 as **rule 4**: mount_cents::numeric / 100.
+Old baseline_rules results (git tag: rules-v1) are kept as version-1 numbers and disclosed
+as such in the report.
+
+### Correction 3: "Fan-out on refunds" diagnosis was wrong
+
+There is no invoice with more than one refund, so a join cannot fan-out. The actual cause
+of net-revenue failures is period mixing: invoices filter on paid_at and refunds filter on
+created_at, but a single joined query cannot apply both date conditions correctly.
+Fixed in business_rules.md v2 as **rule 7**: compute gross and refunds as two separate
+subqueries, each filtered on its own column, then subtract.
+
+### Diagnosis: appdb-003 ("How many accounts signed up in 2025?")
+
+Gold SQL uses a half-open window:
+  created_at >= '2025-01-01 00:00:00+00' AND created_at < '2026-01-01 00:00:00+00'
+
+All systems use EXTRACT(YEAR FROM created_at) = 2025 or BETWEEN '2025-01-01' AND
+'2025-12-31'. None of these is wrong by much — EXTRACT-year is logically equivalent for
+year boundaries — but the scorer requires an exact row match. The mismatch is likely timezone
+handling: created_at is timestamptz, and EXTRACT(YEAR ...) evaluates in the session timezone
+while the gold uses UTC anchors. This affects a small number of rows near the year boundary.
+Root cause: missing is_test / deleted_at filters in EVERY system, plus date-expression
+mismatch. Label: **missing:soft_delete+test_filter** (the date style is a secondary issue).
+The business rule fix (half-open dates in rule 14) will not fix this question directly
+because the year-boundary effect is small; the bigger gain is adding the account filters.
+
+### Diagnosis: appdb-027 ("How many accounts have had more than one subscription?")
+
+Gold SQL:
+  SELECT COUNT(*) FROM (
+    SELECT s.account_id FROM subscriptions s JOIN accounts a ON a.id = s.account_id
+    WHERE a.is_test = false AND a.deleted_at IS NULL
+    GROUP BY s.account_id HAVING COUNT(*) > 1) t
+
+All systems get the HAVING COUNT(*) > 1 logic correct but miss the JOIN to accounts and the
+is_test / deleted_at filters. Additionally, baseline and schema_only use
+COUNT(DISTINCT account_id) FROM subscriptions (no GROUP BY/HAVING), which returns the total
+number of real accounts, not the subset with >1 subscription — a fundamental logic error.
+ktx / wren / datus-run2 get the HAVING right but still skip the real-account filter.
+Root cause: missing is_test and deleted_at on a "simple" question where they aren't obvious.
+Label: **missing:soft_delete+test_filter**. No SQL error; pure missing filter.
+This question is fixable by a eal_accounts view or by explicitly describing the filter
+in the column/table description.
+
+### FAILURES.md counting fix
+
+The original FAILURES.md counted run-rows (3 passes × N questions = 3× inflation).
+The labeler (scorer/label_failures.py) now deduplicates by (db, system, question_id),
+taking the majority failure label across runs. Corrected totals:
+- baseline appdb: 27/32 failed (was reported as 82)
+- baseline_rules appdb: 13/32 failed (was reported as 25)
+- All olist totals were ~3× inflated similarly.
