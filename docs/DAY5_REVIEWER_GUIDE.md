@@ -66,7 +66,7 @@ How each tool keeps things (check by looking, these are pointers):
 
 - **ktx:** the copy is a ktx project. Use it as the project directory for ktx commands. The layer is the YAML under `semantic-layer/<db>/...` and whatever descriptions or knowledge pages ktx offers.
 - **Wren Engine:** the copy is a Wren project: `models/*/metadata.yml`, `relationships.yml`, and views as the Wren docs describe. Run `wren context build` inside the copy to rebuild `target/mdl.json`.
-- **Datus:** the layer is the exported `schema_metadata.json` in the copy. The only edit allowed there is the text of the `definition` fields (descriptions as SQL comments, and SQL snippets as comments). If Datus's docs show a file-based knowledge feature (metrics, reference SQL), use that as well. Do not touch the Parquet files or vectors, and do not add rows.
+- **Datus:** the layer is the exported `schema_metadata.json` in the copy. The only edit allowed there is the text of the `definition` fields (descriptions as SQL comments, and SQL snippets as comments). If Datus's docs show a file-based knowledge feature (metrics, reference SQL), use that as well. Do not touch the Parquet files or vectors, and do not add rows. Everything you write in the `definition` text is logged as `description`.
 
 ## Integrity rules
 
@@ -74,10 +74,10 @@ How each tool keeps things (check by looking, these are pointers):
   working path is not the `dbeval-day5` folder, stop.
 - **Never write a list of values, a column meaning or a code from memory.** Query the database with the `reader`
   account first, then write what you found.
-- **Use only places the tool really reads.** Do not edit exported JSON or Parquet files by hand, do not add files
-  the tool does not load, and do not copy a placeholder vector or other dummy data into a store. If a tool has no
-  native place for a rule, log it as `description` only if that tool's own files hold descriptions, otherwise as
-  `not possible`.
+- **Use only places the tool really reads.** Do not edit exported files by hand (the one exception is the Datus
+  `definition` text described above), do not add files the tool does not load, and do not copy a placeholder
+  vector or other dummy data into a store. If a tool has no native place for a rule, log it as `description`
+  only if that tool's own files hold descriptions, otherwise as `not possible`.
 - **A view is only a view if the tool defines it.** If the tool cannot define a view, write the filter into a description
   and log the form as `description`.
 - **Time:** write the start and end time (from `Get-Date`) for each tool and database. Do not estimate minutes per rule.
@@ -87,14 +87,14 @@ How each tool keeps things (check by looking, these are pointers):
 
 Fill `notes/day5_review_log.md`. One row per rule, per tool, per database:
 
-| rule | tool | db | form used (view / calculated / metric / description / not possible / ran out of time) | minutes |
+| rule | tool | db | form used (view / calculated / metric / description / not possible / ran out of time) | time finished (from `Get-Date`) |
 |---|---|---|---|---|
 
 Also write: the tool version, the docs-reading minutes, the start and end time, and anything you could not express.
 
 ## When you finish a tool
 
-1. The finished copy at `layers/<tool>/<db>_reviewed/` is your output. Do not move anything further.
+1. Check that your finished layer is in `layers/<tool>/<db>_reviewed/` (your working copy). Do not edit it after this.
 2. Do not run any test questions. You do not have any, and that is on purpose.
 3. Move to the next tool in the order above.
 
