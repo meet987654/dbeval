@@ -15,7 +15,7 @@ So exact SQL expressions are worth more than loose prose.
 
 - `docs/business_rules.md` (the only source of truth)
 - each tool's own documentation
-- the tool project folders in this copy (`layers/`, `ktx_*`, `wren_*`, `conf/`)
+- the tool layers in `layers/` and the Datus settings in `conf/`
 - the database itself, with the read-only `reader` account (to check a column or a value)
 
 ## What you must NOT look at
@@ -55,11 +55,33 @@ Use the most structured form the tool supports. Preference order:
 
 Write the exact SQL, do not paraphrase it. Test an expression on the database before you store it, if time allows.
 
-## Where each tool keeps its layer (check by looking, these are pointers)
+## Where you work
 
-- **ktx:** the project folder for the database, with `semantic-layer/<db>/...` YAML files, plus anything the tool offers for descriptions or knowledge pages.
-- **Wren Engine:** the project folder for the database, `models/*/metadata.yml`, `relationships.yml`, then `wren context build` rebuilds `target/mdl.json`.
-- **Datus:** `conf/agent.yml` and its stored schema and knowledge data. Find out, from its docs, where it keeps descriptions, metrics and reference SQL.
+For every tool and database, make your working copy from the starting folder you were given:
+
+- Copy `layers/<tool>/<start folder>` to `layers/<tool>/<database>_reviewed`, and work only in the copy.
+- The finished copy is your output. Nothing else needs to be moved.
+
+How each tool keeps things (check by looking, these are pointers):
+
+- **ktx:** the copy is a ktx project. Use it as the project directory for ktx commands. The layer is the YAML under `semantic-layer/<db>/...` and whatever descriptions or knowledge pages ktx offers.
+- **Wren Engine:** the copy is a Wren project: `models/*/metadata.yml`, `relationships.yml`, and views as the Wren docs describe. Run `wren context build` inside the copy to rebuild `target/mdl.json`.
+- **Datus:** the layer is the exported `schema_metadata.json` in the copy. The only edit allowed there is the text of the `definition` fields (descriptions as SQL comments, and SQL snippets as comments). If Datus's docs show a file-based knowledge feature (metrics, reference SQL), use that as well. Do not touch the Parquet files or vectors, and do not add rows.
+
+## Integrity rules
+
+- **Work only inside this folder.** Run `Get-Location` first and write the path at the top of the log. If your
+  working path is not the `dbeval-day5` folder, stop.
+- **Never write a list of values, a column meaning or a code from memory.** Query the database with the `reader`
+  account first, then write what you found.
+- **Use only places the tool really reads.** Do not edit exported JSON or Parquet files by hand, do not add files
+  the tool does not load, and do not copy a placeholder vector or other dummy data into a store. If a tool has no
+  native place for a rule, log it as `description` only if that tool's own files hold descriptions, otherwise as
+  `not possible`.
+- **A view is only a view if the tool defines it.** If the tool cannot define a view, write the filter into a description
+  and log the form as `description`.
+- **Time:** write the start and end time (from `Get-Date`) for each tool and database. Do not estimate minutes per rule.
+- **Versions:** run the tool's own version command (for example `pip show <package>` or `ktx --version`) and copy the output.
 
 ## The log
 
@@ -72,7 +94,7 @@ Also write: the tool version, the docs-reading minutes, the start and end time, 
 
 ## When you finish a tool
 
-1. Copy the finished layer to `layers/<tool>/<db>_reviewed/`.
+1. The finished copy at `layers/<tool>/<db>_reviewed/` is your output. Do not move anything further.
 2. Do not run any test questions. You do not have any, and that is on purpose.
 3. Move to the next tool in the order above.
 
