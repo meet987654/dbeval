@@ -26,18 +26,21 @@ SYSTEM_PROMPT = (
 
 _CACHE = {}
 
-def get_wren_mdl_path(db):
+def get_wren_mdl_path(db, reviewed=False):
+    if reviewed:
+        return os.path.join(ROOT, "layers", "wren", f"{db}_reviewed", "target", "mdl.json")
     if db == "olist":
         return os.path.join(ROOT, "layers", "wren", "olist", "target", "mdl.json")
     elif db == "appdb":
         return os.path.join(ROOT, "layers", "wren", "appdb_v2", "target", "mdl.json")
     raise ValueError(f"Unknown database: {db}")
 
-def wren_context_text(db):
-    if db in _CACHE:
-        return _CACHE[db]
+def wren_context_text(db, reviewed=False):
+    cache_key = f"{db}_reviewed" if reviewed else db
+    if cache_key in _CACHE:
+        return _CACHE[cache_key]
 
-    path = get_wren_mdl_path(db)
+    path = get_wren_mdl_path(db, reviewed=reviewed)
     if not os.path.exists(path):
         raise FileNotFoundError(f"Wren MDL file not found at {path}")
 
@@ -48,6 +51,16 @@ def wren_context_text(db):
 
     # Global / Schema-level instructions or rules
     instructions = mdl.get("instructions") or mdl.get("rules") or []
+    inst_file = os.path.join(os.path.dirname(os.path.dirname(path)), "instructions.md")
+    if not instructions and os.path.exists(inst_file):
+        try:
+            with open(inst_file, "r", encoding="utf-8") as f:
+                inst_text = f.read().strip()
+            if inst_text:
+                instructions = [inst_text]
+        except Exception:
+            pass
+
     if instructions:
         lines.append("\nBUSINESS RULES & INSTRUCTIONS:")
         if isinstance(instructions, list):
@@ -119,10 +132,10 @@ def wren_context_text(db):
     _CACHE[db] = ctx
     return ctx
 
-def answer(db, question):
+def answer(db, question, reviewed=False):
     started = time.time()
     result = {
-        "system": "wren",
+        "system": "wren_reviewed" if reviewed else "wren",
         "db": db,
         "question": question,
         "sql": None,
@@ -135,7 +148,7 @@ def answer(db, question):
         "seconds": 0.0,
     }
     try:
-        context = wren_context_text(db)
+        context = wren_context_text(db, reviewed=reviewed)
         user_prompt = f"SCHEMA & SEMANTIC LAYER\n{context}\n\nQUESTION\n{question}\n\nSQL:"
         raw, t_in, t_out = b.call_llm(SYSTEM_PROMPT, user_prompt)
         result["tokens_in"], result["tokens_out"] = t_in, t_out
@@ -149,6 +162,9 @@ def answer(db, question):
         result["error"] = f"{type(e).__name__}: {str(e)[:300]}"
     result["seconds"] = round(time.time() - started, 2)
     return result
+
+def answer_reviewed(db, question):
+    return answer(db, question, reviewed=True)
 
 def show(r):
     print("=" * 70)

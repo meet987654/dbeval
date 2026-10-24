@@ -32,6 +32,7 @@ from compare import same
 
 BENCHMARK_SYSTEMS = ["baseline", "ktx", "datus", "wren"]
 CONTROL_SYSTEMS = ["schema_only", "schema_true_joins", "baseline_rules"]
+REVIEWED_SYSTEMS = ["ktx_reviewed", "wren_reviewed", "datus_reviewed"]
 
 SYSTEM_RUNNERS = {
     "baseline": b_runner.answer,
@@ -41,6 +42,9 @@ SYSTEM_RUNNERS = {
     "schema_only": controls.answer_schema_only,
     "schema_true_joins": controls.answer_schema_true_joins,
     "baseline_rules": controls.answer_baseline_rules,
+    "ktx_reviewed": ktx_run.answer_reviewed,
+    "wren_reviewed": wren_run.answer_reviewed,
+    "datus_reviewed": datus_run.answer_reviewed,
 }
 
 def load_questions(db):
@@ -219,9 +223,9 @@ def main():
     ap = argparse.ArgumentParser(description="dbeval comprehensive test suite runner")
     ap.add_argument(
         "--system",
-        choices=["baseline", "ktx", "datus", "wren", "schema_only", "schema_true_joins", "baseline_rules", "controls", "all", "everything"],
+        choices=["baseline", "ktx", "datus", "wren", "schema_only", "schema_true_joins", "baseline_rules", "ktx_reviewed", "wren_reviewed", "datus_reviewed", "controls", "reviewed", "all", "everything"],
         default="all",
-        help="System to test: 'all' (baseline, ktx, datus, wren), 'controls' (schema_only, schema_true_joins, baseline_rules), 'everything' (all 7), or a specific system name"
+        help="System to test: 'all' (baseline, ktx, datus, wren), 'controls', 'reviewed', 'everything' (all systems), or specific system name"
     )
     ap.add_argument("--db", choices=["olist", "appdb", "both"], default="both")
     ap.add_argument("--runs", type=int, default=1, help="Number of repetitions across the full suite (default: 1)")
@@ -233,6 +237,8 @@ def main():
         systems = BENCHMARK_SYSTEMS
     elif args.system == "controls":
         systems = CONTROL_SYSTEMS
+    elif args.system == "reviewed":
+        systems = REVIEWED_SYSTEMS
     elif args.system == "everything":
         systems = list(SYSTEM_RUNNERS.keys())
     else:

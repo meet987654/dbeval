@@ -27,18 +27,21 @@ SYSTEM_PROMPT = (
 
 _CACHE = {}
 
-def get_ktx_schema_path(db):
+def get_ktx_schema_path(db, reviewed=False):
+    if reviewed:
+        return os.path.join(ROOT, "layers", "ktx", f"{db}_reviewed", "semantic-layer", db, "_schema", "public.yaml")
     if db == "olist":
         return os.path.join(ROOT, "layers", "ktx", "olist", "semantic-layer", "olist", "_schema", "public.yaml")
     elif db == "appdb":
         return os.path.join(ROOT, "layers", "ktx", "appdb_v2", "semantic-layer", "appdb", "_schema", "public.yaml")
     raise ValueError(f"Unknown database: {db}")
 
-def ktx_context_text(db):
-    if db in _CACHE:
-        return _CACHE[db]
+def ktx_context_text(db, reviewed=False):
+    cache_key = f"{db}_reviewed" if reviewed else db
+    if cache_key in _CACHE:
+        return _CACHE[cache_key]
 
-    path = get_ktx_schema_path(db)
+    path = get_ktx_schema_path(db, reviewed=reviewed)
     if not os.path.exists(path):
         raise FileNotFoundError(f"ktx layer not found at {path}")
 
@@ -134,13 +137,13 @@ def ktx_context_text(db):
                 lines.append(f"  {on_expr}  [{j.get('relationship', '')}, {j.get('source', '')}]")
 
     ctx = "\n".join(lines).strip()
-    _CACHE[db] = ctx
+    _CACHE[cache_key] = ctx
     return ctx
 
-def answer(db, question):
+def answer(db, question, reviewed=False):
     started = time.time()
     result = {
-        "system": "ktx",
+        "system": "ktx_reviewed" if reviewed else "ktx",
         "db": db,
         "question": question,
         "sql": None,
@@ -153,7 +156,7 @@ def answer(db, question):
         "seconds": 0.0,
     }
     try:
-        context = ktx_context_text(db)
+        context = ktx_context_text(db, reviewed=reviewed)
         user_prompt = f"SCHEMA & SEMANTIC LAYER\n{context}\n\nQUESTION\n{question}\n\nSQL:"
         raw, t_in, t_out = b.call_llm(SYSTEM_PROMPT, user_prompt)
         result["tokens_in"], result["tokens_out"] = t_in, t_out
@@ -167,6 +170,9 @@ def answer(db, question):
         result["error"] = f"{type(e).__name__}: {str(e)[:300]}"
     result["seconds"] = round(time.time() - started, 2)
     return result
+
+def answer_reviewed(db, question):
+    return answer(db, question, reviewed=True)
 
 def show(r):
     print("=" * 70)
