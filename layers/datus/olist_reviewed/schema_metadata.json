@@ -1,0 +1,122 @@
+[
+  {
+    "identifier": "olist.public.order_payments",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "order_payments",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"order_payments\" (\n    \"order_id\" text NOT NULL,\n    \"payment_sequential\" integer NOT NULL,\n    \"payment_type\" text NOT NULL,\n    \"payment_installments\" integer NOT NULL,\n    \"payment_value\" double precision NOT NULL\n);\n-- Business Rules:\n-- 3. Order payment value = SUM(payment_value) for that order. One order can have multiple payment rows. NEVER join order_payments to order_items directly (causes row multiplication).",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.customers",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "customers",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"customers\" (\n    \"customer_id\" text NOT NULL, -- Order-level customer ID. Created per order!\n    \"customer_unique_id\" text NOT NULL, -- Person-level customer ID! Always count customer_unique_id for number of customers / people.\n    \"customer_zip_code_prefix\" integer,\n    \"customer_city\" text,\n    \"customer_state\" text\n);\n-- Business Rules:\n-- 1. Customer (a person) = customers.customer_unique_id. Counting customer_id counts orders, not unique people!",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.geolocation",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "geolocation",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"geolocation\" (\n    \"geolocation_zip_code_prefix\" bigint,\n    \"geolocation_lat\" double precision,\n    \"geolocation_lng\" double precision,\n    \"geolocation_city\" text,\n    \"geolocation_state\" text\n);",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.orders",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "orders",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"orders\" (\n    \"order_id\" text NOT NULL,\n    \"customer_id\" text NOT NULL, -- Join to customers.customer_id.\n    \"order_status\" text NOT NULL, -- 'delivered', 'shipped', 'canceled', 'unavailable', etc.\n    \"order_purchase_timestamp\" text, -- Stored as text! Cast to ::timestamp.\n    \"order_approved_at\" text, -- Stored as text! Cast to ::timestamp.\n    \"order_delivered_carrier_date\" text, -- Stored as text! Cast to ::timestamp.\n    \"order_delivered_customer_date\" text, -- Stored as text! Cast to ::timestamp.\n    \"order_estimated_delivery_date\" text -- Stored as text! Cast to ::timestamp.\n);\n-- Business Rules:\n-- 2. Sales / sold: excludes canceled and unavailable orders: order_status NOT IN ('canceled', 'unavailable').\n-- 4. Delivered: order_status = 'delivered'. Late: order_delivered_customer_date::timestamp > order_estimated_delivery_date::timestamp.\n-- 5. Delivery time: days between order_purchase_timestamp::timestamp and order_delivered_customer_date::timestamp.\n-- 8. Date columns are stored as text; cast them to timestamp (e.g. ::timestamp) before date operations or comparisons.",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.order_items",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "order_items",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"order_items\" (\n    \"order_id\" text NOT NULL, -- Join to orders.order_id.\n    \"order_item_id\" integer NOT NULL,\n    \"product_id\" text NOT NULL, -- Join to products.product_id.\n    \"seller_id\" text NOT NULL, -- Join to sellers.seller_id.\n    \"shipping_limit_date\" text,\n    \"price\" double precision NOT NULL, -- Sales price. Sales amount = price (freight_value is NOT sales).\n    \"freight_value\" double precision NOT NULL -- Freight fee (NOT sales).\n);\n-- Business Rules:\n-- 2. Sales and 'sold' apply to order_items where orders.order_status NOT IN ('canceled', 'unavailable'). Price is the sales amount.",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.order_reviews",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "order_reviews",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"order_reviews\" (\n    \"review_id\" text NOT NULL,\n    \"order_id\" text NOT NULL,\n    \"review_score\" integer NOT NULL,\n    \"review_comment_title\" text,\n    \"review_comment_message\" text,\n    \"review_creation_date\" text, -- Stored as text! Cast to ::timestamp.\n    \"review_answer_timestamp\" text\n);\n-- Business Rules:\n-- 7. If an order has multiple reviews, use the most recent one (ORDER BY review_creation_date::timestamp DESC).",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.products",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "products",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"products\" (\n    \"product_id\" text NOT NULL,\n    \"product_category_name\" text, -- Portuguese category name.\n    \"product_name_lenght\" double precision,\n    \"product_description_lenght\" double precision,\n    \"product_photos_qty\" double precision,\n    \"product_weight_g\" double precision,\n    \"product_length_cm\" double precision,\n    \"product_height_cm\" double precision,\n    \"product_width_cm\" double precision\n);\n-- Business Rules:\n-- 6. Category: English name from product_category_name_translation. If no translation, use product_category_name. Products with NULL category are ignored for category questions.",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.sellers",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "sellers",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"sellers\" (\n    \"seller_id\" text,\n    \"seller_zip_code_prefix\" bigint,\n    \"seller_city\" text,\n    \"seller_state\" text\n);",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.product_category_name_translation",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "product_category_name_translation",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"product_category_name_translation\" (\n    \"product_category_name\" text NOT NULL, -- Portuguese name.\n    \"product_category_name_english\" text NOT NULL -- English translation.\n);",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.real_sales",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "real_sales",
+    "table_type": "view",
+    "definition": "CREATE VIEW \"olist\".\"public\".\"real_sales\" AS SELECT oi.*, o.\"customer_id\", o.\"order_purchase_timestamp\"::timestamp AS \"purchase_timestamp\" FROM \"olist\".\"public\".\"order_items\" oi JOIN \"olist\".\"public\".\"orders\" o ON oi.\"order_id\" = o.\"order_id\" WHERE o.\"order_status\" NOT IN ('canceled', 'unavailable');",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.order_payment_totals",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "order_payment_totals",
+    "table_type": "view",
+    "definition": "CREATE VIEW \"olist\".\"public\".\"order_payment_totals\" AS SELECT \"order_id\", SUM(\"payment_value\") AS \"total_payment_value\" FROM \"olist\".\"public\".\"order_payments\" GROUP BY \"order_id\";",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.product_categories_english",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "product_categories_english",
+    "table_type": "view",
+    "definition": "CREATE VIEW \"olist\".\"public\".\"product_categories_english\" AS SELECT p.\"product_id\", COALESCE(t.\"product_category_name_english\", p.\"product_category_name\") AS \"category_name_english\" FROM \"olist\".\"public\".\"products\" p LEFT JOIN \"olist\".\"public\".\"product_category_name_translation\" t ON p.\"product_category_name\" = t.\"product_category_name\" WHERE p.\"product_category_name\" IS NOT NULL;",
+    "datasource_id": "olist"
+  }
+]

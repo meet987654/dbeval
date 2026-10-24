@@ -1,0 +1,629 @@
+{
+  "catalog": "wren",
+  "schema": "public",
+  "models": [
+    {
+      "name": "customers",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "customers"
+      },
+      "columns": [
+        {
+          "name": "customer_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "customer_unique_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "customer_zip_code_prefix",
+          "type": "BIGINT",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "customer_city",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "customer_state",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "customer_id",
+      "cached": false,
+      "properties": {}
+    },
+    {
+      "name": "geolocation",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "geolocation"
+      },
+      "columns": [
+        {
+          "name": "geolocation_zip_code_prefix",
+          "type": "BIGINT",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "geolocation_lat",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "geolocation_lng",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "geolocation_city",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "geolocation_state",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "geolocation_zip_code_prefix",
+      "cached": false,
+      "properties": {}
+    },
+    {
+      "name": "order_items",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "order_items"
+      },
+      "columns": [
+        {
+          "name": "order_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "order_item_id",
+          "type": "BIGINT",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "product_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "seller_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "shipping_limit_date",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "price",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "freight_value",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "order_id",
+      "cached": false,
+      "properties": {}
+    },
+    {
+      "name": "order_payments",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "order_payments"
+      },
+      "columns": [
+        {
+          "name": "order_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "payment_sequential",
+          "type": "BIGINT",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "payment_type",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "payment_installments",
+          "type": "BIGINT",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "payment_value",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "order_id",
+      "cached": false,
+      "properties": {}
+    },
+    {
+      "name": "order_reviews",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "order_reviews"
+      },
+      "columns": [
+        {
+          "name": "review_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "order_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "review_score",
+          "type": "BIGINT",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "review_comment_title",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "review_comment_message",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "review_creation_date",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "review_answer_timestamp",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "review_id",
+      "cached": false,
+      "properties": {}
+    },
+    {
+      "name": "orders",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "orders"
+      },
+      "columns": [
+        {
+          "name": "order_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "customer_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "order_status",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "order_purchase_timestamp",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "order_approved_at",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "order_delivered_carrier_date",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "order_delivered_customer_date",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "order_estimated_delivery_date",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "order_id",
+      "cached": false,
+      "properties": {}
+    },
+    {
+      "name": "product_category_name_translation",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "product_category_name_translation"
+      },
+      "columns": [
+        {
+          "name": "product_category_name",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "product_category_name_english",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "product_category_name",
+      "cached": false,
+      "properties": {}
+    },
+    {
+      "name": "products",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "products"
+      },
+      "columns": [
+        {
+          "name": "product_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "product_category_name",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "product_name_lenght",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "product_description_lenght",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "product_photos_qty",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "product_weight_g",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "product_length_cm",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "product_height_cm",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "product_width_cm",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "product_id",
+      "cached": false,
+      "properties": {}
+    },
+    {
+      "name": "sellers",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "sellers"
+      },
+      "columns": [
+        {
+          "name": "seller_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "seller_zip_code_prefix",
+          "type": "BIGINT",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "seller_city",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "seller_state",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "seller_id",
+      "cached": false,
+      "properties": {}
+    }
+  ],
+  "relationships": [
+    {
+      "condition": "orders.customer_id = customers.customer_id",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "orders",
+        "customers"
+      ],
+      "name": "orders_customers_customer_id"
+    },
+    {
+      "condition": "order_items.order_id = orders.order_id",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "order_items",
+        "orders"
+      ],
+      "name": "order_items_orders_order_id"
+    },
+    {
+      "condition": "order_items.product_id = products.product_id",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "order_items",
+        "products"
+      ],
+      "name": "order_items_products_product_id"
+    },
+    {
+      "condition": "order_items.seller_id = sellers.seller_id",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "order_items",
+        "sellers"
+      ],
+      "name": "order_items_sellers_seller_id"
+    },
+    {
+      "condition": "order_payments.order_id = orders.order_id",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "order_payments",
+        "orders"
+      ],
+      "name": "order_payments_orders_order_id"
+    },
+    {
+      "condition": "order_reviews.order_id = orders.order_id",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "order_reviews",
+        "orders"
+      ],
+      "name": "order_reviews_orders_order_id"
+    },
+    {
+      "condition": "products.product_category_name = product_category_name_translation.product_category_name",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "products",
+        "product_category_name_translation"
+      ],
+      "name": "products_product_category_name_translation_product_category_name"
+    }
+  ],
+  "views": [
+    {
+      "name": "order_payment_totals",
+      "statement": "SELECT order_id, SUM(payment_value) AS total_payment_value FROM order_payments GROUP BY order_id",
+      "properties": {
+        "description": "Total payment value per order from order_payments."
+      }
+    },
+    {
+      "name": "product_categories_english",
+      "statement": "SELECT p.product_id, COALESCE(t.product_category_name_english, p.product_category_name) AS category_name_english FROM products p LEFT JOIN product_category_name_translation t ON p.product_category_name = t.product_category_name WHERE p.product_category_name IS NOT NULL",
+      "properties": {
+        "description": "English category name with Portuguese fallback."
+      }
+    },
+    {
+      "name": "real_sales",
+      "statement": "SELECT oi.*, o.customer_id, o.order_purchase_timestamp FROM order_items oi JOIN orders o ON oi.order_id = o.order_id WHERE o.order_status NOT IN ('canceled', 'unavailable')",
+      "properties": {
+        "description": "Real sales order items (excludes canceled and unavailable orders). Price is the sales amount."
+      }
+    }
+  ],
+  "dataSource": "postgres",
+  "layoutVersion": 2
+}

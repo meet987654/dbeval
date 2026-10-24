@@ -1,0 +1,33 @@
+name: sellers
+table_reference:
+  catalog: ''
+  schema: public
+  table: sellers
+columns:
+- name: seller_id
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: seller_zip_code_prefix
+  type: BIGINT
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: seller_city
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: seller_state
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+primary_key: seller_id
+cached: false
+properties: {}

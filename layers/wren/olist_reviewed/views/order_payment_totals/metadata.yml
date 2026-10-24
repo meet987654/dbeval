@@ -1,0 +1,4 @@
+name: order_payment_totals
+statement: "SELECT order_id, SUM(payment_value) AS total_payment_value FROM order_payments GROUP BY order_id"
+properties:
+  description: "Total payment value per order from order_payments."

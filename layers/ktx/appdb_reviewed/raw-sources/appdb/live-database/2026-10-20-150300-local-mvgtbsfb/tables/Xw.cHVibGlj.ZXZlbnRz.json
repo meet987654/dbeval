@@ -1,0 +1,56 @@
+{
+  "catalog": null,
+  "db": "public",
+  "name": "events",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 86261,
+  "columns": [
+    {
+      "name": "id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "dimensionType": "number",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "account_id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "dimensionType": "number",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "user_id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "dimensionType": "number",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "event_type",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "dimensionType": "string",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "occurred_at",
+      "nativeType": "timestamp with time zone",
+      "normalizedType": "timestamp with time zone",
+      "dimensionType": "time",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}

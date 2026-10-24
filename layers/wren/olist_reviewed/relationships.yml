@@ -1,0 +1,43 @@
+relationships:
+- condition: orders.customer_id = customers.customer_id
+  join_type: MANY_TO_ONE
+  models:
+  - orders
+  - customers
+  name: orders_customers_customer_id
+- condition: order_items.order_id = orders.order_id
+  join_type: MANY_TO_ONE
+  models:
+  - order_items
+  - orders
+  name: order_items_orders_order_id
+- condition: order_items.product_id = products.product_id
+  join_type: MANY_TO_ONE
+  models:
+  - order_items
+  - products
+  name: order_items_products_product_id
+- condition: order_items.seller_id = sellers.seller_id
+  join_type: MANY_TO_ONE
+  models:
+  - order_items
+  - sellers
+  name: order_items_sellers_seller_id
+- condition: order_payments.order_id = orders.order_id
+  join_type: MANY_TO_ONE
+  models:
+  - order_payments
+  - orders
+  name: order_payments_orders_order_id
+- condition: order_reviews.order_id = orders.order_id
+  join_type: MANY_TO_ONE
+  models:
+  - order_reviews
+  - orders
+  name: order_reviews_orders_order_id
+- condition: products.product_category_name = product_category_name_translation.product_category_name
+  join_type: MANY_TO_ONE
+  models:
+  - products
+  - product_category_name_translation
+  name: products_product_category_name_translation_product_category_name

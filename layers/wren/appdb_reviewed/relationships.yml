@@ -1,0 +1,49 @@
+relationships:
+- condition: invoices.account_id = accounts.id
+  join_type: MANY_TO_ONE
+  models:
+  - invoices
+  - accounts
+  name: invoices_accounts_account_id
+- condition: subscriptions.account_id = accounts.id
+  join_type: MANY_TO_ONE
+  models:
+  - subscriptions
+  - accounts
+  name: subscriptions_accounts_account_id
+- condition: invoices.subscription_id = subscriptions.id
+  join_type: MANY_TO_ONE
+  models:
+  - invoices
+  - subscriptions
+  name: invoices_subscriptions_subscription_id
+- condition: users.account_id = accounts.id
+  join_type: MANY_TO_ONE
+  models:
+  - users
+  - accounts
+  name: users_accounts_account_id
+- condition: refunds.invoice_id = invoices.id
+  join_type: MANY_TO_ONE
+  models:
+  - refunds
+  - invoices
+  name: refunds_invoices_invoice_id
+- condition: events.user_id = users.id
+  join_type: MANY_TO_ONE
+  models:
+  - events
+  - users
+  name: events_users_user_id
+- condition: events.account_id = accounts.id
+  join_type: MANY_TO_ONE
+  models:
+  - events
+  - accounts
+  name: events_accounts_account_id
+- condition: invoices.currency = fx_rates.currency
+  join_type: MANY_TO_ONE
+  models:
+  - invoices
+  - fx_rates
+  name: invoices_fx_rates_currency

@@ -1,0 +1,30 @@
+agent:
+  target: mistral
+  models:
+    mistral:
+      type: openai
+      model: codestral-2508
+      base_url: https://api.mistral.ai/v1
+      api_key: ${MISTRAL_API_KEY}
+  storage:
+    base_path: data
+    embedding_device_type: cpu
+  services:
+    datasources:
+      olist:
+        type: postgresql
+        host: localhost
+        port: 5433
+        username: reader
+        password: reader
+        database: olist
+        schema: public
+        default: true
+      appdb:
+        type: postgresql
+        host: localhost
+        port: 5433
+        username: reader
+        password: reader
+        database: appdb
+        schema: public

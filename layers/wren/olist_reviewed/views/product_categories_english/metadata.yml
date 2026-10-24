@@ -1,0 +1,4 @@
+name: product_categories_english
+statement: "SELECT p.product_id, COALESCE(t.product_category_name_english, p.product_category_name) AS category_name_english FROM products p LEFT JOIN product_category_name_translation t ON p.product_category_name = t.product_category_name WHERE p.product_category_name IS NOT NULL"
+properties:
+  description: "English category name with Portuguese fallback."

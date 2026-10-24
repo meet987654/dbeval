@@ -1,0 +1,114 @@
+[
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "accounts"
+    },
+    "tableDescription": "Accounts table. Real account: `is_test = false AND deleted_at IS NULL`. Never count test or deleted accounts in any business metric. Paying customer in a period: real account with at least one paid invoice (`status = 'paid'`) whose `paid_at` is in the period. ARPA (Average revenue per paying customer): Net revenue in the period divided by paying customers in the period. Churned account: real account with at least one churn subscription (`status = 'canceled' AND cancel_reason IN ('voluntary', 'payment_failed')`) canceled on or before the date. Date windows are half-open: `>= start AND < next_period_start` (e.g., Q3 2026: `>= '2026-07-01 00:00:00+00' AND < '2026-10-01 00:00:00+00'`). Never use BETWEEN with end dates.",
+    "columnDescriptions": {
+      "id": "Unique account ID (primary key).",
+      "name": "Account business or company name.",
+      "plan": "DEPRECATED signup plan name. NEVER use for reporting; use `plan_tier` instead.",
+      "plan_tier": "Current plan tier: 'starter', 'pro', 'enterprise'. Always use `plan_tier` for current plan reporting, never `plan`.",
+      "is_test": "Test account flag. Real accounts MUST have `is_test = false`.",
+      "country": "Two-letter country code.",
+      "currency": "Account billing currency ('USD', 'EUR', 'GBP').",
+      "created_at": "Account creation timestamp. Half-open windows: `>= start AND < next_period_start`.",
+      "deleted_at": "Account deletion timestamp. Real accounts MUST have `deleted_at IS NULL`."
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "events"
+    },
+    "tableDescription": "User event log. Active user in a period: a real user (`users.deleted_at IS NULL` on a real account where `accounts.is_test = false AND accounts.deleted_at IS NULL`) with at least one event in `events` where `occurred_at >= start AND occurred_at < next_period_start`. Half-open date windows required; never use BETWEEN with end date.",
+    "columnDescriptions": {
+      "id": "Event primary key.",
+      "account_id": "Account ID associated with the event.",
+      "user_id": "User ID who performed the event.",
+      "event_type": "Type of event (e.g. 'login', 'page_view').",
+      "occurred_at": "Timestamp when the event occurred. Use half-open window: `occurred_at >= start AND occurred_at < next_period_start`."
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "fx_rates"
+    },
+    "tableDescription": "Foreign exchange conversion rates to USD. Join on currency to convert money amounts to USD: `amount_cents::numeric / 100 * fx_rates.usd_per_unit`.",
+    "columnDescriptions": {
+      "currency": "Currency code ('USD', 'EUR', 'GBP').",
+      "usd_per_unit": "Exchange rate: multiply foreign currency amount by `usd_per_unit` to get USD equivalent."
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "invoices"
+    },
+    "tableDescription": "Invoices for subscriptions. Gross revenue for a period: `SUM(amount_cents::numeric / 100 * fx_rates.usd_per_unit)` for paid invoices (`status = 'paid'`) with `paid_at >= start AND paid_at < next_period_start` on real accounts (`accounts.is_test = false AND accounts.deleted_at IS NULL`). Net revenue = Gross revenue minus Refunds for the period (cash basis). Compute gross and refunds as two separate subqueries (invoices filtered on `paid_at`, refunds filtered on `created_at`), then subtract; do not join invoices to refunds in one filtered query.",
+    "columnDescriptions": {
+      "id": "Invoice primary key.",
+      "subscription_id": "Subscription ID associated with this invoice.",
+      "account_id": "Account ID. Real accounts only: `accounts.is_test = false AND accounts.deleted_at IS NULL`.",
+      "amount_cents": "Invoice amount in cents. USD value = `amount_cents::numeric / 100 * fx_rates.usd_per_unit`. Must divide as numeric (`::numeric / 100`).",
+      "currency": "Currency of invoice ('USD', 'EUR', 'GBP'). Join to `fx_rates.currency` for conversion.",
+      "status": "Invoice status: 'paid', 'open', 'failed', 'void'. Paid invoices have `status = 'paid'`.",
+      "issued_at": "Timestamp invoice was issued.",
+      "paid_at": "Timestamp invoice was paid. Revenue period filtering uses `paid_at` with half-open window: `paid_at >= start AND paid_at < next_period_start`."
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "subscriptions"
+    },
+    "tableDescription": "Subscriptions. Active subscription: `status = 'active'` on a real account (`accounts.is_test = false AND accounts.deleted_at IS NULL`). `trialing` and `past_due` are separate and NOT active. Churn: `status = 'canceled' AND cancel_reason IN ('voluntary', 'payment_failed')` with `canceled_at >= start AND canceled_at < next_period_start` on a real account. `cancel_reason = 'upgrade'` is NOT churn.",
+    "columnDescriptions": {
+      "id": "Subscription primary key.",
+      "account_id": "Account ID. Real accounts only (`is_test = false AND deleted_at IS NULL`).",
+      "plan_tier": "Plan tier of subscription: 'starter', 'pro', 'enterprise'.",
+      "status": "Subscription status: 'active', 'trialing', 'past_due', 'canceled'. Only 'active' counts as active.",
+      "started_at": "Timestamp subscription started.",
+      "trial_ends_at": "Timestamp trial ends.",
+      "canceled_at": "Timestamp subscription was canceled. Churn uses `canceled_at >= start AND canceled_at < next_period_start`.",
+      "cancel_reason": "Reason for cancellation: 'voluntary', 'payment_failed', 'upgrade'. Only 'voluntary' and 'payment_failed' count as churn. 'upgrade' is NOT churn."
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "refunds"
+    },
+    "tableDescription": "Refunds for invoices. A refund belongs to an invoice via `refunds.invoice_id = invoices.id`. Refunds for a period = `SUM(refunds.amount_cents::numeric / 100 * fx_rates.usd_per_unit)` for refunds with `created_at >= start AND created_at < next_period_start` on real accounts, using the currency of the associated invoice. In net revenue calculations, compute gross and refunds as two separate subqueries (invoices filtered on `paid_at`, refunds filtered on `created_at`), then subtract.",
+    "columnDescriptions": {
+      "id": "Refund primary key.",
+      "invoice_id": "Invoice ID being refunded (join to `invoices.id`).",
+      "amount_cents": "Refund amount in cents. USD value = `refunds.amount_cents::numeric / 100 * fx_rates.usd_per_unit` using associated `invoices.currency`. Must divide as numeric (`::numeric / 100`).",
+      "created_at": "Timestamp refund was created. Period filtering uses `created_at >= start AND created_at < next_period_start`."
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "users"
+    },
+    "tableDescription": "Users table. Real user: `users.deleted_at IS NULL` and belongs to a real account (`accounts.is_test = false AND accounts.deleted_at IS NULL`). Active user in a period: real user with at least one event in `events` during the period.",
+    "columnDescriptions": {
+      "id": "User primary key.",
+      "account_id": "Account ID user belongs to. Must join to `accounts` to verify real account.",
+      "email": "User email address.",
+      "role": "User role: 'admin', 'member', etc.",
+      "created_at": "Timestamp user was created.",
+      "deleted_at": "Timestamp user was deleted. Real users must have `deleted_at IS NULL`."
+    }
+  }
+]

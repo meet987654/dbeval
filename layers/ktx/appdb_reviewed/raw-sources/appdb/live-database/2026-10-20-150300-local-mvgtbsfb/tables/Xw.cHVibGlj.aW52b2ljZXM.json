@@ -1,0 +1,83 @@
+{
+  "catalog": null,
+  "db": "public",
+  "name": "invoices",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 28914,
+  "columns": [
+    {
+      "name": "id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "dimensionType": "number",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "subscription_id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "dimensionType": "number",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "account_id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "dimensionType": "number",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "amount_cents",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "dimensionType": "number",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "currency",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "dimensionType": "string",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "status",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "dimensionType": "string",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "issued_at",
+      "nativeType": "timestamp with time zone",
+      "normalizedType": "timestamp with time zone",
+      "dimensionType": "time",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "paid_at",
+      "nativeType": "timestamp with time zone",
+      "normalizedType": "timestamp with time zone",
+      "dimensionType": "time",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}

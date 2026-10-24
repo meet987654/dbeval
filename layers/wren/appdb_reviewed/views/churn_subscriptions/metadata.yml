@@ -1,0 +1,4 @@
+name: churn_subscriptions
+statement: "SELECT s.* FROM subscriptions s JOIN accounts a ON s.account_id = a.id WHERE s.status = 'canceled' AND s.cancel_reason IN ('voluntary', 'payment_failed') AND a.is_test = false AND a.deleted_at IS NULL"
+properties:
+  description: "Churn subscriptions: status = 'canceled' AND cancel_reason IN ('voluntary', 'payment_failed') on real accounts. upgrade is NOT churn."

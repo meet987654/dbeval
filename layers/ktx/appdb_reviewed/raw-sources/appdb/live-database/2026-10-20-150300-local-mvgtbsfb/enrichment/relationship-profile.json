@@ -1,0 +1,1051 @@
+{
+  "connectionId": "appdb",
+  "driver": "postgres",
+  "sqlAvailable": true,
+  "queryCount": 7,
+  "tables": [
+    {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "accounts"
+      },
+      "rowCount": 2000
+    },
+    {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "events"
+      },
+      "rowCount": 86261
+    },
+    {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "fx_rates"
+      },
+      "rowCount": 3
+    },
+    {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "invoices"
+      },
+      "rowCount": 28914
+    },
+    {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "subscriptions"
+      },
+      "rowCount": 2084
+    },
+    {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "refunds"
+      },
+      "rowCount": 1112
+    },
+    {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "users"
+      },
+      "rowCount": 6976
+    }
+  ],
+  "columns": {
+    "accounts.id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "accounts"
+      },
+      "column": "id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "rowCount": 2000,
+      "nullCount": 0,
+      "distinctCount": 2000,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 4
+    },
+    "accounts.name": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "accounts"
+      },
+      "column": "name",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 2000,
+      "nullCount": 0,
+      "distinctCount": 2000,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "Acme Cloud 1007",
+        "Acme Cloud 1047",
+        "Acme Cloud 117",
+        "Acme Cloud 124",
+        "Acme Cloud 1314"
+      ],
+      "minTextLength": 11,
+      "maxTextLength": 19
+    },
+    "accounts.plan": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "accounts"
+      },
+      "column": "plan",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 2000,
+      "nullCount": 0,
+      "distinctCount": 3,
+      "uniquenessRatio": 0.0015,
+      "nullRate": 0,
+      "sampleValues": [
+        "basic",
+        "pro",
+        "enterprise"
+      ],
+      "minTextLength": 3,
+      "maxTextLength": 10
+    },
+    "accounts.plan_tier": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "accounts"
+      },
+      "column": "plan_tier",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 2000,
+      "nullCount": 0,
+      "distinctCount": 3,
+      "uniquenessRatio": 0.0015,
+      "nullRate": 0,
+      "sampleValues": [
+        "starter",
+        "growth",
+        "scale"
+      ],
+      "minTextLength": 5,
+      "maxTextLength": 7
+    },
+    "accounts.is_test": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "accounts"
+      },
+      "column": "is_test",
+      "nativeType": "boolean",
+      "normalizedType": "boolean",
+      "rowCount": 2000,
+      "nullCount": 0,
+      "distinctCount": 2,
+      "uniquenessRatio": 0.001,
+      "nullRate": 0,
+      "sampleValues": [
+        "false",
+        "true"
+      ],
+      "minTextLength": 4,
+      "maxTextLength": 5
+    },
+    "accounts.country": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "accounts"
+      },
+      "column": "country",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 2000,
+      "nullCount": 0,
+      "distinctCount": 5,
+      "uniquenessRatio": 0.0025,
+      "nullRate": 0,
+      "sampleValues": [
+        "US",
+        "GB",
+        "DE",
+        "IN",
+        "FR"
+      ],
+      "minTextLength": 2,
+      "maxTextLength": 2
+    },
+    "accounts.currency": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "accounts"
+      },
+      "column": "currency",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 2000,
+      "nullCount": 0,
+      "distinctCount": 3,
+      "uniquenessRatio": 0.0015,
+      "nullRate": 0,
+      "sampleValues": [
+        "USD",
+        "EUR",
+        "INR"
+      ],
+      "minTextLength": 3,
+      "maxTextLength": 3
+    },
+    "accounts.created_at": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "accounts"
+      },
+      "column": "created_at",
+      "nativeType": "timestamp with time zone",
+      "normalizedType": "timestamp with time zone",
+      "rowCount": 2000,
+      "nullCount": 0,
+      "distinctCount": 2000,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "2024-01-01 04:57:30+00",
+        "2024-01-01 07:24:10+00",
+        "2024-01-01 09:54:59+00",
+        "2024-01-01 11:08:51+00",
+        "2024-01-01 22:17:12+00"
+      ],
+      "minTextLength": 22,
+      "maxTextLength": 22
+    },
+    "accounts.deleted_at": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "accounts"
+      },
+      "column": "deleted_at",
+      "nativeType": "timestamp with time zone",
+      "normalizedType": "timestamp with time zone",
+      "rowCount": 2000,
+      "nullCount": 1843,
+      "distinctCount": 157,
+      "uniquenessRatio": 0.0785,
+      "nullRate": 0.9215,
+      "sampleValues": [
+        "2024-04-09 12:17:04+00",
+        "2024-05-31 23:27:27+00",
+        "2024-07-05 23:53:40+00",
+        "2024-08-23 16:52:38+00",
+        "2024-10-29 11:48:42+00"
+      ],
+      "minTextLength": 22,
+      "maxTextLength": 22
+    },
+    "events.id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "events"
+      },
+      "column": "id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 10000,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 5
+    },
+    "events.account_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "events"
+      },
+      "column": "account_id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 218,
+      "uniquenessRatio": 0.0218,
+      "nullRate": 0,
+      "sampleValues": [
+        "33",
+        "126",
+        "80",
+        "186",
+        "165"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 3
+    },
+    "events.user_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "events"
+      },
+      "column": "user_id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 771,
+      "uniquenessRatio": 0.0771,
+      "nullRate": 0,
+      "sampleValues": [
+        "28",
+        "42",
+        "54",
+        "128",
+        "140"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 3
+    },
+    "events.event_type": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "events"
+      },
+      "column": "event_type",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 4,
+      "uniquenessRatio": 0.0004,
+      "nullRate": 0,
+      "sampleValues": [
+        "login",
+        "export",
+        "report_viewed",
+        "invite_sent"
+      ],
+      "minTextLength": 5,
+      "maxTextLength": 13
+    },
+    "events.occurred_at": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "events"
+      },
+      "column": "occurred_at",
+      "nativeType": "timestamp with time zone",
+      "normalizedType": "timestamp with time zone",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 9999,
+      "uniquenessRatio": 0.9999,
+      "nullRate": 0,
+      "sampleValues": [
+        "2026-09-06 22:08:50+00",
+        "2024-01-05 03:17:40+00",
+        "2024-01-05 09:11:25+00",
+        "2024-01-05 12:51:45+00",
+        "2024-01-09 12:12:36+00"
+      ],
+      "minTextLength": 22,
+      "maxTextLength": 22
+    },
+    "fx_rates.currency": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "fx_rates"
+      },
+      "column": "currency",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 3,
+      "nullCount": 0,
+      "distinctCount": 3,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "EUR",
+        "INR",
+        "USD"
+      ],
+      "minTextLength": 3,
+      "maxTextLength": 3
+    },
+    "fx_rates.usd_per_unit": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "fx_rates"
+      },
+      "column": "usd_per_unit",
+      "nativeType": "numeric(10,5)",
+      "normalizedType": "numeric(10,5)",
+      "rowCount": 3,
+      "nullCount": 0,
+      "distinctCount": 3,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "0.01200",
+        "1.00000",
+        "1.08000"
+      ],
+      "minTextLength": 7,
+      "maxTextLength": 7
+    },
+    "invoices.id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "invoices"
+      },
+      "column": "id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 10000,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 5
+    },
+    "invoices.subscription_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "invoices"
+      },
+      "column": "subscription_id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 739,
+      "uniquenessRatio": 0.0739,
+      "nullRate": 0,
+      "sampleValues": [
+        "58",
+        "71",
+        "91",
+        "170",
+        "283"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 4
+    },
+    "invoices.account_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "invoices"
+      },
+      "column": "account_id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 709,
+      "uniquenessRatio": 0.0709,
+      "nullRate": 0,
+      "sampleValues": [
+        "54",
+        "67",
+        "86",
+        "162",
+        "269"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 4
+    },
+    "invoices.amount_cents": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "invoices"
+      },
+      "column": "amount_cents",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 9,
+      "uniquenessRatio": 0.0009,
+      "nullRate": 0,
+      "sampleValues": [
+        "2900",
+        "9900",
+        "2685",
+        "29900",
+        "241667"
+      ],
+      "minTextLength": 4,
+      "maxTextLength": 7
+    },
+    "invoices.currency": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "invoices"
+      },
+      "column": "currency",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 3,
+      "uniquenessRatio": 0.0003,
+      "nullRate": 0,
+      "sampleValues": [
+        "USD",
+        "EUR",
+        "INR"
+      ],
+      "minTextLength": 3,
+      "maxTextLength": 3
+    },
+    "invoices.status": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "invoices"
+      },
+      "column": "status",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 4,
+      "uniquenessRatio": 0.0004,
+      "nullRate": 0,
+      "sampleValues": [
+        "paid",
+        "failed",
+        "open",
+        "void"
+      ],
+      "minTextLength": 4,
+      "maxTextLength": 6
+    },
+    "invoices.issued_at": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "invoices"
+      },
+      "column": "issued_at",
+      "nativeType": "timestamp with time zone",
+      "normalizedType": "timestamp with time zone",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 10000,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "2024-01-15 04:57:30+00",
+        "2024-01-15 22:17:12+00",
+        "2024-01-16 08:20:52+00",
+        "2024-01-18 04:20:12+00",
+        "2024-01-18 09:13:48+00"
+      ],
+      "minTextLength": 22,
+      "maxTextLength": 22
+    },
+    "invoices.paid_at": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "invoices"
+      },
+      "column": "paid_at",
+      "nativeType": "timestamp with time zone",
+      "normalizedType": "timestamp with time zone",
+      "rowCount": 10000,
+      "nullCount": 529,
+      "distinctCount": 9471,
+      "uniquenessRatio": 0.9471,
+      "nullRate": 0.0529,
+      "sampleValues": [
+        "2024-01-15 22:17:12+00",
+        "2024-01-17 04:57:30+00",
+        "2024-01-18 04:20:12+00",
+        "2024-01-18 08:20:52+00",
+        "2024-01-20 09:13:48+00"
+      ],
+      "minTextLength": 22,
+      "maxTextLength": 22
+    },
+    "subscriptions.id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "subscriptions"
+      },
+      "column": "id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "rowCount": 2084,
+      "nullCount": 0,
+      "distinctCount": 2084,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 4
+    },
+    "subscriptions.account_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "subscriptions"
+      },
+      "column": "account_id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "rowCount": 2084,
+      "nullCount": 0,
+      "distinctCount": 2000,
+      "uniquenessRatio": 0.9596928982725528,
+      "nullRate": 0,
+      "sampleValues": [
+        "23",
+        "31",
+        "42",
+        "50",
+        "71"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 4
+    },
+    "subscriptions.plan_tier": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "subscriptions"
+      },
+      "column": "plan_tier",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 2084,
+      "nullCount": 0,
+      "distinctCount": 3,
+      "uniquenessRatio": 0.0014395393474088292,
+      "nullRate": 0,
+      "sampleValues": [
+        "starter",
+        "growth",
+        "scale"
+      ],
+      "minTextLength": 5,
+      "maxTextLength": 7
+    },
+    "subscriptions.status": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "subscriptions"
+      },
+      "column": "status",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 2084,
+      "nullCount": 0,
+      "distinctCount": 4,
+      "uniquenessRatio": 0.0019193857965451055,
+      "nullRate": 0,
+      "sampleValues": [
+        "active",
+        "canceled",
+        "past_due",
+        "trialing"
+      ],
+      "minTextLength": 6,
+      "maxTextLength": 8
+    },
+    "subscriptions.started_at": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "subscriptions"
+      },
+      "column": "started_at",
+      "nativeType": "timestamp with time zone",
+      "normalizedType": "timestamp with time zone",
+      "rowCount": 2084,
+      "nullCount": 0,
+      "distinctCount": 2084,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "2024-01-01 04:57:30+00",
+        "2024-01-01 07:24:10+00",
+        "2024-01-01 09:54:59+00",
+        "2024-01-01 11:08:51+00",
+        "2024-01-01 22:17:12+00"
+      ],
+      "minTextLength": 22,
+      "maxTextLength": 22
+    },
+    "subscriptions.trial_ends_at": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "subscriptions"
+      },
+      "column": "trial_ends_at",
+      "nativeType": "timestamp with time zone",
+      "normalizedType": "timestamp with time zone",
+      "rowCount": 2084,
+      "nullCount": 0,
+      "distinctCount": 2084,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "2024-01-15 04:57:30+00",
+        "2024-01-15 07:24:10+00",
+        "2024-01-15 09:54:59+00",
+        "2024-01-15 11:08:51+00",
+        "2024-01-15 22:17:12+00"
+      ],
+      "minTextLength": 22,
+      "maxTextLength": 22
+    },
+    "subscriptions.canceled_at": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "subscriptions"
+      },
+      "column": "canceled_at",
+      "nativeType": "timestamp with time zone",
+      "normalizedType": "timestamp with time zone",
+      "rowCount": 2084,
+      "nullCount": 1344,
+      "distinctCount": 740,
+      "uniquenessRatio": 0.3550863723608445,
+      "nullRate": 0.6449136276391555,
+      "sampleValues": [
+        "2024-02-24 07:29:39+00",
+        "2024-04-02 23:45:17+00",
+        "2024-04-08 10:09:11+00",
+        "2024-05-03 13:46:30+00",
+        "2024-05-07 22:28:52+00"
+      ],
+      "minTextLength": 22,
+      "maxTextLength": 22
+    },
+    "subscriptions.cancel_reason": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "subscriptions"
+      },
+      "column": "cancel_reason",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 2084,
+      "nullCount": 1344,
+      "distinctCount": 3,
+      "uniquenessRatio": 0.0014395393474088292,
+      "nullRate": 0.6449136276391555,
+      "sampleValues": [
+        "voluntary",
+        "payment_failed",
+        "upgrade"
+      ],
+      "minTextLength": 7,
+      "maxTextLength": 14
+    },
+    "refunds.id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "refunds"
+      },
+      "column": "id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "rowCount": 1112,
+      "nullCount": 0,
+      "distinctCount": 1112,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 4
+    },
+    "refunds.invoice_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "refunds"
+      },
+      "column": "invoice_id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "rowCount": 1112,
+      "nullCount": 0,
+      "distinctCount": 1112,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "28",
+        "76",
+        "167",
+        "168",
+        "218"
+      ],
+      "minTextLength": 2,
+      "maxTextLength": 5
+    },
+    "refunds.amount_cents": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "refunds"
+      },
+      "column": "amount_cents",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "rowCount": 1112,
+      "nullCount": 0,
+      "distinctCount": 18,
+      "uniquenessRatio": 0.01618705035971223,
+      "nullRate": 0,
+      "sampleValues": [
+        "1450",
+        "2900",
+        "9900",
+        "4950",
+        "2685"
+      ],
+      "minTextLength": 4,
+      "maxTextLength": 7
+    },
+    "refunds.created_at": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "refunds"
+      },
+      "column": "created_at",
+      "nativeType": "timestamp with time zone",
+      "normalizedType": "timestamp with time zone",
+      "rowCount": 1112,
+      "nullCount": 0,
+      "distinctCount": 1096,
+      "uniquenessRatio": 0.9856115107913669,
+      "nullRate": 0,
+      "sampleValues": [
+        "2026-09-30 23:59:59+00",
+        "2024-02-13 13:14:06+00",
+        "2024-03-01 04:20:12+00",
+        "2024-03-03 10:59:01+00",
+        "2024-03-07 01:16:35+00"
+      ],
+      "minTextLength": 22,
+      "maxTextLength": 22
+    },
+    "users.id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "users"
+      },
+      "column": "id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "rowCount": 6976,
+      "nullCount": 0,
+      "distinctCount": 6976,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 4
+    },
+    "users.account_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "users"
+      },
+      "column": "account_id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "rowCount": 6976,
+      "nullCount": 0,
+      "distinctCount": 2000,
+      "uniquenessRatio": 0.286697247706422,
+      "nullRate": 0,
+      "sampleValues": [
+        "14",
+        "19",
+        "21",
+        "22",
+        "24"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 4
+    },
+    "users.email": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "users"
+      },
+      "column": "email",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 6976,
+      "nullCount": 0,
+      "distinctCount": 6976,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "user1000@example.com",
+        "user1001@example.com",
+        "user1002@example.com",
+        "user1003@example.com",
+        "user1004@example.com"
+      ],
+      "minTextLength": 17,
+      "maxTextLength": 20
+    },
+    "users.role": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "users"
+      },
+      "column": "role",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 6976,
+      "nullCount": 0,
+      "distinctCount": 3,
+      "uniquenessRatio": 0.00043004587155963305,
+      "nullRate": 0,
+      "sampleValues": [
+        "member",
+        "admin",
+        "viewer"
+      ],
+      "minTextLength": 5,
+      "maxTextLength": 6
+    },
+    "users.created_at": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "users"
+      },
+      "column": "created_at",
+      "nativeType": "timestamp with time zone",
+      "normalizedType": "timestamp with time zone",
+      "rowCount": 6976,
+      "nullCount": 0,
+      "distinctCount": 6697,
+      "uniquenessRatio": 0.9600057339449541,
+      "nullRate": 0,
+      "sampleValues": [
+        "2026-09-30 23:59:59+00",
+        "2024-04-21 23:17:54+00",
+        "2024-08-05 16:49:08+00",
+        "2024-08-08 09:47:52+00",
+        "2024-08-09 18:29:16+00"
+      ],
+      "minTextLength": 22,
+      "maxTextLength": 22
+    },
+    "users.deleted_at": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "users"
+      },
+      "column": "deleted_at",
+      "nativeType": "timestamp with time zone",
+      "normalizedType": "timestamp with time zone",
+      "rowCount": 6976,
+      "nullCount": 6766,
+      "distinctCount": 210,
+      "uniquenessRatio": 0.030103211009174312,
+      "nullRate": 0.9698967889908257,
+      "sampleValues": [
+        "2024-05-10 05:54:54+00",
+        "2024-05-15 04:38:45+00",
+        "2024-07-09 00:25:20+00",
+        "2024-07-11 08:04:50+00",
+        "2024-09-09 23:56:58+00"
+      ],
+      "minTextLength": 22,
+      "maxTextLength": 22
+    }
+  },
+  "warnings": []
+}

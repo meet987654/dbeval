@@ -1,0 +1,4 @@
+name: real_accounts
+statement: "SELECT * FROM accounts WHERE is_test = false AND deleted_at IS NULL"
+properties:
+  description: "Real accounts only: `is_test = false AND deleted_at IS NULL`. Never count test or deleted accounts."

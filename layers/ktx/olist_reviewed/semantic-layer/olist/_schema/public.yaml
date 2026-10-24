@@ -1,0 +1,209 @@
+tables:
+  customers:
+    table: public.customers
+    columns:
+    - name: customer_id
+      type: string
+      description: Per-order customer key; join to orders.customer_id.
+    - name: customer_unique_id
+      type: string
+      description: Unique person identifier. Always count customer_unique_id for number
+        of customers.
+    - name: customer_zip_code_prefix
+      type: number
+    - name: customer_city
+      type: string
+    - name: customer_state
+      type: string
+    joins:
+    - to: orders
+      'on': customers.customer_id = orders.customer_id
+      relationship: one_to_many
+      source: inferred
+    description: Customers table. Customer (a person) = `customer_unique_id`. `customer_id`
+      is per-order.
+  geolocation:
+    table: public.geolocation
+    columns:
+    - name: geolocation_zip_code_prefix
+      type: number
+    - name: geolocation_lat
+      type: number
+    - name: geolocation_lng
+      type: number
+    - name: geolocation_city
+      type: string
+    - name: geolocation_state
+      type: string
+  order_items:
+    table: public.order_items
+    columns:
+    - name: order_id
+      type: string
+    - name: order_item_id
+      type: number
+    - name: product_id
+      type: string
+    - name: seller_id
+      type: string
+    - name: shipping_limit_date
+      type: string
+    - name: price
+      type: number
+      description: Sales price. Total sales = SUM(price).
+    - name: freight_value
+      type: number
+      description: Freight/shipping charge (NOT sales).
+    joins:
+    - to: orders
+      'on': order_items.order_id = orders.order_id
+      relationship: many_to_one
+      source: inferred
+    - to: products
+      'on': order_items.product_id = products.product_id
+      relationship: many_to_one
+      source: inferred
+    - to: sellers
+      'on': order_items.seller_id = sellers.seller_id
+      relationship: many_to_one
+      source: inferred
+    description: Order items. Sales amount = price (freight is NOT sales). Join to
+      orders to filter status.
+  order_payments:
+    table: public.order_payments
+    columns:
+    - name: order_id
+      type: string
+    - name: payment_sequential
+      type: number
+    - name: payment_type
+      type: string
+    - name: payment_installments
+      type: number
+    - name: payment_value
+      type: number
+    joins:
+    - to: orders
+      'on': order_payments.order_id = orders.order_id
+      relationship: many_to_one
+      source: inferred
+    description: Order payments. Order payment value = SUM(payment_value). Never join
+      to order_items.
+  order_reviews:
+    table: public.order_reviews
+    columns:
+    - name: review_id
+      type: string
+    - name: order_id
+      type: string
+    - name: review_score
+      type: number
+    - name: review_comment_title
+      type: string
+    - name: review_comment_message
+      type: string
+    - name: review_creation_date
+      type: string
+    - name: review_answer_timestamp
+      type: string
+    joins:
+    - to: orders
+      'on': order_reviews.order_id = orders.order_id
+      relationship: many_to_one
+      source: inferred
+    description: Order reviews. Use most recent review (ORDER BY review_creation_date::timestamp
+      DESC).
+  orders:
+    table: public.orders
+    columns:
+    - name: order_id
+      type: string
+    - name: customer_id
+      type: string
+    - name: order_status
+      type: string
+      description: Order status. Sales exclude 'canceled' and 'unavailable'.
+    - name: order_purchase_timestamp
+      type: string
+      description: Date stored as text; cast to timestamp (::timestamp).
+    - name: order_approved_at
+      type: string
+    - name: order_delivered_carrier_date
+      type: string
+      description: Date stored as text; cast to timestamp (::timestamp).
+    - name: order_delivered_customer_date
+      type: string
+      description: Date stored as text; cast to timestamp (::timestamp).
+    - name: order_estimated_delivery_date
+      type: string
+      description: Date stored as text; cast to timestamp (::timestamp).
+    joins:
+    - to: order_items
+      'on': orders.order_id = order_items.order_id
+      relationship: one_to_many
+      source: inferred
+    - to: order_payments
+      'on': orders.order_id = order_payments.order_id
+      relationship: one_to_many
+      source: inferred
+    - to: order_reviews
+      'on': orders.order_id = order_reviews.order_id
+      relationship: one_to_many
+      source: inferred
+    - to: customers
+      'on': orders.customer_id = customers.customer_id
+      relationship: many_to_one
+      source: inferred
+    description: Orders table. Sales exclude canceled/unavailable. Date columns are
+      text; cast to timestamps.
+  sellers:
+    table: public.sellers
+    columns:
+    - name: seller_id
+      type: string
+    - name: seller_zip_code_prefix
+      type: number
+    - name: seller_city
+      type: string
+    - name: seller_state
+      type: string
+    joins:
+    - to: order_items
+      'on': sellers.seller_id = order_items.seller_id
+      relationship: one_to_many
+      source: inferred
+  product_category_name_translation:
+    table: public.product_category_name_translation
+    columns:
+    - name: product_category_name
+      type: string
+    - name: product_category_name_english
+      type: string
+  products:
+    table: public.products
+    columns:
+    - name: product_id
+      type: string
+    - name: product_category_name
+      type: string
+    - name: product_name_lenght
+      type: number
+    - name: product_description_lenght
+      type: number
+    - name: product_photos_qty
+      type: number
+    - name: product_weight_g
+      type: number
+    - name: product_length_cm
+      type: number
+    - name: product_height_cm
+      type: number
+    - name: product_width_cm
+      type: number
+    joins:
+    - to: order_items
+      'on': products.product_id = order_items.product_id
+      relationship: one_to_many
+      source: inferred
+    description: Products table. Join to product_category_name_translation for English
+      category name.

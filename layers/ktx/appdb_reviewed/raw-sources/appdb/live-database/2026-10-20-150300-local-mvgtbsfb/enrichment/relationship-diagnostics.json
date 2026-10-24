@@ -1,0 +1,103 @@
+{
+  "connectionId": "appdb",
+  "generatedAt": "2026-10-20T15:03:14.258Z",
+  "summary": {
+    "accepted": 7,
+    "review": 0,
+    "rejected": 0,
+    "skipped": 0
+  },
+  "noAcceptedReason": null,
+  "partial": false,
+  "partialReason": null,
+  "candidateCountsBySource": {
+    "normalized_table_match": 7
+  },
+  "validation": {
+    "available": true,
+    "sqlAvailable": true,
+    "queryCount": 7
+  },
+  "thresholds": {
+    "acceptThreshold": 0.85,
+    "reviewThreshold": 0.55
+  },
+  "policy": {
+    "validationRequiredForManifest": true,
+    "maxCandidatesPerColumn": 25,
+    "profileSampleRows": 10000,
+    "profileConcurrency": 4,
+    "validationConcurrency": 4
+  },
+  "warnings": [
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table invoices: Invalid error response format: Gateway request failed",
+      "table": "invoices",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:appdb"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table events: Invalid error response format: Gateway request failed",
+      "table": "events",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:appdb"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table accounts: Invalid error response format: Gateway request failed",
+      "table": "accounts",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:appdb"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table fx_rates: Invalid error response format: Gateway request failed",
+      "table": "fx_rates",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:appdb"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table subscriptions: Invalid error response format: Gateway request failed",
+      "table": "subscriptions",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:appdb"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table refunds: Invalid error response format: Gateway request failed",
+      "table": "refunds",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:appdb"
+      }
+    },
+    {
+      "code": "enrichment_failed",
+      "message": "Failed to generate batched description for table users: Invalid error response format: Gateway request failed",
+      "table": "users",
+      "recoverable": true,
+      "metadata": {
+        "connectorId": "postgres:appdb"
+      }
+    },
+    {
+      "code": "relationship_llm_proposal_failed",
+      "message": "ktx relationship LLM proposal failed: Invalid error response format: Gateway request failed",
+      "recoverable": true
+    }
+  ],
+  "profileWarnings": []
+}

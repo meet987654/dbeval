@@ -1,0 +1,4 @@
+name: real_users
+statement: "SELECT u.* FROM users u JOIN accounts a ON u.account_id = a.id WHERE u.deleted_at IS NULL AND a.is_test = false AND a.deleted_at IS NULL"
+properties:
+  description: "Real users only: `users.deleted_at IS NULL` belonging to a real account."

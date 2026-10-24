@@ -1,0 +1,4 @@
+name: real_sales
+statement: "SELECT oi.*, o.customer_id, o.order_purchase_timestamp FROM order_items oi JOIN orders o ON oi.order_id = o.order_id WHERE o.order_status NOT IN ('canceled', 'unavailable')"
+properties:
+  description: "Real sales order items (excludes canceled and unavailable orders). Price is the sales amount."

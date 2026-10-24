@@ -1,0 +1,229 @@
+tables:
+  accounts:
+    table: public.accounts
+    description: "Real account: `is_test = false AND deleted_at IS NULL`. Never count test or deleted accounts in any business metric. Paying customer in a period: real account with at least one paid invoice (`status = 'paid'`) whose `paid_at` is in the period. ARPA = Net revenue / paying customers. Churned account: real account with at least one subscription where `status = 'canceled' AND cancel_reason IN ('voluntary', 'payment_failed')`. Half-open date windows: `>= start AND < next_period_start`."
+    columns:
+      - name: id
+        type: number
+        nullable: false
+        description: "Primary key for account."
+      - name: name
+        type: string
+        nullable: false
+      - name: plan
+        type: string
+        description: "DEPRECATED signup plan. NEVER use for reporting; use `plan_tier`."
+      - name: plan_tier
+        type: string
+        description: "Current plan tier: 'starter', 'pro', 'enterprise'. Always use `plan_tier` for current plan."
+      - name: is_test
+        type: boolean
+        nullable: false
+        description: "Test account flag. Real accounts MUST have `is_test = false`."
+      - name: country
+        type: string
+      - name: currency
+        type: string
+        description: "Account currency ('USD', 'EUR', 'GBP')."
+      - name: created_at
+        type: time
+        nullable: false
+        description: "Created timestamp. Half-open windows: `>= start AND < next_period_start`."
+      - name: deleted_at
+        type: time
+        description: "Deleted timestamp. Real accounts MUST have `deleted_at IS NULL`."
+    joins:
+      - to: events
+        "on": accounts.id = events.account_id
+        relationship: one_to_many
+        source: inferred
+      - to: invoices
+        "on": accounts.id = invoices.account_id
+        relationship: one_to_many
+        source: inferred
+      - to: subscriptions
+        "on": accounts.id = subscriptions.account_id
+        relationship: one_to_many
+        source: inferred
+      - to: users
+        "on": accounts.id = users.account_id
+        relationship: one_to_many
+        source: inferred
+  events:
+    table: public.events
+    description: "User events log. Active user in a period: a real user (`users.deleted_at IS NULL` on a real account `is_test = false AND deleted_at IS NULL`) with at least one event in `events` where `occurred_at >= start AND occurred_at < next_period_start`."
+    columns:
+      - name: id
+        type: number
+        nullable: false
+      - name: account_id
+        type: number
+        nullable: false
+      - name: user_id
+        type: number
+        nullable: false
+      - name: event_type
+        type: string
+        nullable: false
+      - name: occurred_at
+        type: time
+        nullable: false
+        description: "Event occurrence timestamp. Filter using half-open window: `occurred_at >= start AND occurred_at < next_period_start`."
+    joins:
+      - to: accounts
+        "on": events.account_id = accounts.id
+        relationship: many_to_one
+        source: inferred
+      - to: users
+        "on": events.user_id = users.id
+        relationship: many_to_one
+        source: inferred
+  fx_rates:
+    table: public.fx_rates
+    description: "Foreign exchange rates to USD. To convert cents to USD: `amount_cents::numeric / 100 * fx_rates.usd_per_unit` joining on currency."
+    columns:
+      - name: currency
+        type: string
+        nullable: false
+      - name: usd_per_unit
+        type: number
+        nullable: false
+  invoices:
+    table: public.invoices
+    description: "Invoices table. Gross revenue for a period: `SUM(amount_cents::numeric / 100 * fx_rates.usd_per_unit)` for paid invoices (`status = 'paid'`) with `paid_at >= start AND paid_at < next_period_start` on real accounts. Net revenue = Gross revenue minus Refunds (compute gross and refunds as two separate subqueries, then subtract). Divide as numeric (`amount_cents::numeric / 100`)."
+    columns:
+      - name: id
+        type: number
+        nullable: false
+      - name: subscription_id
+        type: number
+        nullable: false
+      - name: account_id
+        type: number
+        nullable: false
+        description: "Account ID. Real accounts only: `accounts.is_test = false AND accounts.deleted_at IS NULL`."
+      - name: amount_cents
+        type: number
+        nullable: false
+        description: "Invoice amount in cents. USD value = `amount_cents::numeric / 100 * fx_rates.usd_per_unit`. Divide as numeric."
+      - name: currency
+        type: string
+        nullable: false
+      - name: status
+        type: string
+        nullable: false
+        description: "Status: 'paid', 'open', 'failed', 'void'. Only 'paid' counts as paid invoice."
+      - name: issued_at
+        type: time
+        nullable: false
+      - name: paid_at
+        type: time
+        description: "Timestamp invoice was paid. Half-open period filter: `paid_at >= start AND paid_at < next_period_start`."
+    joins:
+      - to: accounts
+        "on": invoices.account_id = accounts.id
+        relationship: many_to_one
+        source: inferred
+      - to: subscriptions
+        "on": invoices.subscription_id = subscriptions.id
+        relationship: many_to_one
+        source: inferred
+      - to: refunds
+        "on": invoices.id = refunds.invoice_id
+        relationship: one_to_many
+        source: inferred
+      - to: fx_rates
+        "on": invoices.currency = fx_rates.currency
+        relationship: many_to_one
+        source: inferred
+  subscriptions:
+    table: public.subscriptions
+    description: "Subscriptions table. Active subscription: `status = 'active'` on real accounts (`is_test = false AND deleted_at IS NULL`). Churn: `status = 'canceled' AND cancel_reason IN ('voluntary', 'payment_failed')` with `canceled_at >= start AND canceled_at < next_period_start` on real accounts. `cancel_reason = 'upgrade'` is NOT churn."
+    columns:
+      - name: id
+        type: number
+        nullable: false
+      - name: account_id
+        type: number
+        nullable: false
+        description: "Account ID. Real accounts only."
+      - name: plan_tier
+        type: string
+        nullable: false
+        description: "Plan tier: 'starter', 'pro', 'enterprise'."
+      - name: status
+        type: string
+        nullable: false
+        description: "Status: 'active', 'trialing', 'past_due', 'canceled'. Only 'active' counts as active."
+      - name: started_at
+        type: time
+        nullable: false
+      - name: trial_ends_at
+        type: time
+      - name: canceled_at
+        type: time
+        description: "Timestamp of cancellation. Half-open filter: `canceled_at >= start AND canceled_at < next_period_start`."
+      - name: cancel_reason
+        type: string
+        description: "Cancel reason: 'voluntary', 'payment_failed', 'upgrade'. Churn only includes 'voluntary' and 'payment_failed'."
+    joins:
+      - to: invoices
+        "on": subscriptions.id = invoices.subscription_id
+        relationship: one_to_many
+        source: inferred
+      - to: accounts
+        "on": subscriptions.account_id = accounts.id
+        relationship: many_to_one
+        source: inferred
+  refunds:
+    table: public.refunds
+    description: "Refunds for invoices. A refund belongs to an invoice via `refunds.invoice_id = invoices.id`. Refunds for a period: `SUM(refunds.amount_cents::numeric / 100 * fx_rates.usd_per_unit)` with `refunds.created_at >= start AND refunds.created_at < next_period_start` on real accounts using invoice currency. Compute gross and refunds as two separate sums, then subtract."
+    columns:
+      - name: id
+        type: number
+        nullable: false
+      - name: invoice_id
+        type: number
+        nullable: false
+      - name: amount_cents
+        type: number
+        nullable: false
+        description: "Refund amount in cents. USD value = `refunds.amount_cents::numeric / 100 * fx_rates.usd_per_unit` via invoice currency."
+      - name: created_at
+        type: time
+        nullable: false
+        description: "Refund creation timestamp. Half-open filter: `created_at >= start AND created_at < next_period_start`."
+    joins:
+      - to: invoices
+        "on": refunds.invoice_id = invoices.id
+        relationship: many_to_one
+        source: inferred
+  users:
+    table: public.users
+    description: "Users table. Real user: `users.deleted_at IS NULL` and belongs to a real account (`accounts.is_test = false AND accounts.deleted_at IS NULL`). Active user in period: real user with >= 1 event in `events` during the period."
+    columns:
+      - name: id
+        type: number
+        nullable: false
+      - name: account_id
+        type: number
+        nullable: false
+      - name: email
+        type: string
+      - name: role
+        type: string
+      - name: created_at
+        type: time
+        nullable: false
+      - name: deleted_at
+        type: time
+        description: "Deleted timestamp. Real users have `deleted_at IS NULL`."
+    joins:
+      - to: events
+        "on": users.id = events.user_id
+        relationship: one_to_many
+        source: inferred
+      - to: accounts
+        "on": users.account_id = accounts.id
+        relationship: many_to_one
+        source: inferred

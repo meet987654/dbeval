@@ -1,0 +1,4 @@
+name: active_subscriptions
+statement: "SELECT s.* FROM subscriptions s JOIN accounts a ON s.account_id = a.id WHERE s.status = 'active' AND a.is_test = false AND a.deleted_at IS NULL"
+properties:
+  description: "Active subscriptions: status = 'active' on real accounts. trialing and past_due are not active."

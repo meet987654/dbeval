@@ -1,0 +1,21 @@
+name: fx_rates
+table_reference:
+  catalog: ''
+  schema: public
+  table: fx_rates
+columns:
+- name: currency
+  type: VARCHAR
+  is_calculated: false
+  not_null: true
+  is_primary_key: false
+  properties: {}
+- name: usd_per_unit
+  type: DECIMAL
+  is_calculated: false
+  not_null: true
+  is_primary_key: false
+  properties: {}
+primary_key: currency
+cached: false
+properties: {}

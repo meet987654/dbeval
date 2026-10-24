@@ -1,0 +1,552 @@
+{
+  "catalog": "wren",
+  "schema": "public",
+  "models": [
+    {
+      "name": "accounts",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "accounts"
+      },
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "plan",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "plan_tier",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "is_test",
+          "type": "BOOLEAN",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "country",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "currency",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "deleted_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "id",
+      "cached": false,
+      "properties": {
+        "description": "Accounts table. Real accounts have is_test = false AND deleted_at IS NULL. Current plan is plan_tier."
+      }
+    },
+    {
+      "name": "events",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "events"
+      },
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "account_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "user_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "event_type",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "occurred_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "id",
+      "cached": false,
+      "properties": {}
+    },
+    {
+      "name": "fx_rates",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "fx_rates"
+      },
+      "columns": [
+        {
+          "name": "currency",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "usd_per_unit",
+          "type": "DECIMAL",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "currency",
+      "cached": false,
+      "properties": {}
+    },
+    {
+      "name": "invoices",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "invoices"
+      },
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "subscription_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "account_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "amount_cents",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "currency",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "issued_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "paid_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "id",
+      "cached": false,
+      "properties": {
+        "description": "Invoices table. Gross revenue is paid invoices (status = 'paid') on real accounts in USD (amount_cents::numeric / 100 * fx_rates.usd_per_unit)."
+      }
+    },
+    {
+      "name": "refunds",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "refunds"
+      },
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "invoice_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "amount_cents",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "id",
+      "cached": false,
+      "properties": {}
+    },
+    {
+      "name": "subscriptions",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "subscriptions"
+      },
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "account_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "plan_tier",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "started_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "trial_ends_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "canceled_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "cancel_reason",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "id",
+      "cached": false,
+      "properties": {
+        "description": "Subscriptions table. Active subscriptions have status = 'active'. Churn is status = 'canceled' and cancel_reason in ('voluntary', 'payment_failed')."
+      }
+    },
+    {
+      "name": "users",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "users"
+      },
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "account_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "email",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "role",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "deleted_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "id",
+      "cached": false,
+      "properties": {}
+    }
+  ],
+  "relationships": [
+    {
+      "condition": "invoices.account_id = accounts.id",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "invoices",
+        "accounts"
+      ],
+      "name": "invoices_accounts_account_id"
+    },
+    {
+      "condition": "subscriptions.account_id = accounts.id",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "subscriptions",
+        "accounts"
+      ],
+      "name": "subscriptions_accounts_account_id"
+    },
+    {
+      "condition": "invoices.subscription_id = subscriptions.id",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "invoices",
+        "subscriptions"
+      ],
+      "name": "invoices_subscriptions_subscription_id"
+    },
+    {
+      "condition": "users.account_id = accounts.id",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "users",
+        "accounts"
+      ],
+      "name": "users_accounts_account_id"
+    },
+    {
+      "condition": "refunds.invoice_id = invoices.id",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "refunds",
+        "invoices"
+      ],
+      "name": "refunds_invoices_invoice_id"
+    },
+    {
+      "condition": "events.user_id = users.id",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "events",
+        "users"
+      ],
+      "name": "events_users_user_id"
+    },
+    {
+      "condition": "events.account_id = accounts.id",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "events",
+        "accounts"
+      ],
+      "name": "events_accounts_account_id"
+    },
+    {
+      "condition": "invoices.currency = fx_rates.currency",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "invoices",
+        "fx_rates"
+      ],
+      "name": "invoices_fx_rates_currency"
+    }
+  ],
+  "views": [
+    {
+      "name": "active_subscriptions",
+      "statement": "SELECT s.* FROM subscriptions s JOIN accounts a ON s.account_id = a.id WHERE s.status = 'active' AND a.is_test = false AND a.deleted_at IS NULL",
+      "properties": {
+        "description": "Active subscriptions: status = 'active' on real accounts. trialing and past_due are not active."
+      }
+    },
+    {
+      "name": "churn_subscriptions",
+      "statement": "SELECT s.* FROM subscriptions s JOIN accounts a ON s.account_id = a.id WHERE s.status = 'canceled' AND s.cancel_reason IN ('voluntary', 'payment_failed') AND a.is_test = false AND a.deleted_at IS NULL",
+      "properties": {
+        "description": "Churn subscriptions: status = 'canceled' AND cancel_reason IN ('voluntary', 'payment_failed') on real accounts. upgrade is NOT churn."
+      }
+    },
+    {
+      "name": "paid_invoices",
+      "statement": "SELECT i.* FROM invoices i JOIN accounts a ON i.account_id = a.id WHERE i.status = 'paid' AND a.is_test = false AND a.deleted_at IS NULL",
+      "properties": {
+        "description": "Paid invoices on real accounts. For gross revenue: SUM(amount_cents::numeric / 100 * fx_rates.usd_per_unit) with paid_at in period."
+      }
+    },
+    {
+      "name": "real_accounts",
+      "statement": "SELECT * FROM accounts WHERE is_test = false AND deleted_at IS NULL",
+      "properties": {
+        "description": "Real accounts only: `is_test = false AND deleted_at IS NULL`. Never count test or deleted accounts."
+      }
+    },
+    {
+      "name": "real_users",
+      "statement": "SELECT u.* FROM users u JOIN accounts a ON u.account_id = a.id WHERE u.deleted_at IS NULL AND a.is_test = false AND a.deleted_at IS NULL",
+      "properties": {
+        "description": "Real users only: `users.deleted_at IS NULL` belonging to a real account."
+      }
+    }
+  ],
+  "dataSource": "postgres",
+  "layoutVersion": 2
+}

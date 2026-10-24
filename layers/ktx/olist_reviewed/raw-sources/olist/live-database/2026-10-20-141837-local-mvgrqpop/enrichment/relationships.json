@@ -1,0 +1,754 @@
+{
+  "connectionId": "olist",
+  "accepted": [
+    {
+      "id": "public.order_items:(public.order_items.order_id)->public.orders:(public.orders.order_id)",
+      "status": "accepted",
+      "source": "normalized_table_match",
+      "from": {
+        "tableId": "public.order_items",
+        "columnIds": [
+          "public.order_items.order_id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "order_items"
+        },
+        "columns": [
+          "order_id"
+        ]
+      },
+      "to": {
+        "tableId": "public.orders",
+        "columnIds": [
+          "public.orders.order_id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "orders"
+        },
+        "columns": [
+          "order_id"
+        ]
+      },
+      "relationshipType": "many_to_one",
+      "confidence": 0.982,
+      "pkScore": 0.979,
+      "fkScore": 0.989,
+      "score": 0.996,
+      "evidence": {
+        "sourceColumnBase": "order",
+        "targetTableBase": "order",
+        "targetColumnBase": "order_id",
+        "targetKeyScore": 0.9,
+        "nameScore": 0.92,
+        "reasons": [
+          "foreign_key_suffix",
+          "target_key_like",
+          "normalized_table_name",
+          "exact_column_name"
+        ],
+        "signalVector": {
+          "nameSimilarity": 0.92,
+          "typeCompatibility": 1,
+          "valueOverlap": 0,
+          "embeddingSimilarity": 0,
+          "profileUniqueness": 1,
+          "profileNullRate": 1,
+          "structuralPrior": 0.7
+        },
+        "scoreBreakdown": {
+          "score": 0.982,
+          "signals": {
+            "nameSimilarity": 0.92,
+            "typeCompatibility": 1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 1,
+            "profileNullRate": 1,
+            "structuralPrior": 0.7
+          },
+          "weights": {
+            "nameSimilarity": 0.24000000000000002,
+            "typeCompatibility": 0.10000000000000002,
+            "valueOverlap": 0.22000000000000003,
+            "embeddingSimilarity": 0.10000000000000002,
+            "profileUniqueness": 0.22000000000000003,
+            "profileNullRate": 0.08000000000000002,
+            "structuralPrior": 0.04000000000000001
+          },
+          "contributions": {
+            "nameSimilarity": 0.2208,
+            "typeCompatibility": 0.1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 0.22,
+            "profileNullRate": 0.08,
+            "structuralPrior": 0.028
+          }
+        }
+      },
+      "validation": {
+        "targetUniqueness": 1,
+        "sourceCoverage": 1,
+        "violationCount": 0,
+        "violationRatio": 0,
+        "sourceNullRate": 0,
+        "targetNullRate": 0,
+        "childDistinct": 10000,
+        "parentDistinct": 99441,
+        "overlap": 10000,
+        "checkedValues": 10000,
+        "reasons": [
+          "validation_passed"
+        ]
+      },
+      "graph": {
+        "targetPkScore": 0.979,
+        "incomingCandidateCount": 3,
+        "conflictRank": 1,
+        "reasons": [
+          "target_pk_score_passed",
+          "validation_passed",
+          "fk_score_passed"
+        ]
+      },
+      "reasons": [
+        "foreign_key_suffix",
+        "target_key_like",
+        "normalized_table_name",
+        "exact_column_name",
+        "validation_passed",
+        "target_pk_score_passed",
+        "fk_score_passed"
+      ]
+    },
+    {
+      "id": "public.order_items:(public.order_items.product_id)->public.products:(public.products.product_id)",
+      "status": "accepted",
+      "source": "normalized_table_match",
+      "from": {
+        "tableId": "public.order_items",
+        "columnIds": [
+          "public.order_items.product_id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "order_items"
+        },
+        "columns": [
+          "product_id"
+        ]
+      },
+      "to": {
+        "tableId": "public.products",
+        "columnIds": [
+          "public.products.product_id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "products"
+        },
+        "columns": [
+          "product_id"
+        ]
+      },
+      "relationshipType": "many_to_one",
+      "confidence": 0.982,
+      "pkScore": 0.931,
+      "fkScore": 0.975,
+      "score": 0.996,
+      "evidence": {
+        "sourceColumnBase": "product",
+        "targetTableBase": "product",
+        "targetColumnBase": "product_id",
+        "targetKeyScore": 0.9,
+        "nameScore": 0.92,
+        "reasons": [
+          "foreign_key_suffix",
+          "target_key_like",
+          "normalized_table_name",
+          "exact_column_name"
+        ],
+        "signalVector": {
+          "nameSimilarity": 0.92,
+          "typeCompatibility": 1,
+          "valueOverlap": 0,
+          "embeddingSimilarity": 0,
+          "profileUniqueness": 1,
+          "profileNullRate": 1,
+          "structuralPrior": 0.7
+        },
+        "scoreBreakdown": {
+          "score": 0.982,
+          "signals": {
+            "nameSimilarity": 0.92,
+            "typeCompatibility": 1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 1,
+            "profileNullRate": 1,
+            "structuralPrior": 0.7
+          },
+          "weights": {
+            "nameSimilarity": 0.24000000000000002,
+            "typeCompatibility": 0.10000000000000002,
+            "valueOverlap": 0.22000000000000003,
+            "embeddingSimilarity": 0.10000000000000002,
+            "profileUniqueness": 0.22000000000000003,
+            "profileNullRate": 0.08000000000000002,
+            "structuralPrior": 0.04000000000000001
+          },
+          "contributions": {
+            "nameSimilarity": 0.2208,
+            "typeCompatibility": 0.1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 0.22,
+            "profileNullRate": 0.08,
+            "structuralPrior": 0.028
+          }
+        }
+      },
+      "validation": {
+        "targetUniqueness": 1,
+        "sourceCoverage": 1,
+        "violationCount": 0,
+        "violationRatio": 0,
+        "sourceNullRate": 0,
+        "targetNullRate": 0,
+        "childDistinct": 10000,
+        "parentDistinct": 32951,
+        "overlap": 10000,
+        "checkedValues": 10000,
+        "reasons": [
+          "validation_passed"
+        ]
+      },
+      "graph": {
+        "targetPkScore": 0.931,
+        "incomingCandidateCount": 1,
+        "conflictRank": 1,
+        "reasons": [
+          "target_pk_score_passed",
+          "validation_passed",
+          "fk_score_passed"
+        ]
+      },
+      "reasons": [
+        "foreign_key_suffix",
+        "target_key_like",
+        "normalized_table_name",
+        "exact_column_name",
+        "validation_passed",
+        "target_pk_score_passed",
+        "fk_score_passed"
+      ]
+    },
+    {
+      "id": "public.order_items:(public.order_items.seller_id)->public.sellers:(public.sellers.seller_id)",
+      "status": "accepted",
+      "source": "normalized_table_match",
+      "from": {
+        "tableId": "public.order_items",
+        "columnIds": [
+          "public.order_items.seller_id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "order_items"
+        },
+        "columns": [
+          "seller_id"
+        ]
+      },
+      "to": {
+        "tableId": "public.sellers",
+        "columnIds": [
+          "public.sellers.seller_id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "sellers"
+        },
+        "columns": [
+          "seller_id"
+        ]
+      },
+      "relationshipType": "many_to_one",
+      "confidence": 0.974,
+      "pkScore": 0.931,
+      "fkScore": 0.973,
+      "score": 0.995,
+      "evidence": {
+        "sourceColumnBase": "seller",
+        "targetTableBase": "seller",
+        "targetColumnBase": "seller_id",
+        "targetKeyScore": 0.9,
+        "nameScore": 0.92,
+        "reasons": [
+          "foreign_key_suffix",
+          "target_key_like",
+          "normalized_table_name",
+          "exact_column_name"
+        ],
+        "signalVector": {
+          "nameSimilarity": 0.92,
+          "typeCompatibility": 1,
+          "valueOverlap": 0,
+          "embeddingSimilarity": 0,
+          "profileUniqueness": 1,
+          "profileNullRate": 1,
+          "structuralPrior": 0.4
+        },
+        "scoreBreakdown": {
+          "score": 0.974,
+          "signals": {
+            "nameSimilarity": 0.92,
+            "typeCompatibility": 1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 1,
+            "profileNullRate": 1,
+            "structuralPrior": 0.4
+          },
+          "weights": {
+            "nameSimilarity": 0.24000000000000002,
+            "typeCompatibility": 0.10000000000000002,
+            "valueOverlap": 0.22000000000000003,
+            "embeddingSimilarity": 0.10000000000000002,
+            "profileUniqueness": 0.22000000000000003,
+            "profileNullRate": 0.08000000000000002,
+            "structuralPrior": 0.04000000000000001
+          },
+          "contributions": {
+            "nameSimilarity": 0.2208,
+            "typeCompatibility": 0.1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 0.22,
+            "profileNullRate": 0.08,
+            "structuralPrior": 0.016
+          }
+        }
+      },
+      "validation": {
+        "targetUniqueness": 1,
+        "sourceCoverage": 1,
+        "violationCount": 0,
+        "violationRatio": 0,
+        "sourceNullRate": 0,
+        "targetNullRate": 0,
+        "childDistinct": 3095,
+        "parentDistinct": 3095,
+        "overlap": 3095,
+        "checkedValues": 3095,
+        "reasons": [
+          "validation_passed"
+        ]
+      },
+      "graph": {
+        "targetPkScore": 0.931,
+        "incomingCandidateCount": 1,
+        "conflictRank": 1,
+        "reasons": [
+          "target_pk_score_passed",
+          "validation_passed",
+          "fk_score_passed"
+        ]
+      },
+      "reasons": [
+        "foreign_key_suffix",
+        "target_key_like",
+        "normalized_table_name",
+        "exact_column_name",
+        "validation_passed",
+        "target_pk_score_passed",
+        "fk_score_passed"
+      ]
+    },
+    {
+      "id": "public.order_payments:(public.order_payments.order_id)->public.orders:(public.orders.order_id)",
+      "status": "accepted",
+      "source": "normalized_table_match",
+      "from": {
+        "tableId": "public.order_payments",
+        "columnIds": [
+          "public.order_payments.order_id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "order_payments"
+        },
+        "columns": [
+          "order_id"
+        ]
+      },
+      "to": {
+        "tableId": "public.orders",
+        "columnIds": [
+          "public.orders.order_id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "orders"
+        },
+        "columns": [
+          "order_id"
+        ]
+      },
+      "relationshipType": "many_to_one",
+      "confidence": 0.982,
+      "pkScore": 0.979,
+      "fkScore": 0.989,
+      "score": 0.996,
+      "evidence": {
+        "sourceColumnBase": "order",
+        "targetTableBase": "order",
+        "targetColumnBase": "order_id",
+        "targetKeyScore": 0.9,
+        "nameScore": 0.92,
+        "reasons": [
+          "foreign_key_suffix",
+          "target_key_like",
+          "normalized_table_name",
+          "exact_column_name"
+        ],
+        "signalVector": {
+          "nameSimilarity": 0.92,
+          "typeCompatibility": 1,
+          "valueOverlap": 0,
+          "embeddingSimilarity": 0,
+          "profileUniqueness": 1,
+          "profileNullRate": 1,
+          "structuralPrior": 0.7
+        },
+        "scoreBreakdown": {
+          "score": 0.982,
+          "signals": {
+            "nameSimilarity": 0.92,
+            "typeCompatibility": 1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 1,
+            "profileNullRate": 1,
+            "structuralPrior": 0.7
+          },
+          "weights": {
+            "nameSimilarity": 0.24000000000000002,
+            "typeCompatibility": 0.10000000000000002,
+            "valueOverlap": 0.22000000000000003,
+            "embeddingSimilarity": 0.10000000000000002,
+            "profileUniqueness": 0.22000000000000003,
+            "profileNullRate": 0.08000000000000002,
+            "structuralPrior": 0.04000000000000001
+          },
+          "contributions": {
+            "nameSimilarity": 0.2208,
+            "typeCompatibility": 0.1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 0.22,
+            "profileNullRate": 0.08,
+            "structuralPrior": 0.028
+          }
+        }
+      },
+      "validation": {
+        "targetUniqueness": 1,
+        "sourceCoverage": 1,
+        "violationCount": 0,
+        "violationRatio": 0,
+        "sourceNullRate": 0,
+        "targetNullRate": 0,
+        "childDistinct": 10000,
+        "parentDistinct": 99441,
+        "overlap": 10000,
+        "checkedValues": 10000,
+        "reasons": [
+          "validation_passed"
+        ]
+      },
+      "graph": {
+        "targetPkScore": 0.979,
+        "incomingCandidateCount": 3,
+        "conflictRank": 1,
+        "reasons": [
+          "target_pk_score_passed",
+          "validation_passed",
+          "fk_score_passed"
+        ]
+      },
+      "reasons": [
+        "foreign_key_suffix",
+        "target_key_like",
+        "normalized_table_name",
+        "exact_column_name",
+        "validation_passed",
+        "target_pk_score_passed",
+        "fk_score_passed"
+      ]
+    },
+    {
+      "id": "public.order_reviews:(public.order_reviews.order_id)->public.orders:(public.orders.order_id)",
+      "status": "accepted",
+      "source": "normalized_table_match",
+      "from": {
+        "tableId": "public.order_reviews",
+        "columnIds": [
+          "public.order_reviews.order_id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "order_reviews"
+        },
+        "columns": [
+          "order_id"
+        ]
+      },
+      "to": {
+        "tableId": "public.orders",
+        "columnIds": [
+          "public.orders.order_id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "orders"
+        },
+        "columns": [
+          "order_id"
+        ]
+      },
+      "relationshipType": "many_to_one",
+      "confidence": 0.982,
+      "pkScore": 0.979,
+      "fkScore": 0.989,
+      "score": 0.996,
+      "evidence": {
+        "sourceColumnBase": "order",
+        "targetTableBase": "order",
+        "targetColumnBase": "order_id",
+        "targetKeyScore": 0.9,
+        "nameScore": 0.92,
+        "reasons": [
+          "foreign_key_suffix",
+          "target_key_like",
+          "normalized_table_name",
+          "exact_column_name"
+        ],
+        "signalVector": {
+          "nameSimilarity": 0.92,
+          "typeCompatibility": 1,
+          "valueOverlap": 0,
+          "embeddingSimilarity": 0,
+          "profileUniqueness": 1,
+          "profileNullRate": 1,
+          "structuralPrior": 0.7
+        },
+        "scoreBreakdown": {
+          "score": 0.982,
+          "signals": {
+            "nameSimilarity": 0.92,
+            "typeCompatibility": 1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 1,
+            "profileNullRate": 1,
+            "structuralPrior": 0.7
+          },
+          "weights": {
+            "nameSimilarity": 0.24000000000000002,
+            "typeCompatibility": 0.10000000000000002,
+            "valueOverlap": 0.22000000000000003,
+            "embeddingSimilarity": 0.10000000000000002,
+            "profileUniqueness": 0.22000000000000003,
+            "profileNullRate": 0.08000000000000002,
+            "structuralPrior": 0.04000000000000001
+          },
+          "contributions": {
+            "nameSimilarity": 0.2208,
+            "typeCompatibility": 0.1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 0.22,
+            "profileNullRate": 0.08,
+            "structuralPrior": 0.028
+          }
+        }
+      },
+      "validation": {
+        "targetUniqueness": 1,
+        "sourceCoverage": 1,
+        "violationCount": 0,
+        "violationRatio": 0,
+        "sourceNullRate": 0,
+        "targetNullRate": 0,
+        "childDistinct": 10000,
+        "parentDistinct": 99441,
+        "overlap": 10000,
+        "checkedValues": 10000,
+        "reasons": [
+          "validation_passed"
+        ]
+      },
+      "graph": {
+        "targetPkScore": 0.979,
+        "incomingCandidateCount": 3,
+        "conflictRank": 1,
+        "reasons": [
+          "target_pk_score_passed",
+          "validation_passed",
+          "fk_score_passed"
+        ]
+      },
+      "reasons": [
+        "foreign_key_suffix",
+        "target_key_like",
+        "normalized_table_name",
+        "exact_column_name",
+        "validation_passed",
+        "target_pk_score_passed",
+        "fk_score_passed"
+      ]
+    },
+    {
+      "id": "public.orders:(public.orders.customer_id)->public.customers:(public.customers.customer_id)",
+      "status": "accepted",
+      "source": "profile_match",
+      "from": {
+        "tableId": "public.orders",
+        "columnIds": [
+          "public.orders.customer_id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "orders"
+        },
+        "columns": [
+          "customer_id"
+        ]
+      },
+      "to": {
+        "tableId": "public.customers",
+        "columnIds": [
+          "public.customers.customer_id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "customers"
+        },
+        "columns": [
+          "customer_id"
+        ]
+      },
+      "relationshipType": "many_to_one",
+      "confidence": 1,
+      "pkScore": 0.932,
+      "fkScore": 0.98,
+      "score": 1,
+      "evidence": {
+        "sourceColumnBase": "customer",
+        "targetTableBase": "customer",
+        "targetColumnBase": "customer_id",
+        "targetKeyScore": 0.9,
+        "nameScore": 0.92,
+        "reasons": [
+          "foreign_key_suffix",
+          "target_key_like",
+          "profile_sample_overlap",
+          "normalized_table_name",
+          "exact_column_name"
+        ],
+        "signalVector": {
+          "nameSimilarity": 0.92,
+          "typeCompatibility": 1,
+          "valueOverlap": 0.2,
+          "embeddingSimilarity": 0,
+          "profileUniqueness": 1,
+          "profileNullRate": 1,
+          "structuralPrior": 0.7
+        },
+        "scoreBreakdown": {
+          "score": 1,
+          "signals": {
+            "nameSimilarity": 0.92,
+            "typeCompatibility": 1,
+            "valueOverlap": 0.2,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 1,
+            "profileNullRate": 1,
+            "structuralPrior": 0.7
+          },
+          "weights": {
+            "nameSimilarity": 0.24000000000000002,
+            "typeCompatibility": 0.10000000000000002,
+            "valueOverlap": 0.22000000000000003,
+            "embeddingSimilarity": 0.10000000000000002,
+            "profileUniqueness": 0.22000000000000003,
+            "profileNullRate": 0.08000000000000002,
+            "structuralPrior": 0.04000000000000001
+          },
+          "contributions": {
+            "nameSimilarity": 0.2208,
+            "typeCompatibility": 0.1,
+            "valueOverlap": 0.044,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 0.22,
+            "profileNullRate": 0.08,
+            "structuralPrior": 0.028
+          }
+        }
+      },
+      "validation": {
+        "targetUniqueness": 1,
+        "sourceCoverage": 1,
+        "violationCount": 0,
+        "violationRatio": 0,
+        "sourceNullRate": 0,
+        "targetNullRate": 0,
+        "childDistinct": 10000,
+        "parentDistinct": 99441,
+        "overlap": 10000,
+        "checkedValues": 10000,
+        "reasons": [
+          "validation_passed"
+        ]
+      },
+      "graph": {
+        "targetPkScore": 0.932,
+        "incomingCandidateCount": 1,
+        "conflictRank": 1,
+        "reasons": [
+          "target_pk_score_passed",
+          "validation_passed",
+          "fk_score_passed"
+        ]
+      },
+      "reasons": [
+        "foreign_key_suffix",
+        "target_key_like",
+        "profile_sample_overlap",
+        "normalized_table_name",
+        "exact_column_name",
+        "validation_passed",
+        "target_pk_score_passed",
+        "fk_score_passed"
+      ]
+    }
+  ],
+  "review": [],
+  "rejected": [],
+  "skipped": []
+}

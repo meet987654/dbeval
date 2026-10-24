@@ -1,0 +1,56 @@
+{
+  "catalog": null,
+  "db": "public",
+  "name": "geolocation",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 1000163,
+  "columns": [
+    {
+      "name": "geolocation_zip_code_prefix",
+      "nativeType": "bigint",
+      "normalizedType": "bigint",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "geolocation_lat",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "geolocation_lng",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "geolocation_city",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "geolocation_state",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}

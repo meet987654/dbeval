@@ -1,0 +1,144 @@
+[
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "customers"
+    },
+    "tableDescription": "Customers table. Customer (a person) = `customers.customer_unique_id`. The column `customer_id` is created per order, so counting it counts orders, not unique people.",
+    "columnDescriptions": {
+      "customer_id": "Per-order key; join to `orders.customer_id`. Do NOT count this for unique customers.",
+      "customer_unique_id": "Unique person identifier. Always count `customer_unique_id` for customer/people counts.",
+      "customer_zip_code_prefix": null,
+      "customer_city": null,
+      "customer_state": null
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "geolocation"
+    },
+    "tableDescription": null,
+    "columnDescriptions": {
+      "geolocation_zip_code_prefix": null,
+      "geolocation_lat": null,
+      "geolocation_lng": null,
+      "geolocation_city": null,
+      "geolocation_state": null
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "order_items"
+    },
+    "tableDescription": "Order line items. Sales/sold: items on orders where `orders.order_status NOT IN ('canceled', 'unavailable')`. Sales amount = `order_items.price` (freight is NOT sales).",
+    "columnDescriptions": {
+      "order_id": null,
+      "order_item_id": null,
+      "product_id": null,
+      "seller_id": null,
+      "shipping_limit_date": null,
+      "price": "Item sales price. Sales amount = `price` (freight_value is NOT sales).",
+      "freight_value": "Freight/shipping fee (NOT sales)."
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "order_payments"
+    },
+    "tableDescription": "Order payments. Order payment value = `SUM(payment_value)` for the order. One order can have multiple payment rows. NEVER join `order_payments` to `order_items` directly.",
+    "columnDescriptions": {
+      "order_id": null,
+      "payment_sequential": null,
+      "payment_type": null,
+      "payment_installments": null,
+      "payment_value": "Payment value. Total order payment = `SUM(payment_value)`."
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "order_reviews"
+    },
+    "tableDescription": "Order reviews. If an order has multiple reviews, use the most recent one (`ORDER BY review_creation_date::timestamp DESC`).",
+    "columnDescriptions": {
+      "review_id": null,
+      "order_id": null,
+      "review_score": null,
+      "review_comment_title": null,
+      "review_comment_message": null,
+      "review_creation_date": "Review date (stored as text; cast to `::timestamp`).",
+      "review_answer_timestamp": null
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "orders"
+    },
+    "tableDescription": "Orders table. Sales and 'sold' exclude `order_status IN ('canceled', 'unavailable')`. Delivered = `order_status = 'delivered'`. Late = `order_delivered_customer_date::timestamp > order_estimated_delivery_date::timestamp`. Delivery time = days from `order_purchase_timestamp::timestamp` to `order_delivered_customer_date::timestamp`. Date columns are stored as text; cast to timestamps (e.g. `::timestamp`) before date comparisons.",
+    "columnDescriptions": {
+      "order_id": null,
+      "customer_id": null,
+      "order_status": "Order status ('delivered', 'shipped', 'canceled', 'unavailable'). Sales exclude canceled and unavailable.",
+      "order_purchase_timestamp": "Purchase timestamp (stored as text; cast to `::timestamp`).",
+      "order_approved_at": null,
+      "order_delivered_carrier_date": null,
+      "order_delivered_customer_date": "Delivery timestamp (stored as text; cast to `::timestamp`).",
+      "order_estimated_delivery_date": "Estimated delivery timestamp (stored as text; cast to `::timestamp`)."
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "sellers"
+    },
+    "tableDescription": null,
+    "columnDescriptions": {
+      "seller_id": null,
+      "seller_zip_code_prefix": null,
+      "seller_city": null,
+      "seller_state": null
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "product_category_name_translation"
+    },
+    "tableDescription": "Translation mapping between Portuguese `product_category_name` and English `product_category_name_english`.",
+    "columnDescriptions": {
+      "product_category_name": null,
+      "product_category_name_english": null
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "products"
+    },
+    "tableDescription": "Products table. Category: English name from `product_category_name_translation.product_category_name_english`. If no translation, use `product_category_name`. Products with NULL category are ignored for category questions.",
+    "columnDescriptions": {
+      "product_id": null,
+      "product_category_name": null,
+      "product_name_lenght": null,
+      "product_description_lenght": null,
+      "product_photos_qty": null,
+      "product_weight_g": null,
+      "product_length_cm": null,
+      "product_height_cm": null,
+      "product_width_cm": null
+    }
+  }
+]

@@ -1,0 +1,122 @@
+[
+  {
+    "identifier": "appdb.public.users",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "users",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"users\" (\n    \"id\" integer NOT NULL,\n    \"account_id\" integer NOT NULL, -- Real accounts only.\n    \"email\" text,\n    \"role\" text,\n    \"created_at\" timestamp with time zone NOT NULL,\n    \"deleted_at\" timestamp with time zone -- Real users have deleted_at IS NULL.\n);\n-- Business Rules:\n-- 2. Real user: users.deleted_at IS NULL and belongs to real account (is_test = false AND deleted_at IS NULL).\n-- 10. Active user: real user with >= 1 event in events where occurred_at is in period.",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.accounts",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "accounts",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"accounts\" (\n    \"id\" integer NOT NULL,\n    \"name\" text NOT NULL,\n    \"plan\" text, -- DEPRECATED signup plan. NEVER use for reporting; use plan_tier instead.\n    \"plan_tier\" text, -- Current plan tier: 'starter', 'pro', 'enterprise'. Always use for reporting.\n    \"is_test\" boolean NOT NULL DEFAULT false, -- Test account flag. Real accounts have is_test = false.\n    \"country\" text,\n    \"currency\" text,\n    \"created_at\" timestamp with time zone NOT NULL, -- Half-open windows: >= start AND < next_period_start.\n    \"deleted_at\" timestamp with time zone -- Real accounts have deleted_at IS NULL.\n);\n-- Business Rules:\n-- 1. Real account: is_test = false AND deleted_at IS NULL. Never count test or deleted accounts.\n-- 3. Current plan: accounts.plan_tier (never plan).\n-- 11. Paying customer in period: real account with >= 1 paid invoice (status = 'paid') with paid_at in period.\n-- 12. ARPA: Net revenue in period / paying customers in period.\n-- 13. Churned account: real account with >= 1 churn subscription canceled on or before date.\n-- 14. Date windows: half-open (>= start AND < next_period_start). Never use BETWEEN with end date.",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.subscriptions",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "subscriptions",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"subscriptions\" (\n    \"id\" integer NOT NULL,\n    \"account_id\" integer NOT NULL, -- Real accounts only (is_test = false AND deleted_at IS NULL).\n    \"plan_tier\" text NOT NULL, -- Plan tier: 'starter', 'pro', 'enterprise'.\n    \"status\" text NOT NULL, -- 'active', 'trialing', 'past_due', 'canceled'. Only 'active' is active subscription.\n    \"started_at\" timestamp with time zone NOT NULL,\n    \"trial_ends_at\" timestamp with time zone,\n    \"canceled_at\" timestamp with time zone, -- Churn uses canceled_at >= start AND canceled_at < next_period_start.\n    \"cancel_reason\" text -- 'voluntary', 'payment_failed', 'upgrade'. Churn only includes voluntary and payment_failed. upgrade is NOT churn.\n);\n-- Business Rules:\n-- 8. Active subscription: status = 'active' on real account. trialing and past_due are not active.\n-- 9. Churn: status = 'canceled' AND cancel_reason IN ('voluntary', 'payment_failed') with canceled_at in period on real account.",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.invoices",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "invoices",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"invoices\" (\n    \"id\" integer NOT NULL,\n    \"subscription_id\" integer NOT NULL,\n    \"account_id\" integer NOT NULL, -- Real accounts only: accounts.is_test = false AND accounts.deleted_at IS NULL.\n    \"amount_cents\" integer NOT NULL, -- USD: amount_cents::numeric / 100 * fx_rates.usd_per_unit. Always divide as numeric.\n    \"currency\" text NOT NULL, -- Join to fx_rates.currency for USD conversion.\n    \"status\" text NOT NULL, -- Status: 'paid', 'open', 'failed', 'void'. Paid invoices have status = 'paid'.\n    \"issued_at\" timestamp with time zone NOT NULL,\n    \"paid_at\" timestamp with time zone -- Filter on paid_at >= start AND paid_at < next_period_start.\n);\n-- Business Rules:\n-- 4. Money: amount_cents::numeric / 100 * fx_rates.usd_per_unit.\n-- 5. Gross revenue: paid invoices (status = 'paid') on real accounts in USD with paid_at in period.\n-- 7. Net revenue = Gross revenue minus Refunds (compute gross and refunds as two separate subqueries, then subtract).",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.refunds",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "refunds",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"refunds\" (\n    \"id\" integer NOT NULL,\n    \"invoice_id\" integer NOT NULL, -- Join to invoices.id.\n    \"amount_cents\" integer NOT NULL, -- USD: refunds.amount_cents::numeric / 100 * fx_rates.usd_per_unit using invoice currency.\n    \"created_at\" timestamp with time zone NOT NULL -- Filter on created_at >= start AND created_at < next_period_start.\n);\n-- Business Rules:\n-- 6. Refunds for period: refunds with created_at in period on real accounts in USD.\n-- 7. Net revenue: compute gross on paid_at and refunds on created_at as two separate subqueries, then subtract.",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.events",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "events",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"events\" (\n    \"id\" integer NOT NULL,\n    \"account_id\" integer NOT NULL,\n    \"user_id\" integer NOT NULL,\n    \"event_type\" text NOT NULL,\n    \"occurred_at\" timestamp with time zone NOT NULL -- Filter on occurred_at >= start AND occurred_at < next_period_start.\n);\n-- Business Rules:\n-- 10. Active user in period: real user with >= 1 event in period (occurred_at >= start AND occurred_at < next_period_start).",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.fx_rates",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "fx_rates",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"fx_rates\" (\n    \"currency\" text NOT NULL,\n    \"usd_per_unit\" double precision NOT NULL -- USD exchange rate. Multiply foreign amount by usd_per_unit.\n);",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.real_accounts",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "real_accounts",
+    "table_type": "view",
+    "definition": "CREATE VIEW \"appdb\".\"public\".\"real_accounts\" AS SELECT * FROM \"appdb\".\"public\".\"accounts\" WHERE \"is_test\" = false AND \"deleted_at\" IS NULL;",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.real_users",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "real_users",
+    "table_type": "view",
+    "definition": "CREATE VIEW \"appdb\".\"public\".\"real_users\" AS SELECT u.* FROM \"appdb\".\"public\".\"users\" u JOIN \"appdb\".\"public\".\"accounts\" a ON u.\"account_id\" = a.\"id\" WHERE u.\"deleted_at\" IS NULL AND a.\"is_test\" = false AND a.\"deleted_at\" IS NULL;",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.paid_invoices",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "paid_invoices",
+    "table_type": "view",
+    "definition": "CREATE VIEW \"appdb\".\"public\".\"paid_invoices\" AS SELECT i.*, i.\"amount_cents\"::numeric / 100 * fx.\"usd_per_unit\" AS \"amount_usd\" FROM \"appdb\".\"public\".\"invoices\" i JOIN \"appdb\".\"public\".\"accounts\" a ON i.\"account_id\" = a.\"id\" JOIN \"appdb\".\"public\".\"fx_rates\" fx ON i.\"currency\" = fx.\"currency\" WHERE i.\"status\" = 'paid' AND a.\"is_test\" = false AND a.\"deleted_at\" IS NULL;",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.active_subscriptions",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "active_subscriptions",
+    "table_type": "view",
+    "definition": "CREATE VIEW \"appdb\".\"public\".\"active_subscriptions\" AS SELECT s.* FROM \"appdb\".\"public\".\"subscriptions\" s JOIN \"appdb\".\"public\".\"accounts\" a ON s.\"account_id\" = a.\"id\" WHERE s.\"status\" = 'active' AND a.\"is_test\" = false AND a.\"deleted_at\" IS NULL;",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.churn_subscriptions",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "churn_subscriptions",
+    "table_type": "view",
+    "definition": "CREATE VIEW \"appdb\".\"public\".\"churn_subscriptions\" AS SELECT s.* FROM \"appdb\".\"public\".\"subscriptions\" s JOIN \"appdb\".\"public\".\"accounts\" a ON s.\"account_id\" = a.\"id\" WHERE s.\"status\" = 'canceled' AND s.\"cancel_reason\" IN ('voluntary', 'payment_failed') AND a.\"is_test\" = false AND a.\"deleted_at\" IS NULL;",
+    "datasource_id": "appdb"
+  }
+]
