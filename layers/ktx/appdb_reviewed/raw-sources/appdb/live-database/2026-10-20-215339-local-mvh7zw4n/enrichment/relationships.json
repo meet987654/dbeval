@@ -1,0 +1,862 @@
+{
+  "connectionId": "appdb",
+  "accepted": [
+    {
+      "id": "public.events:(public.events.account_id)->public.accounts:(public.accounts.id)",
+      "status": "accepted",
+      "source": "normalized_table_match",
+      "from": {
+        "tableId": "public.events",
+        "columnIds": [
+          "public.events.account_id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "events"
+        },
+        "columns": [
+          "account_id"
+        ]
+      },
+      "to": {
+        "tableId": "public.accounts",
+        "columnIds": [
+          "public.accounts.id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "accounts"
+        },
+        "columns": [
+          "id"
+        ]
+      },
+      "relationshipType": "many_to_one",
+      "confidence": 0.974,
+      "pkScore": 1,
+      "fkScore": 0.994,
+      "score": 0.995,
+      "evidence": {
+        "sourceColumnBase": "account",
+        "targetTableBase": "account",
+        "targetColumnBase": "id",
+        "targetKeyScore": 1,
+        "nameScore": 0.92,
+        "reasons": [
+          "foreign_key_suffix",
+          "target_key_like",
+          "normalized_table_name"
+        ],
+        "signalVector": {
+          "nameSimilarity": 0.92,
+          "typeCompatibility": 1,
+          "valueOverlap": 0,
+          "embeddingSimilarity": 0,
+          "profileUniqueness": 1,
+          "profileNullRate": 1,
+          "structuralPrior": 0.4
+        },
+        "scoreBreakdown": {
+          "score": 0.974,
+          "signals": {
+            "nameSimilarity": 0.92,
+            "typeCompatibility": 1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 1,
+            "profileNullRate": 1,
+            "structuralPrior": 0.4
+          },
+          "weights": {
+            "nameSimilarity": 0.24000000000000002,
+            "typeCompatibility": 0.10000000000000002,
+            "valueOverlap": 0.22000000000000003,
+            "embeddingSimilarity": 0.10000000000000002,
+            "profileUniqueness": 0.22000000000000003,
+            "profileNullRate": 0.08000000000000002,
+            "structuralPrior": 0.04000000000000001
+          },
+          "contributions": {
+            "nameSimilarity": 0.2208,
+            "typeCompatibility": 0.1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 0.22,
+            "profileNullRate": 0.08,
+            "structuralPrior": 0.016
+          }
+        }
+      },
+      "validation": {
+        "targetUniqueness": 1,
+        "sourceCoverage": 1,
+        "violationCount": 0,
+        "violationRatio": 0,
+        "sourceNullRate": 0,
+        "targetNullRate": 0,
+        "childDistinct": 1985,
+        "parentDistinct": 2000,
+        "overlap": 1985,
+        "checkedValues": 1985,
+        "reasons": [
+          "validation_passed"
+        ]
+      },
+      "graph": {
+        "targetPkScore": 1,
+        "incomingCandidateCount": 0,
+        "conflictRank": 1,
+        "reasons": [
+          "target_pk_score_passed",
+          "validation_passed",
+          "fk_score_passed"
+        ]
+      },
+      "reasons": [
+        "foreign_key_suffix",
+        "target_key_like",
+        "normalized_table_name",
+        "validation_passed",
+        "target_pk_score_passed",
+        "fk_score_passed"
+      ]
+    },
+    {
+      "id": "public.events:(public.events.user_id)->public.users:(public.users.id)",
+      "status": "accepted",
+      "source": "normalized_table_match",
+      "from": {
+        "tableId": "public.events",
+        "columnIds": [
+          "public.events.user_id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "events"
+        },
+        "columns": [
+          "user_id"
+        ]
+      },
+      "to": {
+        "tableId": "public.users",
+        "columnIds": [
+          "public.users.id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "users"
+        },
+        "columns": [
+          "id"
+        ]
+      },
+      "relationshipType": "many_to_one",
+      "confidence": 0.982,
+      "pkScore": 1,
+      "fkScore": 0.996,
+      "score": 0.996,
+      "evidence": {
+        "sourceColumnBase": "user",
+        "targetTableBase": "user",
+        "targetColumnBase": "id",
+        "targetKeyScore": 1,
+        "nameScore": 0.92,
+        "reasons": [
+          "foreign_key_suffix",
+          "target_key_like",
+          "normalized_table_name"
+        ],
+        "signalVector": {
+          "nameSimilarity": 0.92,
+          "typeCompatibility": 1,
+          "valueOverlap": 0,
+          "embeddingSimilarity": 0,
+          "profileUniqueness": 1,
+          "profileNullRate": 1,
+          "structuralPrior": 0.7
+        },
+        "scoreBreakdown": {
+          "score": 0.982,
+          "signals": {
+            "nameSimilarity": 0.92,
+            "typeCompatibility": 1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 1,
+            "profileNullRate": 1,
+            "structuralPrior": 0.7
+          },
+          "weights": {
+            "nameSimilarity": 0.24000000000000002,
+            "typeCompatibility": 0.10000000000000002,
+            "valueOverlap": 0.22000000000000003,
+            "embeddingSimilarity": 0.10000000000000002,
+            "profileUniqueness": 0.22000000000000003,
+            "profileNullRate": 0.08000000000000002,
+            "structuralPrior": 0.04000000000000001
+          },
+          "contributions": {
+            "nameSimilarity": 0.2208,
+            "typeCompatibility": 0.1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 0.22,
+            "profileNullRate": 0.08,
+            "structuralPrior": 0.028
+          }
+        }
+      },
+      "validation": {
+        "targetUniqueness": 1,
+        "sourceCoverage": 1,
+        "violationCount": 0,
+        "violationRatio": 0,
+        "sourceNullRate": 0,
+        "targetNullRate": 0,
+        "childDistinct": 6735,
+        "parentDistinct": 6976,
+        "overlap": 6735,
+        "checkedValues": 6735,
+        "reasons": [
+          "validation_passed"
+        ]
+      },
+      "graph": {
+        "targetPkScore": 1,
+        "incomingCandidateCount": 0,
+        "conflictRank": 1,
+        "reasons": [
+          "target_pk_score_passed",
+          "validation_passed",
+          "fk_score_passed"
+        ]
+      },
+      "reasons": [
+        "foreign_key_suffix",
+        "target_key_like",
+        "normalized_table_name",
+        "validation_passed",
+        "target_pk_score_passed",
+        "fk_score_passed"
+      ]
+    },
+    {
+      "id": "public.invoices:(public.invoices.account_id)->public.accounts:(public.accounts.id)",
+      "status": "accepted",
+      "source": "normalized_table_match",
+      "from": {
+        "tableId": "public.invoices",
+        "columnIds": [
+          "public.invoices.account_id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "invoices"
+        },
+        "columns": [
+          "account_id"
+        ]
+      },
+      "to": {
+        "tableId": "public.accounts",
+        "columnIds": [
+          "public.accounts.id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "accounts"
+        },
+        "columns": [
+          "id"
+        ]
+      },
+      "relationshipType": "many_to_one",
+      "confidence": 0.982,
+      "pkScore": 1,
+      "fkScore": 0.996,
+      "score": 0.996,
+      "evidence": {
+        "sourceColumnBase": "account",
+        "targetTableBase": "account",
+        "targetColumnBase": "id",
+        "targetKeyScore": 1,
+        "nameScore": 0.92,
+        "reasons": [
+          "foreign_key_suffix",
+          "target_key_like",
+          "normalized_table_name"
+        ],
+        "signalVector": {
+          "nameSimilarity": 0.92,
+          "typeCompatibility": 1,
+          "valueOverlap": 0,
+          "embeddingSimilarity": 0,
+          "profileUniqueness": 1,
+          "profileNullRate": 1,
+          "structuralPrior": 0.7
+        },
+        "scoreBreakdown": {
+          "score": 0.982,
+          "signals": {
+            "nameSimilarity": 0.92,
+            "typeCompatibility": 1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 1,
+            "profileNullRate": 1,
+            "structuralPrior": 0.7
+          },
+          "weights": {
+            "nameSimilarity": 0.24000000000000002,
+            "typeCompatibility": 0.10000000000000002,
+            "valueOverlap": 0.22000000000000003,
+            "embeddingSimilarity": 0.10000000000000002,
+            "profileUniqueness": 0.22000000000000003,
+            "profileNullRate": 0.08000000000000002,
+            "structuralPrior": 0.04000000000000001
+          },
+          "contributions": {
+            "nameSimilarity": 0.2208,
+            "typeCompatibility": 0.1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 0.22,
+            "profileNullRate": 0.08,
+            "structuralPrior": 0.028
+          }
+        }
+      },
+      "validation": {
+        "targetUniqueness": 1,
+        "sourceCoverage": 1,
+        "violationCount": 0,
+        "violationRatio": 0,
+        "sourceNullRate": 0,
+        "targetNullRate": 0,
+        "childDistinct": 2000,
+        "parentDistinct": 2000,
+        "overlap": 2000,
+        "checkedValues": 2000,
+        "reasons": [
+          "validation_passed"
+        ]
+      },
+      "graph": {
+        "targetPkScore": 1,
+        "incomingCandidateCount": 0,
+        "conflictRank": 1,
+        "reasons": [
+          "target_pk_score_passed",
+          "validation_passed",
+          "fk_score_passed"
+        ]
+      },
+      "reasons": [
+        "foreign_key_suffix",
+        "target_key_like",
+        "normalized_table_name",
+        "validation_passed",
+        "target_pk_score_passed",
+        "fk_score_passed"
+      ]
+    },
+    {
+      "id": "public.invoices:(public.invoices.subscription_id)->public.subscriptions:(public.subscriptions.id)",
+      "status": "accepted",
+      "source": "normalized_table_match",
+      "from": {
+        "tableId": "public.invoices",
+        "columnIds": [
+          "public.invoices.subscription_id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "invoices"
+        },
+        "columns": [
+          "subscription_id"
+        ]
+      },
+      "to": {
+        "tableId": "public.subscriptions",
+        "columnIds": [
+          "public.subscriptions.id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "subscriptions"
+        },
+        "columns": [
+          "id"
+        ]
+      },
+      "relationshipType": "many_to_one",
+      "confidence": 0.982,
+      "pkScore": 1,
+      "fkScore": 0.996,
+      "score": 0.996,
+      "evidence": {
+        "sourceColumnBase": "subscription",
+        "targetTableBase": "subscription",
+        "targetColumnBase": "id",
+        "targetKeyScore": 1,
+        "nameScore": 0.92,
+        "reasons": [
+          "foreign_key_suffix",
+          "target_key_like",
+          "normalized_table_name"
+        ],
+        "signalVector": {
+          "nameSimilarity": 0.92,
+          "typeCompatibility": 1,
+          "valueOverlap": 0,
+          "embeddingSimilarity": 0,
+          "profileUniqueness": 1,
+          "profileNullRate": 1,
+          "structuralPrior": 0.7
+        },
+        "scoreBreakdown": {
+          "score": 0.982,
+          "signals": {
+            "nameSimilarity": 0.92,
+            "typeCompatibility": 1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 1,
+            "profileNullRate": 1,
+            "structuralPrior": 0.7
+          },
+          "weights": {
+            "nameSimilarity": 0.24000000000000002,
+            "typeCompatibility": 0.10000000000000002,
+            "valueOverlap": 0.22000000000000003,
+            "embeddingSimilarity": 0.10000000000000002,
+            "profileUniqueness": 0.22000000000000003,
+            "profileNullRate": 0.08000000000000002,
+            "structuralPrior": 0.04000000000000001
+          },
+          "contributions": {
+            "nameSimilarity": 0.2208,
+            "typeCompatibility": 0.1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 0.22,
+            "profileNullRate": 0.08,
+            "structuralPrior": 0.028
+          }
+        }
+      },
+      "validation": {
+        "targetUniqueness": 1,
+        "sourceCoverage": 1,
+        "violationCount": 0,
+        "violationRatio": 0,
+        "sourceNullRate": 0,
+        "targetNullRate": 0,
+        "childDistinct": 2082,
+        "parentDistinct": 2084,
+        "overlap": 2082,
+        "checkedValues": 2082,
+        "reasons": [
+          "validation_passed"
+        ]
+      },
+      "graph": {
+        "targetPkScore": 1,
+        "incomingCandidateCount": 0,
+        "conflictRank": 1,
+        "reasons": [
+          "target_pk_score_passed",
+          "validation_passed",
+          "fk_score_passed"
+        ]
+      },
+      "reasons": [
+        "foreign_key_suffix",
+        "target_key_like",
+        "normalized_table_name",
+        "validation_passed",
+        "target_pk_score_passed",
+        "fk_score_passed"
+      ]
+    },
+    {
+      "id": "public.refunds:(public.refunds.invoice_id)->public.invoices:(public.invoices.id)",
+      "status": "accepted",
+      "source": "normalized_table_match",
+      "from": {
+        "tableId": "public.refunds",
+        "columnIds": [
+          "public.refunds.invoice_id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "refunds"
+        },
+        "columns": [
+          "invoice_id"
+        ]
+      },
+      "to": {
+        "tableId": "public.invoices",
+        "columnIds": [
+          "public.invoices.id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "invoices"
+        },
+        "columns": [
+          "id"
+        ]
+      },
+      "relationshipType": "many_to_one",
+      "confidence": 0.974,
+      "pkScore": 1,
+      "fkScore": 0.994,
+      "score": 0.995,
+      "evidence": {
+        "sourceColumnBase": "invoice",
+        "targetTableBase": "invoice",
+        "targetColumnBase": "id",
+        "targetKeyScore": 1,
+        "nameScore": 0.92,
+        "reasons": [
+          "foreign_key_suffix",
+          "target_key_like",
+          "normalized_table_name"
+        ],
+        "signalVector": {
+          "nameSimilarity": 0.92,
+          "typeCompatibility": 1,
+          "valueOverlap": 0,
+          "embeddingSimilarity": 0,
+          "profileUniqueness": 1,
+          "profileNullRate": 1,
+          "structuralPrior": 0.4
+        },
+        "scoreBreakdown": {
+          "score": 0.974,
+          "signals": {
+            "nameSimilarity": 0.92,
+            "typeCompatibility": 1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 1,
+            "profileNullRate": 1,
+            "structuralPrior": 0.4
+          },
+          "weights": {
+            "nameSimilarity": 0.24000000000000002,
+            "typeCompatibility": 0.10000000000000002,
+            "valueOverlap": 0.22000000000000003,
+            "embeddingSimilarity": 0.10000000000000002,
+            "profileUniqueness": 0.22000000000000003,
+            "profileNullRate": 0.08000000000000002,
+            "structuralPrior": 0.04000000000000001
+          },
+          "contributions": {
+            "nameSimilarity": 0.2208,
+            "typeCompatibility": 0.1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 0.22,
+            "profileNullRate": 0.08,
+            "structuralPrior": 0.016
+          }
+        }
+      },
+      "validation": {
+        "targetUniqueness": 1,
+        "sourceCoverage": 1,
+        "violationCount": 0,
+        "violationRatio": 0,
+        "sourceNullRate": 0,
+        "targetNullRate": 0,
+        "childDistinct": 1112,
+        "parentDistinct": 28914,
+        "overlap": 1112,
+        "checkedValues": 1112,
+        "reasons": [
+          "validation_passed"
+        ]
+      },
+      "graph": {
+        "targetPkScore": 1,
+        "incomingCandidateCount": 0,
+        "conflictRank": 1,
+        "reasons": [
+          "target_pk_score_passed",
+          "validation_passed",
+          "fk_score_passed"
+        ]
+      },
+      "reasons": [
+        "foreign_key_suffix",
+        "target_key_like",
+        "normalized_table_name",
+        "validation_passed",
+        "target_pk_score_passed",
+        "fk_score_passed"
+      ]
+    },
+    {
+      "id": "public.subscriptions:(public.subscriptions.account_id)->public.accounts:(public.accounts.id)",
+      "status": "accepted",
+      "source": "normalized_table_match",
+      "from": {
+        "tableId": "public.subscriptions",
+        "columnIds": [
+          "public.subscriptions.account_id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "subscriptions"
+        },
+        "columns": [
+          "account_id"
+        ]
+      },
+      "to": {
+        "tableId": "public.accounts",
+        "columnIds": [
+          "public.accounts.id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "accounts"
+        },
+        "columns": [
+          "id"
+        ]
+      },
+      "relationshipType": "many_to_one",
+      "confidence": 0.982,
+      "pkScore": 1,
+      "fkScore": 0.996,
+      "score": 0.996,
+      "evidence": {
+        "sourceColumnBase": "account",
+        "targetTableBase": "account",
+        "targetColumnBase": "id",
+        "targetKeyScore": 1,
+        "nameScore": 0.92,
+        "reasons": [
+          "foreign_key_suffix",
+          "target_key_like",
+          "normalized_table_name"
+        ],
+        "signalVector": {
+          "nameSimilarity": 0.92,
+          "typeCompatibility": 1,
+          "valueOverlap": 0,
+          "embeddingSimilarity": 0,
+          "profileUniqueness": 1,
+          "profileNullRate": 1,
+          "structuralPrior": 0.7
+        },
+        "scoreBreakdown": {
+          "score": 0.982,
+          "signals": {
+            "nameSimilarity": 0.92,
+            "typeCompatibility": 1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 1,
+            "profileNullRate": 1,
+            "structuralPrior": 0.7
+          },
+          "weights": {
+            "nameSimilarity": 0.24000000000000002,
+            "typeCompatibility": 0.10000000000000002,
+            "valueOverlap": 0.22000000000000003,
+            "embeddingSimilarity": 0.10000000000000002,
+            "profileUniqueness": 0.22000000000000003,
+            "profileNullRate": 0.08000000000000002,
+            "structuralPrior": 0.04000000000000001
+          },
+          "contributions": {
+            "nameSimilarity": 0.2208,
+            "typeCompatibility": 0.1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 0.22,
+            "profileNullRate": 0.08,
+            "structuralPrior": 0.028
+          }
+        }
+      },
+      "validation": {
+        "targetUniqueness": 1,
+        "sourceCoverage": 1,
+        "violationCount": 0,
+        "violationRatio": 0,
+        "sourceNullRate": 0,
+        "targetNullRate": 0,
+        "childDistinct": 2000,
+        "parentDistinct": 2000,
+        "overlap": 2000,
+        "checkedValues": 2000,
+        "reasons": [
+          "validation_passed"
+        ]
+      },
+      "graph": {
+        "targetPkScore": 1,
+        "incomingCandidateCount": 0,
+        "conflictRank": 1,
+        "reasons": [
+          "target_pk_score_passed",
+          "validation_passed",
+          "fk_score_passed"
+        ]
+      },
+      "reasons": [
+        "foreign_key_suffix",
+        "target_key_like",
+        "normalized_table_name",
+        "validation_passed",
+        "target_pk_score_passed",
+        "fk_score_passed"
+      ]
+    },
+    {
+      "id": "public.users:(public.users.account_id)->public.accounts:(public.accounts.id)",
+      "status": "accepted",
+      "source": "normalized_table_match",
+      "from": {
+        "tableId": "public.users",
+        "columnIds": [
+          "public.users.account_id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "users"
+        },
+        "columns": [
+          "account_id"
+        ]
+      },
+      "to": {
+        "tableId": "public.accounts",
+        "columnIds": [
+          "public.accounts.id"
+        ],
+        "table": {
+          "catalog": null,
+          "db": "public",
+          "name": "accounts"
+        },
+        "columns": [
+          "id"
+        ]
+      },
+      "relationshipType": "many_to_one",
+      "confidence": 0.982,
+      "pkScore": 1,
+      "fkScore": 0.996,
+      "score": 0.996,
+      "evidence": {
+        "sourceColumnBase": "account",
+        "targetTableBase": "account",
+        "targetColumnBase": "id",
+        "targetKeyScore": 1,
+        "nameScore": 0.92,
+        "reasons": [
+          "foreign_key_suffix",
+          "target_key_like",
+          "normalized_table_name"
+        ],
+        "signalVector": {
+          "nameSimilarity": 0.92,
+          "typeCompatibility": 1,
+          "valueOverlap": 0,
+          "embeddingSimilarity": 0,
+          "profileUniqueness": 1,
+          "profileNullRate": 1,
+          "structuralPrior": 0.7
+        },
+        "scoreBreakdown": {
+          "score": 0.982,
+          "signals": {
+            "nameSimilarity": 0.92,
+            "typeCompatibility": 1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 1,
+            "profileNullRate": 1,
+            "structuralPrior": 0.7
+          },
+          "weights": {
+            "nameSimilarity": 0.24000000000000002,
+            "typeCompatibility": 0.10000000000000002,
+            "valueOverlap": 0.22000000000000003,
+            "embeddingSimilarity": 0.10000000000000002,
+            "profileUniqueness": 0.22000000000000003,
+            "profileNullRate": 0.08000000000000002,
+            "structuralPrior": 0.04000000000000001
+          },
+          "contributions": {
+            "nameSimilarity": 0.2208,
+            "typeCompatibility": 0.1,
+            "valueOverlap": 0,
+            "embeddingSimilarity": 0,
+            "profileUniqueness": 0.22,
+            "profileNullRate": 0.08,
+            "structuralPrior": 0.028
+          }
+        }
+      },
+      "validation": {
+        "targetUniqueness": 1,
+        "sourceCoverage": 1,
+        "violationCount": 0,
+        "violationRatio": 0,
+        "sourceNullRate": 0,
+        "targetNullRate": 0,
+        "childDistinct": 2000,
+        "parentDistinct": 2000,
+        "overlap": 2000,
+        "checkedValues": 2000,
+        "reasons": [
+          "validation_passed"
+        ]
+      },
+      "graph": {
+        "targetPkScore": 1,
+        "incomingCandidateCount": 0,
+        "conflictRank": 1,
+        "reasons": [
+          "target_pk_score_passed",
+          "validation_passed",
+          "fk_score_passed"
+        ]
+      },
+      "reasons": [
+        "foreign_key_suffix",
+        "target_key_like",
+        "normalized_table_name",
+        "validation_passed",
+        "target_pk_score_passed",
+        "fk_score_passed"
+      ]
+    }
+  ],
+  "review": [],
+  "rejected": [],
+  "skipped": []
+}

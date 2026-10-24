@@ -1,0 +1,57 @@
+agent:
+  run_research:
+    default_toolset:
+    - sl_query
+    - wiki_search
+    - sl_read_source
+    enabled: false
+    max_iterations: 20
+connections:
+  appdb:
+    driver: postgres
+    url: postgresql://reader:reader@localhost:5433/appdb
+ingest:
+  embeddings:
+    backend: sentence-transformers
+    dimensions: 384
+    model: all-MiniLM-L6-v2
+    sentenceTransformers: &id001
+      base_url: http://127.0.0.1:8765
+      pathPrefix: ''
+  workUnits:
+    failureMode: continue
+    maxConcurrency: 1
+    stepBudget: 40
+llm:
+  models:
+    default: codestral-2508
+  provider:
+    backend: gateway
+    gateway:
+      api_key: env:MISTRAL_API_KEY
+      base_url: https://api.mistral.ai/v1
+scan:
+  enrichment:
+    embeddings:
+      backend: sentence-transformers
+      dimensions: 384
+      model: all-MiniLM-L6-v2
+      sentenceTransformers: *id001
+    mode: llm
+  relationships:
+    acceptThreshold: 0.85
+    detectionBudgetMs: 600000
+    enabled: true
+    llmProposals: true
+    maxCandidatesPerColumn: 25
+    maxLlmTablesPerBatch: 40
+    profileConcurrency: 4
+    profileSampleRows: 10000
+    reviewThreshold: 0.55
+    validationConcurrency: 4
+    validationRequiredForManifest: true
+storage:
+  git:
+    author: ktx <ktx@example.com>
+  search: sqlite-fts5
+  state: sqlite

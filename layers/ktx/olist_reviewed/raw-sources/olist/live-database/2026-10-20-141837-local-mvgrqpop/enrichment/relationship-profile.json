@@ -1,0 +1,1324 @@
+{
+  "connectionId": "olist",
+  "driver": "postgres",
+  "sqlAvailable": true,
+  "queryCount": 9,
+  "tables": [
+    {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "customers"
+      },
+      "rowCount": 99441
+    },
+    {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "geolocation"
+      },
+      "rowCount": 1000163
+    },
+    {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_items"
+      },
+      "rowCount": 112650
+    },
+    {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_payments"
+      },
+      "rowCount": 103886
+    },
+    {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_reviews"
+      },
+      "rowCount": 99224
+    },
+    {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "orders"
+      },
+      "rowCount": 99441
+    },
+    {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "sellers"
+      },
+      "rowCount": 3095
+    },
+    {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "product_category_name_translation"
+      },
+      "rowCount": 71
+    },
+    {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "products"
+      },
+      "rowCount": 32951
+    }
+  ],
+  "columns": {
+    "customers.customer_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "customers"
+      },
+      "column": "customer_id",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 10000,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "001051abfcfdbed9f87b4266213a5df1",
+        "0013280441d86a4f7a8006efdaf1b0fe",
+        "00146ad30454993879adaa91c518f68c",
+        "002348c1099e3229276c8ad7d4ddc702",
+        "002450e9ea44cb90b8a07ba0b197e149"
+      ],
+      "minTextLength": 32,
+      "maxTextLength": 32
+    },
+    "customers.customer_unique_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "customers"
+      },
+      "column": "customer_unique_id",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 9964,
+      "uniquenessRatio": 0.9964,
+      "nullRate": 0,
+      "sampleValues": [
+        "3e43e6105506432c953e165fb2acf44c",
+        "00cc12a6d8b578b8ebd21ea4e2ae8b27",
+        "0396c443fdda5498c7e9ed5b34871c5a",
+        "18e3d276253780b44b5b7bf83f6785ec",
+        "580e86cc6d0c8eafede3d6f2fa4bf9ab"
+      ],
+      "minTextLength": 32,
+      "maxTextLength": 32
+    },
+    "customers.customer_zip_code_prefix": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "customers"
+      },
+      "column": "customer_zip_code_prefix",
+      "nativeType": "bigint",
+      "normalizedType": "bigint",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 5878,
+      "uniquenessRatio": 0.5878,
+      "nullRate": 0,
+      "sampleValues": [
+        "24220",
+        "24230",
+        "22790",
+        "36900",
+        "22775"
+      ],
+      "minTextLength": 4,
+      "maxTextLength": 5
+    },
+    "customers.customer_city": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "customers"
+      },
+      "column": "customer_city",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 1594,
+      "uniquenessRatio": 0.1594,
+      "nullRate": 0,
+      "sampleValues": [
+        "sao paulo",
+        "rio de janeiro",
+        "belo horizonte",
+        "brasilia",
+        "curitiba"
+      ],
+      "minTextLength": 3,
+      "maxTextLength": 27
+    },
+    "customers.customer_state": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "customers"
+      },
+      "column": "customer_state",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 27,
+      "uniquenessRatio": 0.0027,
+      "nullRate": 0,
+      "sampleValues": [
+        "SP",
+        "RJ",
+        "MG",
+        "RS",
+        "PR"
+      ],
+      "minTextLength": 2,
+      "maxTextLength": 2
+    },
+    "geolocation.geolocation_zip_code_prefix": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "geolocation"
+      },
+      "column": "geolocation_zip_code_prefix",
+      "nativeType": "bigint",
+      "normalizedType": "bigint",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 186,
+      "uniquenessRatio": 0.0186,
+      "nullRate": 0,
+      "sampleValues": [
+        "1415",
+        "1403",
+        "1423",
+        "1532",
+        "1451"
+      ],
+      "minTextLength": 4,
+      "maxTextLength": 4
+    },
+    "geolocation.geolocation_lat": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "geolocation"
+      },
+      "column": "geolocation_lat",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 6739,
+      "uniquenessRatio": 0.6739,
+      "nullRate": 0,
+      "sampleValues": [
+        "-23.509848068295792",
+        "-23.46658982202164",
+        "-23.48018497085809",
+        "-23.468540877604",
+        "-23.48381025284207"
+      ],
+      "minTextLength": 8,
+      "maxTextLength": 19
+    },
+    "geolocation.geolocation_lng": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "geolocation"
+      },
+      "column": "geolocation_lng",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 5359,
+      "uniquenessRatio": 0.5359,
+      "nullRate": 0,
+      "sampleValues": [
+        "-46.546974738963605",
+        "-46.5492777901783",
+        "-46.54908781571352",
+        "-46.54554615035181",
+        "-46.55417194561133"
+      ],
+      "minTextLength": 9,
+      "maxTextLength": 19
+    },
+    "geolocation.geolocation_city": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "geolocation"
+      },
+      "column": "geolocation_city",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 2,
+      "uniquenessRatio": 0.0002,
+      "nullRate": 0,
+      "sampleValues": [
+        "sao paulo",
+        "são paulo",
+        "taboão da serra"
+      ],
+      "minTextLength": 9,
+      "maxTextLength": 9
+    },
+    "geolocation.geolocation_state": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "geolocation"
+      },
+      "column": "geolocation_state",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 1,
+      "uniquenessRatio": 0.0001,
+      "nullRate": 0,
+      "sampleValues": [
+        "SP"
+      ],
+      "minTextLength": 2,
+      "maxTextLength": 2
+    },
+    "order_items.order_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_items"
+      },
+      "column": "order_id",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 8797,
+      "uniquenessRatio": 0.8797,
+      "nullRate": 0,
+      "sampleValues": [
+        "03caa2c082116e1d31e67e9ae3700499",
+        "04993613aee4046caf92ea17b316dcfb",
+        "0c82a229fc22597c2361656cba8d3230",
+        "03aba68b07658f28f29612641f08d4ba",
+        "055cf2a6f9343f99acdb5e8f70e49bd8"
+      ],
+      "minTextLength": 32,
+      "maxTextLength": 32
+    },
+    "order_items.order_item_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_items"
+      },
+      "column": "order_item_id",
+      "nativeType": "bigint",
+      "normalizedType": "bigint",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 8,
+      "uniquenessRatio": 0.0008,
+      "nullRate": 0,
+      "sampleValues": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 1
+    },
+    "order_items.product_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_items"
+      },
+      "column": "product_id",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 6088,
+      "uniquenessRatio": 0.6088,
+      "nullRate": 0,
+      "sampleValues": [
+        "99a4788cb24856965c36a24e339b6058",
+        "aca2eb7d00ea1a7b8ebd4e68314663af",
+        "422879e10f46682990de24d770e7f83d",
+        "368c6c730842d78016ad823897a372db",
+        "53b36df67ebb7c41585e8d54d6772e08"
+      ],
+      "minTextLength": 32,
+      "maxTextLength": 32
+    },
+    "order_items.seller_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_items"
+      },
+      "column": "seller_id",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 1574,
+      "uniquenessRatio": 0.1574,
+      "nullRate": 0,
+      "sampleValues": [
+        "6560211a19b47992c3666cc44a7e94c0",
+        "4a3ca9315b744ce9f8e9374361493884",
+        "cc419e0650a3c5ba77189a1882b7556a",
+        "1f50f920176fa81dab994f9023523100",
+        "da8622b14eb17ae2831f4ac5b9dab84a"
+      ],
+      "minTextLength": 32,
+      "maxTextLength": 32
+    },
+    "order_items.shipping_limit_date": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_items"
+      },
+      "column": "shipping_limit_date",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 8776,
+      "uniquenessRatio": 0.8776,
+      "nullRate": 0,
+      "sampleValues": [
+        "2017-10-06 15:28:20",
+        "2018-02-07 02:52:44",
+        "2017-05-04 10:30:10",
+        "2017-05-24 02:42:28",
+        "2017-11-08 02:15:45"
+      ],
+      "minTextLength": 19,
+      "maxTextLength": 19
+    },
+    "order_items.price": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_items"
+      },
+      "column": "price",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 1832,
+      "uniquenessRatio": 0.1832,
+      "nullRate": 0,
+      "sampleValues": [
+        "59.9",
+        "69.9",
+        "49.9",
+        "99.9",
+        "39.9"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 7
+    },
+    "order_items.freight_value": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_items"
+      },
+      "column": "freight_value",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 2618,
+      "uniquenessRatio": 0.2618,
+      "nullRate": 0,
+      "sampleValues": [
+        "15.1",
+        "7.78",
+        "11.85",
+        "14.1",
+        "7.39"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 6
+    },
+    "order_payments.order_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_payments"
+      },
+      "column": "order_id",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 9921,
+      "uniquenessRatio": 0.9921,
+      "nullRate": 0,
+      "sampleValues": [
+        "3c58bffb70dcf45f12bdf66a3c215905",
+        "1be51feefcd481bee3118900e6777057",
+        "21577126c19bf11a0b91592e5844ba78",
+        "364f451ee38a4268d7c15d317021eb35",
+        "370e2e6c1a9fd451eb7f0852daa3b006"
+      ],
+      "minTextLength": 32,
+      "maxTextLength": 32
+    },
+    "order_payments.payment_sequential": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_payments"
+      },
+      "column": "payment_sequential",
+      "nativeType": "bigint",
+      "normalizedType": "bigint",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 18,
+      "uniquenessRatio": 0.0018,
+      "nullRate": 0,
+      "sampleValues": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 2
+    },
+    "order_payments.payment_type": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_payments"
+      },
+      "column": "payment_type",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 4,
+      "uniquenessRatio": 0.0004,
+      "nullRate": 0,
+      "sampleValues": [
+        "credit_card",
+        "boleto",
+        "voucher",
+        "debit_card"
+      ],
+      "minTextLength": 6,
+      "maxTextLength": 11
+    },
+    "order_payments.payment_installments": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_payments"
+      },
+      "column": "payment_installments",
+      "nativeType": "bigint",
+      "normalizedType": "bigint",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 18,
+      "uniquenessRatio": 0.0018,
+      "nullRate": 0,
+      "sampleValues": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "10"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 2
+    },
+    "order_payments.payment_value": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_payments"
+      },
+      "column": "payment_value",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 7052,
+      "uniquenessRatio": 0.7052,
+      "nullRate": 0,
+      "sampleValues": [
+        "20",
+        "50",
+        "100",
+        "77.57",
+        "73.34"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 7
+    },
+    "order_reviews.review_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_reviews"
+      },
+      "column": "review_id",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 9993,
+      "uniquenessRatio": 0.9993,
+      "nullRate": 0,
+      "sampleValues": [
+        "03a6a25db577d0689440933055111897",
+        "308316408775d1600dad81bd3184556d",
+        "3242cc306a9218d0377831e175d62fbf",
+        "7168439a7228c5684a494116c1c8da5f",
+        "8ee90ac383cf825bb7f4756130d4e74a"
+      ],
+      "minTextLength": 32,
+      "maxTextLength": 32
+    },
+    "order_reviews.order_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_reviews"
+      },
+      "column": "order_id",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 9995,
+      "uniquenessRatio": 0.9995,
+      "nullRate": 0,
+      "sampleValues": [
+        "5040757d4e06a4be96d3827b860b4e7c",
+        "c7cfea0c153e6382e32e84c2a9dd7d2e",
+        "cf73e2cb1f4a9480ed70c154da3d954a",
+        "e1bc1083cd7acd30d0576335373b907d",
+        "f9c78e6e58306dc81efbbada1ac11f24"
+      ],
+      "minTextLength": 32,
+      "maxTextLength": 32
+    },
+    "order_reviews.review_score": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_reviews"
+      },
+      "column": "review_score",
+      "nativeType": "bigint",
+      "normalizedType": "bigint",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 5,
+      "uniquenessRatio": 0.0005,
+      "nullRate": 0,
+      "sampleValues": [
+        "5",
+        "4",
+        "1",
+        "3",
+        "2"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 1
+    },
+    "order_reviews.review_comment_title": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_reviews"
+      },
+      "column": "review_comment_title",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 8810,
+      "distinctCount": 676,
+      "uniquenessRatio": 0.0676,
+      "nullRate": 0.881,
+      "sampleValues": [
+        "Recomendo",
+        "recomendo",
+        "Bom",
+        "Excelente",
+        "super recomendo"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 25
+    },
+    "order_reviews.review_comment_message": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_reviews"
+      },
+      "column": "review_comment_message",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 5820,
+      "distinctCount": 3911,
+      "uniquenessRatio": 0.3911,
+      "nullRate": 0.582,
+      "sampleValues": [
+        "Muito bom",
+        "Bom",
+        "bom",
+        "muito bom",
+        "otimo"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 208
+    },
+    "order_reviews.review_creation_date": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_reviews"
+      },
+      "column": "review_creation_date",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 555,
+      "uniquenessRatio": 0.0555,
+      "nullRate": 0,
+      "sampleValues": [
+        "2018-04-04 00:00:00",
+        "2018-08-21 00:00:00",
+        "2017-12-12 00:00:00",
+        "2018-02-17 00:00:00",
+        "2018-08-10 00:00:00"
+      ],
+      "minTextLength": 19,
+      "maxTextLength": 19
+    },
+    "order_reviews.review_answer_timestamp": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "order_reviews"
+      },
+      "column": "review_answer_timestamp",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 9989,
+      "uniquenessRatio": 0.9989,
+      "nullRate": 0,
+      "sampleValues": [
+        "2017-06-02 18:16:17",
+        "2017-07-22 01:06:37",
+        "2017-09-06 16:11:00",
+        "2017-09-11 09:58:09",
+        "2017-12-16 01:32:18"
+      ],
+      "minTextLength": 19,
+      "maxTextLength": 19
+    },
+    "orders.order_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "orders"
+      },
+      "column": "order_id",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 10000,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "000229ec398224ef6ca0657da4fc703e",
+        "00042b26cf59d7ce69dfabb4e55b4fd9",
+        "00125cb692d04887809806618a2a145f",
+        "0015ebb40fb17286bea51d4607c4733c",
+        "001c85b5f68d2be0cb0797afc9e8ce9a"
+      ],
+      "minTextLength": 32,
+      "maxTextLength": 32
+    },
+    "orders.customer_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "orders"
+      },
+      "column": "customer_id",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 10000,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "000379cdec625522490c315e70c7a9fb",
+        "0005aefbb696d34b3424dccd0a0e9fd0",
+        "00146ad30454993879adaa91c518f68c",
+        "0018c09f333634ca9c80d9ff46e43e9c",
+        "0030aded3a67b29946a128ee8468388e"
+      ],
+      "minTextLength": 32,
+      "maxTextLength": 32
+    },
+    "orders.order_status": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "orders"
+      },
+      "column": "order_status",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 7,
+      "uniquenessRatio": 0.0007,
+      "nullRate": 0,
+      "sampleValues": [
+        "delivered",
+        "shipped",
+        "canceled",
+        "unavailable",
+        "processing"
+      ],
+      "minTextLength": 7,
+      "maxTextLength": 11
+    },
+    "orders.order_purchase_timestamp": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "orders"
+      },
+      "column": "order_purchase_timestamp",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 9995,
+      "uniquenessRatio": 0.9995,
+      "nullRate": 0,
+      "sampleValues": [
+        "2017-01-13 11:06:56",
+        "2017-04-09 09:52:05",
+        "2017-08-10 11:58:33",
+        "2017-11-24 13:41:16",
+        "2018-07-18 15:03:36"
+      ],
+      "minTextLength": 19,
+      "maxTextLength": 19
+    },
+    "orders.order_approved_at": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "orders"
+      },
+      "column": "order_approved_at",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 21,
+      "distinctCount": 9868,
+      "uniquenessRatio": 0.9868,
+      "nullRate": 0.0021,
+      "sampleValues": [
+        "2018-04-17 05:50:27",
+        "2017-02-24 16:02:42",
+        "2017-03-30 15:55:19",
+        "2017-04-09 11:05:17",
+        "2017-05-15 13:04:43"
+      ],
+      "minTextLength": 19,
+      "maxTextLength": 19
+    },
+    "orders.order_delivered_carrier_date": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "orders"
+      },
+      "column": "order_delivered_carrier_date",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 166,
+      "distinctCount": 9511,
+      "uniquenessRatio": 0.9511,
+      "nullRate": 0.0166,
+      "sampleValues": [
+        "2018-05-09 15:48:00",
+        "2018-05-16 13:44:00",
+        "2018-05-10 18:29:00",
+        "2018-07-30 14:17:00",
+        "2017-07-26 17:59:36"
+      ],
+      "minTextLength": 19,
+      "maxTextLength": 19
+    },
+    "orders.order_delivered_customer_date": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "orders"
+      },
+      "column": "order_delivered_customer_date",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 280,
+      "distinctCount": 9710,
+      "uniquenessRatio": 0.971,
+      "nullRate": 0.028,
+      "sampleValues": [
+        "2017-02-07 16:31:33",
+        "2017-07-06 16:24:31",
+        "2017-08-01 20:27:33",
+        "2017-08-15 20:18:43",
+        "2018-03-21 22:03:54"
+      ],
+      "minTextLength": 19,
+      "maxTextLength": 19
+    },
+    "orders.order_estimated_delivery_date": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "orders"
+      },
+      "column": "order_estimated_delivery_date",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 421,
+      "uniquenessRatio": 0.0421,
+      "nullRate": 0,
+      "sampleValues": [
+        "2017-12-20 00:00:00",
+        "2018-08-09 00:00:00",
+        "2018-03-12 00:00:00",
+        "2018-05-29 00:00:00",
+        "2018-07-05 00:00:00"
+      ],
+      "minTextLength": 19,
+      "maxTextLength": 19
+    },
+    "sellers.seller_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "sellers"
+      },
+      "column": "seller_id",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 3095,
+      "nullCount": 0,
+      "distinctCount": 3095,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "0015a82c2db000af6aaaf3ae2ecb0532",
+        "001cca7ae9ae17fb1caed9dfb1094831",
+        "001e6ad469a905060d959994f1b41e4f",
+        "002100f778ceb8431b7a1020ff7ab48f",
+        "003554e2dce176b5555353e4f3555ac8"
+      ],
+      "minTextLength": 32,
+      "maxTextLength": 32
+    },
+    "sellers.seller_zip_code_prefix": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "sellers"
+      },
+      "column": "seller_zip_code_prefix",
+      "nativeType": "bigint",
+      "normalizedType": "bigint",
+      "rowCount": 3095,
+      "nullCount": 0,
+      "distinctCount": 2246,
+      "uniquenessRatio": 0.725686591276252,
+      "nullRate": 0,
+      "sampleValues": [
+        "14940",
+        "13660",
+        "13920",
+        "16200",
+        "1026"
+      ],
+      "minTextLength": 4,
+      "maxTextLength": 5
+    },
+    "sellers.seller_city": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "sellers"
+      },
+      "column": "seller_city",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 3095,
+      "nullCount": 0,
+      "distinctCount": 611,
+      "uniquenessRatio": 0.1974151857835218,
+      "nullRate": 0,
+      "sampleValues": [
+        "sao paulo",
+        "curitiba",
+        "rio de janeiro",
+        "belo horizonte",
+        "ribeirao preto"
+      ],
+      "minTextLength": 2,
+      "maxTextLength": 40
+    },
+    "sellers.seller_state": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "sellers"
+      },
+      "column": "seller_state",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 3095,
+      "nullCount": 0,
+      "distinctCount": 23,
+      "uniquenessRatio": 0.007431340872374798,
+      "nullRate": 0,
+      "sampleValues": [
+        "SP",
+        "PR",
+        "MG",
+        "SC",
+        "RJ"
+      ],
+      "minTextLength": 2,
+      "maxTextLength": 2
+    },
+    "product_category_name_translation.product_category_name": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "product_category_name_translation"
+      },
+      "column": "product_category_name",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 71,
+      "nullCount": 0,
+      "distinctCount": 71,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "agro_industria_e_comercio",
+        "alimentos",
+        "alimentos_bebidas",
+        "artes",
+        "artes_e_artesanato"
+      ],
+      "minTextLength": 3,
+      "maxTextLength": 46
+    },
+    "product_category_name_translation.product_category_name_english": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "product_category_name_translation"
+      },
+      "column": "product_category_name_english",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 71,
+      "nullCount": 0,
+      "distinctCount": 71,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "agro_industry_and_commerce",
+        "air_conditioning",
+        "art",
+        "arts_and_craftmanship",
+        "audio"
+      ],
+      "minTextLength": 3,
+      "maxTextLength": 39
+    },
+    "products.product_id": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "products"
+      },
+      "column": "product_id",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 0,
+      "distinctCount": 10000,
+      "uniquenessRatio": 1,
+      "nullRate": 0,
+      "sampleValues": [
+        "00088930e925c41fd95ebfe695fd2655",
+        "000b8f95fcb9e0096488278317764d19",
+        "0011c512eb256aa0dbbb544d8dffcf6e",
+        "00126f27c813603687e6ce486d909d01",
+        "001b237c0e9bb435f2e54071129237e9"
+      ],
+      "minTextLength": 32,
+      "maxTextLength": 32
+    },
+    "products.product_category_name": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "products"
+      },
+      "column": "product_category_name",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "rowCount": 10000,
+      "nullCount": 188,
+      "distinctCount": 72,
+      "uniquenessRatio": 0.0072,
+      "nullRate": 0.0188,
+      "sampleValues": [
+        "cama_mesa_banho",
+        "esporte_lazer",
+        "moveis_decoracao",
+        "beleza_saude",
+        "utilidades_domesticas"
+      ],
+      "minTextLength": 3,
+      "maxTextLength": 46
+    },
+    "products.product_name_lenght": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "products"
+      },
+      "column": "product_name_lenght",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "rowCount": 10000,
+      "nullCount": 188,
+      "distinctCount": 59,
+      "uniquenessRatio": 0.0059,
+      "nullRate": 0.0188,
+      "sampleValues": [
+        "60",
+        "59",
+        "58",
+        "55",
+        "57"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 2
+    },
+    "products.product_description_lenght": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "products"
+      },
+      "column": "product_description_lenght",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "rowCount": 10000,
+      "nullCount": 188,
+      "distinctCount": 2140,
+      "uniquenessRatio": 0.214,
+      "nullRate": 0.0188,
+      "sampleValues": [
+        "729",
+        "404",
+        "298",
+        "703",
+        "236"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 4
+    },
+    "products.product_photos_qty": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "products"
+      },
+      "column": "product_photos_qty",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "rowCount": 10000,
+      "nullCount": 188,
+      "distinctCount": 17,
+      "uniquenessRatio": 0.0017,
+      "nullRate": 0.0188,
+      "sampleValues": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 2
+    },
+    "products.product_weight_g": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "products"
+      },
+      "column": "product_weight_g",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "rowCount": 10000,
+      "nullCount": 1,
+      "distinctCount": 1203,
+      "uniquenessRatio": 0.1203,
+      "nullRate": 0.0001,
+      "sampleValues": [
+        "200",
+        "300",
+        "400",
+        "150",
+        "100"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 5
+    },
+    "products.product_length_cm": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "products"
+      },
+      "column": "product_length_cm",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "rowCount": 10000,
+      "nullCount": 1,
+      "distinctCount": 96,
+      "uniquenessRatio": 0.0096,
+      "nullRate": 0.0001,
+      "sampleValues": [
+        "16",
+        "20",
+        "30",
+        "18",
+        "25"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 3
+    },
+    "products.product_height_cm": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "products"
+      },
+      "column": "product_height_cm",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "rowCount": 10000,
+      "nullCount": 1,
+      "distinctCount": 95,
+      "uniquenessRatio": 0.0095,
+      "nullRate": 0.0001,
+      "sampleValues": [
+        "10",
+        "15",
+        "20",
+        "12",
+        "5"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 3
+    },
+    "products.product_width_cm": {
+      "table": {
+        "catalog": null,
+        "db": "public",
+        "name": "products"
+      },
+      "column": "product_width_cm",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "rowCount": 10000,
+      "nullCount": 1,
+      "distinctCount": 83,
+      "uniquenessRatio": 0.0083,
+      "nullRate": 0.0001,
+      "sampleValues": [
+        "11",
+        "20",
+        "16",
+        "15",
+        "30"
+      ],
+      "minTextLength": 1,
+      "maxTextLength": 3
+    }
+  },
+  "warnings": []
+}

@@ -1,0 +1,47 @@
+{
+  "catalog": null,
+  "db": "public",
+  "name": "refunds",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 1112,
+  "columns": [
+    {
+      "name": "id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "dimensionType": "number",
+      "nullable": false,
+      "primaryKey": true,
+      "comment": null
+    },
+    {
+      "name": "invoice_id",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "dimensionType": "number",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "amount_cents",
+      "nativeType": "integer",
+      "normalizedType": "integer",
+      "dimensionType": "number",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "created_at",
+      "nativeType": "timestamp with time zone",
+      "normalizedType": "timestamp with time zone",
+      "dimensionType": "time",
+      "nullable": false,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}

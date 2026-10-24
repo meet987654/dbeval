@@ -1,0 +1,144 @@
+[
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "customers"
+    },
+    "tableDescription": null,
+    "columnDescriptions": {
+      "customer_id": null,
+      "customer_unique_id": null,
+      "customer_zip_code_prefix": null,
+      "customer_city": null,
+      "customer_state": null
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "geolocation"
+    },
+    "tableDescription": null,
+    "columnDescriptions": {
+      "geolocation_zip_code_prefix": null,
+      "geolocation_lat": null,
+      "geolocation_lng": null,
+      "geolocation_city": null,
+      "geolocation_state": null
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "order_items"
+    },
+    "tableDescription": null,
+    "columnDescriptions": {
+      "order_id": null,
+      "order_item_id": null,
+      "product_id": null,
+      "seller_id": null,
+      "shipping_limit_date": null,
+      "price": null,
+      "freight_value": null
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "order_payments"
+    },
+    "tableDescription": null,
+    "columnDescriptions": {
+      "order_id": null,
+      "payment_sequential": null,
+      "payment_type": null,
+      "payment_installments": null,
+      "payment_value": null
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "order_reviews"
+    },
+    "tableDescription": null,
+    "columnDescriptions": {
+      "review_id": null,
+      "order_id": null,
+      "review_score": null,
+      "review_comment_title": null,
+      "review_comment_message": null,
+      "review_creation_date": null,
+      "review_answer_timestamp": null
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "orders"
+    },
+    "tableDescription": null,
+    "columnDescriptions": {
+      "order_id": null,
+      "customer_id": null,
+      "order_status": null,
+      "order_purchase_timestamp": null,
+      "order_approved_at": null,
+      "order_delivered_carrier_date": null,
+      "order_delivered_customer_date": null,
+      "order_estimated_delivery_date": null
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "sellers"
+    },
+    "tableDescription": null,
+    "columnDescriptions": {
+      "seller_id": null,
+      "seller_zip_code_prefix": null,
+      "seller_city": null,
+      "seller_state": null
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "product_category_name_translation"
+    },
+    "tableDescription": null,
+    "columnDescriptions": {
+      "product_category_name": null,
+      "product_category_name_english": null
+    }
+  },
+  {
+    "table": {
+      "catalog": null,
+      "db": "public",
+      "name": "products"
+    },
+    "tableDescription": null,
+    "columnDescriptions": {
+      "product_id": null,
+      "product_category_name": null,
+      "product_name_lenght": null,
+      "product_description_lenght": null,
+      "product_photos_qty": null,
+      "product_weight_g": null,
+      "product_length_cm": null,
+      "product_height_cm": null,
+      "product_width_cm": null
+    }
+  }
+]

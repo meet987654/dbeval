@@ -1,0 +1,92 @@
+{
+  "catalog": null,
+  "db": "public",
+  "name": "products",
+  "kind": "table",
+  "comment": null,
+  "estimatedRows": 32951,
+  "columns": [
+    {
+      "name": "product_id",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_category_name",
+      "nativeType": "text",
+      "normalizedType": "text",
+      "dimensionType": "string",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_name_lenght",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_description_lenght",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_photos_qty",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_weight_g",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_length_cm",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_height_cm",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    },
+    {
+      "name": "product_width_cm",
+      "nativeType": "double precision",
+      "normalizedType": "double precision",
+      "dimensionType": "number",
+      "nullable": true,
+      "primaryKey": false,
+      "comment": null
+    }
+  ],
+  "foreignKeys": []
+}

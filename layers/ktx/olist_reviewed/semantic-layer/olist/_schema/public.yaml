@@ -1,0 +1,241 @@
+tables:
+  customers:
+    table: public.customers
+    columns:
+    - name: customer_id
+      type: string
+    - name: customer_unique_id
+      type: string
+      description: Customer identifier for a person. Counting distinct customer_unique_id
+        counts unique customers.
+    - name: customer_zip_code_prefix
+      type: number
+    - name: customer_city
+      type: string
+    - name: customer_state
+      type: string
+    joins:
+    - to: orders
+      'on': customers.customer_id = orders.customer_id
+      relationship: one_to_many
+      source: inferred
+    description: Customer (a person) = customers.customer_unique_id. customer_id is
+      created per order, so counting customer_id counts orders, not people.
+    metrics:
+    - name: unique_customers
+      sql: COUNT(DISTINCT customers.customer_unique_id)
+      description: Count of unique individual customers.
+  geolocation:
+    table: public.geolocation
+    columns:
+    - name: geolocation_zip_code_prefix
+      type: number
+    - name: geolocation_lat
+      type: number
+    - name: geolocation_lng
+      type: number
+    - name: geolocation_city
+      type: string
+    - name: geolocation_state
+      type: string
+  order_items:
+    table: public.order_items
+    columns:
+    - name: order_id
+      type: string
+    - name: order_item_id
+      type: number
+    - name: product_id
+      type: string
+    - name: seller_id
+      type: string
+    - name: shipping_limit_date
+      type: string
+    - name: price
+      type: number
+      description: Sales amount. Freight is NOT sales.
+    - name: freight_value
+      type: number
+      description: Freight amount. Freight is NOT sales.
+    joins:
+    - to: orders
+      'on': order_items.order_id = orders.order_id
+      relationship: many_to_one
+      source: inferred
+    - to: products
+      'on': order_items.product_id = products.product_id
+      relationship: many_to_one
+      source: inferred
+    - to: sellers
+      'on': order_items.seller_id = sellers.seller_id
+      relationship: many_to_one
+      source: inferred
+    description: Order items table. Sales / sold = order items on orders where status
+      NOT IN ('canceled', 'unavailable'). order_items.price is the sales amount. Freight
+      (freight_value) is NOT sales.
+    metrics:
+    - name: total_sales
+      sql: SUM(CASE WHEN orders.order_status NOT IN ('canceled', 'unavailable') THEN
+        order_items.price ELSE 0 END)
+      description: Total sales amount (freight excluded).
+    - name: items_sold
+      sql: COUNT(CASE WHEN orders.order_status NOT IN ('canceled', 'unavailable')
+        THEN order_items.order_item_id END)
+      description: Total items sold.
+  order_payments:
+    table: public.order_payments
+    columns:
+    - name: order_id
+      type: string
+    - name: payment_sequential
+      type: number
+    - name: payment_type
+      type: string
+    - name: payment_installments
+      type: number
+    - name: payment_value
+      type: number
+    joins:
+    - to: orders
+      'on': order_payments.order_id = orders.order_id
+      relationship: many_to_one
+      source: inferred
+    description: Order payments table. Order payment value = SUM of that order's rows
+      in order_payments (one order can have multiple payment rows). Never join payments
+      to items directly; it multiplies rows.
+    metrics:
+    - name: total_payment_value
+      sql: SUM(order_payments.payment_value)
+      description: Sum of payment values.
+  order_reviews:
+    table: public.order_reviews
+    columns:
+    - name: review_id
+      type: string
+    - name: order_id
+      type: string
+    - name: review_score
+      type: number
+    - name: review_comment_title
+      type: string
+    - name: review_comment_message
+      type: string
+    - name: review_creation_date
+      type: string
+    - name: review_answer_timestamp
+      type: string
+    joins:
+    - to: orders
+      'on': order_reviews.order_id = orders.order_id
+      relationship: many_to_one
+      source: inferred
+    description: Order reviews table. If an order has several reviews, use the most
+      recent one by review_creation_date::timestamp.
+  orders:
+    table: public.orders
+    columns:
+    - name: order_id
+      type: string
+    - name: customer_id
+      type: string
+    - name: order_status
+      type: string
+      description: Order status. Delivered = 'delivered'. Sales excludes 'canceled'
+        and 'unavailable'.
+    - name: order_purchase_timestamp
+      type: string
+    - name: order_approved_at
+      type: string
+    - name: order_delivered_carrier_date
+      type: string
+    - name: order_delivered_customer_date
+      type: string
+    - name: order_estimated_delivery_date
+      type: string
+    joins:
+    - to: order_items
+      'on': orders.order_id = order_items.order_id
+      relationship: one_to_many
+      source: inferred
+    - to: order_payments
+      'on': orders.order_id = order_payments.order_id
+      relationship: one_to_many
+      source: inferred
+    - to: order_reviews
+      'on': orders.order_id = order_reviews.order_id
+      relationship: one_to_many
+      source: inferred
+    - to: customers
+      'on': orders.customer_id = customers.customer_id
+      relationship: many_to_one
+      source: inferred
+    description: Orders table. Date columns are text; cast to timestamps (e.g. order_purchase_timestamp::timestamp).
+      Delivered = order_status = 'delivered'. Late = order_delivered_customer_date::timestamp
+      > order_estimated_delivery_date::timestamp. Delivery time = days from purchase
+      to customer delivery. Order counts count all orders regardless of status unless
+      specified.
+    metrics:
+    - name: delivered_orders
+      sql: COUNT(CASE WHEN orders.order_status = 'delivered' THEN orders.order_id
+        END)
+      description: Count of delivered orders.
+    - name: late_orders
+      sql: COUNT(CASE WHEN orders.order_delivered_customer_date::timestamp > orders.order_estimated_delivery_date::timestamp
+        THEN orders.order_id END)
+      description: Count of late delivered orders.
+  sellers:
+    table: public.sellers
+    columns:
+    - name: seller_id
+      type: string
+    - name: seller_zip_code_prefix
+      type: number
+    - name: seller_city
+      type: string
+    - name: seller_state
+      type: string
+    joins:
+    - to: order_items
+      'on': sellers.seller_id = order_items.seller_id
+      relationship: one_to_many
+      source: inferred
+  product_category_name_translation:
+    table: public.product_category_name_translation
+    columns:
+    - name: product_category_name
+      type: string
+    - name: product_category_name_english
+      type: string
+    description: Category translations. Category = English name (product_category_name_english).
+      If no translation, use Portuguese.
+  products:
+    table: public.products
+    columns:
+    - name: product_id
+      type: string
+    - name: product_category_name
+      type: string
+      description: Category in Portuguese. Join to product_category_name_translation
+        for English name.
+    - name: product_name_lenght
+      type: number
+    - name: product_description_lenght
+      type: number
+    - name: product_photos_qty
+      type: number
+    - name: product_weight_g
+      type: number
+    - name: product_length_cm
+      type: number
+    - name: product_height_cm
+      type: number
+    - name: product_width_cm
+      type: number
+    joins:
+    - to: order_items
+      'on': products.product_id = order_items.product_id
+      relationship: one_to_many
+      source: inferred
+    description: Products table. Category = English name from product_category_name_translation.
+      If no translation, use product_category_name (Portuguese). Products with no
+      category are ignored.
