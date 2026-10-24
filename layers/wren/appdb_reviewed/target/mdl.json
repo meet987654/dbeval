@@ -1,0 +1,545 @@
+{
+  "catalog": "wren",
+  "schema": "public",
+  "models": [
+    {
+      "name": "accounts",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "accounts"
+      },
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": true,
+          "properties": {}
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "plan",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "description": "Old plan name from signup. Never correct for reporting. Use plan_tier instead.",
+          "properties": {}
+        },
+        {
+          "name": "plan_tier",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "description": "Current plan tier: 'starter', 'growth', 'scale'. Always use plan_tier for reporting.",
+          "properties": {}
+        },
+        {
+          "name": "is_test",
+          "type": "BOOLEAN",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "description": "Test flag. Real accounts have is_test = false.",
+          "properties": {}
+        },
+        {
+          "name": "country",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "currency",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "deleted_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "description": "Soft deletion timestamp. Real accounts have deleted_at IS NULL.",
+          "properties": {}
+        },
+        {
+          "name": "is_real_account",
+          "type": "BOOLEAN",
+          "isCalculated": true,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "expression": "is_test = false AND deleted_at IS NULL",
+          "description": "True for real accounts (is_test = false AND deleted_at IS NULL). Never count test or deleted accounts in business metrics.",
+          "properties": {}
+        }
+      ],
+      "primaryKey": "id",
+      "cached": false,
+      "properties": {
+        "description": "Real account: is_test = false AND deleted_at IS NULL. Never count test or deleted accounts in any business metric. Date windows are half-open: start inclusive, next start exclusive (>= start AND < next_start). Never use BETWEEN."
+      }
+    },
+    {
+      "name": "events",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "events"
+      },
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": true,
+          "properties": {}
+        },
+        {
+          "name": "account_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "user_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "event_type",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "occurred_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "id",
+      "cached": false,
+      "properties": {}
+    },
+    {
+      "name": "fx_rates",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "fx_rates"
+      },
+      "columns": [
+        {
+          "name": "currency",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": true,
+          "description": "Currency code: USD (1.00000), EUR (1.08000), INR (0.01200).",
+          "properties": {}
+        },
+        {
+          "name": "usd_per_unit",
+          "type": "DECIMAL",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "description": "Exchange rate to USD. Multiply amount_cents::numeric / 100 by usd_per_unit.",
+          "properties": {}
+        }
+      ],
+      "primaryKey": "currency",
+      "cached": false,
+      "properties": {
+        "description": "Exchange rates to USD. Currencies: USD (1.00000), EUR (1.08000), INR (0.01200). USD value = amount_cents::numeric / 100 * fx_rates.usd_per_unit using invoice currency."
+      }
+    },
+    {
+      "name": "invoices",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "invoices"
+      },
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": true,
+          "properties": {}
+        },
+        {
+          "name": "subscription_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "account_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "amount_cents",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "description": "Amount stored in cents. USD value = amount_cents::numeric / 100 * fx_rates.usd_per_unit. Divide as numeric to prevent truncation.",
+          "properties": {}
+        },
+        {
+          "name": "currency",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "description": "Invoice currency: 'USD', 'EUR', 'INR'.",
+          "properties": {}
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "description": "Invoice status: 'paid', 'void', 'failed', 'open'. Gross revenue only counts 'paid'.",
+          "properties": {}
+        },
+        {
+          "name": "issued_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "paid_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "description": "Timestamp when paid. Gross revenue filters on paid_at in period.",
+          "properties": {}
+        },
+        {
+          "name": "amount_usd",
+          "type": "DOUBLE",
+          "isCalculated": true,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "expression": "amount_cents::numeric / 100",
+          "description": "Invoice amount in base units (cents / 100 as numeric). Multiply by fx_rates.usd_per_unit for USD.",
+          "properties": {}
+        }
+      ],
+      "primaryKey": "id",
+      "cached": false,
+      "properties": {
+        "description": "Invoices table. Money stored in cents. USD value = amount_cents::numeric / 100 * fx_rates.usd_per_unit. Gross revenue for a period: paid invoices (status = 'paid') with paid_at in period, real accounts only, in USD. Net revenue = gross revenue minus refunds as separate sums on separate date columns (paid_at for invoices, created_at for refunds)."
+      }
+    },
+    {
+      "name": "refunds",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "refunds"
+      },
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": true,
+          "properties": {}
+        },
+        {
+          "name": "invoice_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "description": "Links refund to invoice via invoices.id. Currency is inherited from invoice.",
+          "properties": {}
+        },
+        {
+          "name": "amount_cents",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "description": "Refund amount in cents. USD value = amount_cents::numeric / 100 * fx_rates.usd_per_unit using invoice currency.",
+          "properties": {}
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "description": "Timestamp when refund was created. Refunds count in the period created_at falls in.",
+          "properties": {}
+        }
+      ],
+      "primaryKey": "id",
+      "cached": false,
+      "properties": {
+        "description": "Refunds for a period: refunds with created_at in period, real accounts only, in USD. A refund belongs to an invoice through refunds.invoice_id (no FK) and uses currency of invoice. Net revenue = gross revenue minus refunds for the same period (cash basis) computed as two separate sums with separate date filters (paid_at for invoices, created_at for refunds)."
+      }
+    },
+    {
+      "name": "subscriptions",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "subscriptions"
+      },
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": true,
+          "properties": {}
+        },
+        {
+          "name": "account_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "plan_tier",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "description": "Plan tier: 'starter', 'growth', 'scale'.",
+          "properties": {}
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "description": "Subscription status: 'active', 'past_due', 'trialing', 'canceled'. Only 'active' is active.",
+          "properties": {}
+        },
+        {
+          "name": "started_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "trial_ends_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "canceled_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "description": "Timestamp when canceled. Churn filters on canceled_at in period.",
+          "properties": {}
+        },
+        {
+          "name": "cancel_reason",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "description": "Cancellation reason: 'voluntary', 'payment_failed', 'upgrade'. 'upgrade' is NOT churn.",
+          "properties": {}
+        },
+        {
+          "name": "is_active_sub",
+          "type": "BOOLEAN",
+          "isCalculated": true,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "expression": "status = 'active'",
+          "description": "True if status = 'active'. trialing and past_due are not active.",
+          "properties": {}
+        },
+        {
+          "name": "is_churn",
+          "type": "BOOLEAN",
+          "isCalculated": true,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "expression": "status = 'canceled' AND cancel_reason IN ('voluntary', 'payment_failed')",
+          "description": "True if status = 'canceled' and cancel_reason IN ('voluntary', 'payment_failed'). upgrade is NOT churn.",
+          "properties": {}
+        }
+      ],
+      "primaryKey": "id",
+      "cached": false,
+      "properties": {
+        "description": "Subscriptions table. Active subscription: status = 'active' on a real account (accounts.is_test = false AND accounts.deleted_at IS NULL). trialing and past_due are not active. Churn: status = 'canceled' AND cancel_reason IN ('voluntary', 'payment_failed') with canceled_at in period on a real account; cancel_reason = 'upgrade' is NOT churn."
+      }
+    },
+    {
+      "name": "users",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "users"
+      },
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": true,
+          "properties": {}
+        },
+        {
+          "name": "account_id",
+          "type": "INTEGER",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "email",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "role",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": true,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "deleted_at",
+          "type": "TIMESTAMPTZ",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "description": "Soft deletion timestamp. Real users have deleted_at IS NULL.",
+          "properties": {}
+        },
+        {
+          "name": "is_real_user",
+          "type": "BOOLEAN",
+          "isCalculated": true,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "expression": "deleted_at IS NULL",
+          "description": "Real user flag: deleted_at IS NULL (and must belong to a real account where is_test = false AND deleted_at IS NULL).",
+          "properties": {}
+        }
+      ],
+      "primaryKey": "id",
+      "cached": false,
+      "properties": {
+        "description": "Users table. Real user: users.deleted_at IS NULL and belongs to a real account (accounts.is_test = false AND accounts.deleted_at IS NULL). Active user in a period: a real user with at least one event in the period."
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "condition": "invoices.account_id = accounts.id",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "invoices",
+        "accounts"
+      ],
+      "name": "invoices_accounts_account_id"
+    },
+    {
+      "condition": "subscriptions.account_id = accounts.id",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "subscriptions",
+        "accounts"
+      ],
+      "name": "subscriptions_accounts_account_id"
+    },
+    {
+      "condition": "invoices.subscription_id = subscriptions.id",
+      "joinType": "MANY_TO_ONE",
+      "models": [
+        "invoices",
+        "subscriptions"
+      ],
+      "name": "invoices_subscriptions_subscription_id"
+    }
+  ],
+  "views": [],
+  "dataSource": "postgres",
+  "layoutVersion": 2
+}

@@ -1,0 +1,55 @@
+name: order_reviews
+table_reference:
+  catalog: ''
+  schema: public
+  table: order_reviews
+columns:
+- name: review_id
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: order_id
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: review_score
+  type: BIGINT
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: review_comment_title
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: review_comment_message
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: review_creation_date
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+  description: Review creation date as text; cast to timestamp. Use most recent if
+    multiple reviews exist.
+- name: review_answer_timestamp
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+primary_key: review_id
+cached: false
+properties:
+  description: Order reviews table. If an order has several reviews, use the most
+    recent one by review_creation_date::timestamp.

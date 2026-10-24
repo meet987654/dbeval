@@ -1,0 +1,76 @@
+name: accounts
+table_reference:
+  catalog: ''
+  schema: public
+  table: accounts
+columns:
+- name: id
+  type: INTEGER
+  is_calculated: false
+  not_null: true
+  is_primary_key: true
+  properties: {}
+- name: name
+  type: VARCHAR
+  is_calculated: false
+  not_null: true
+  is_primary_key: false
+  properties: {}
+- name: plan
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  description: "Old plan name from signup. Never correct for reporting. Use plan_tier instead."
+  properties: {}
+- name: plan_tier
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  description: "Current plan tier: 'starter', 'growth', 'scale'. Always use plan_tier for reporting."
+  properties: {}
+- name: is_test
+  type: BOOLEAN
+  is_calculated: false
+  not_null: true
+  is_primary_key: false
+  description: "Test flag. Real accounts have is_test = false."
+  properties: {}
+- name: country
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: currency
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: created_at
+  type: TIMESTAMPTZ
+  is_calculated: false
+  not_null: true
+  is_primary_key: false
+  properties: {}
+- name: deleted_at
+  type: TIMESTAMPTZ
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  description: "Soft deletion timestamp. Real accounts have deleted_at IS NULL."
+  properties: {}
+- name: is_real_account
+  type: BOOLEAN
+  is_calculated: true
+  not_null: false
+  is_primary_key: false
+  expression: "is_test = false AND deleted_at IS NULL"
+  description: "True for real accounts (is_test = false AND deleted_at IS NULL). Never count test or deleted accounts in business metrics."
+  properties: {}
+primary_key: id
+cached: false
+properties:
+  description: "Real account: is_test = false AND deleted_at IS NULL. Never count test or deleted accounts in any business metric. Date windows are half-open: start inclusive, next start exclusive (>= start AND < next_start). Never use BETWEEN."

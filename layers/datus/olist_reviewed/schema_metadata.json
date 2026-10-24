@@ -1,0 +1,92 @@
+[
+  {
+    "identifier": "olist.public.order_payments",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "order_payments",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"order_payments\" (\n    \"order_id\" text,\n    \"payment_sequential\" bigint,\n    \"payment_type\" text,\n    \"payment_installments\" bigint,\n    \"payment_value\" double precision\n);\n-- BUSINESS RULES:\n-- Order payment value = SUM(payment_value) for that order. One order can have multiple payment rows.\n-- NEVER join order_payments to order_items directly; it creates a Cartesian product and multiplies rows.",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.customers",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "customers",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"customers\" (\n    \"customer_id\" text,\n    \"customer_unique_id\" text,\n    \"customer_zip_code_prefix\" bigint,\n    \"customer_city\" text,\n    \"customer_state\" text\n);\n-- BUSINESS RULES:\n-- Customer (a person) = customers.customer_unique_id. customer_id is per-order, so counting customer_id counts orders, not people.",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.geolocation",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "geolocation",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"geolocation\" (\n    \"geolocation_zip_code_prefix\" bigint,\n    \"geolocation_lat\" double precision,\n    \"geolocation_lng\" double precision,\n    \"geolocation_city\" text,\n    \"geolocation_state\" text\n);",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.orders",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "orders",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"orders\" (\n    \"order_id\" text,\n    \"customer_id\" text,\n    \"order_status\" text,\n    \"order_purchase_timestamp\" text,\n    \"order_approved_at\" text,\n    \"order_delivered_carrier_date\" text,\n    \"order_delivered_customer_date\" text,\n    \"order_estimated_delivery_date\" text\n);\n-- BUSINESS RULES:\n-- Date columns are stored as text; cast them to timestamps first (e.g. order_purchase_timestamp::timestamp).\n-- Delivered = order_status = 'delivered'.\n-- Late = order_delivered_customer_date::timestamp > order_estimated_delivery_date::timestamp.\n-- Delivery time = days from order_purchase_timestamp::timestamp to order_delivered_customer_date::timestamp (e.g. EXTRACT(epoch FROM order_delivered_customer_date::timestamp - order_purchase_timestamp::timestamp)/86400).\n-- Order counts / who ordered: count every order regardless of status unless specified.",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.order_items",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "order_items",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"order_items\" (\n    \"order_id\" text,\n    \"order_item_id\" bigint,\n    \"product_id\" text,\n    \"seller_id\" text,\n    \"shipping_limit_date\" text,\n    \"price\" double precision,\n    \"freight_value\" double precision\n);\n-- BUSINESS RULES:\n-- Sales / sold = order items on orders whose status is NOT IN ('canceled', 'unavailable').\n-- order_items.price is sales amount. Freight is NOT sales (freight_value is separate).\n-- Applies to items sold, had a sale, total sales, revenue.",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.order_reviews",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "order_reviews",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"order_reviews\" (\n    \"review_id\" text,\n    \"order_id\" text,\n    \"review_score\" bigint,\n    \"review_comment_title\" text,\n    \"review_comment_message\" text,\n    \"review_creation_date\" text,\n    \"review_answer_timestamp\" text\n);\n-- BUSINESS RULES:\n-- If an order has multiple reviews, use the most recent one by review_creation_date::timestamp.",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.products",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "products",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"products\" (\n    \"product_id\" text,\n    \"product_category_name\" text,\n    \"product_name_lenght\" double precision,\n    \"product_description_lenght\" double precision,\n    \"product_photos_qty\" double precision,\n    \"product_weight_g\" double precision,\n    \"product_length_cm\" double precision,\n    \"product_height_cm\" double precision,\n    \"product_width_cm\" double precision\n);\n-- BUSINESS RULES:\n-- Category = English name from product_category_name_translation (product_category_name_english). If no translation, use product_category_name (Portuguese). Products with no category are ignored.",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.sellers",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "sellers",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"sellers\" (\n    \"seller_id\" text,\n    \"seller_zip_code_prefix\" bigint,\n    \"seller_city\" text,\n    \"seller_state\" text\n);",
+    "datasource_id": "olist"
+  },
+  {
+    "identifier": "olist.public.product_category_name_translation",
+    "catalog_name": "",
+    "database_name": "olist",
+    "schema_name": "public",
+    "table_name": "product_category_name_translation",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"olist\".\"public\".\"product_category_name_translation\" (\n    \"product_category_name\" text,\n    \"product_category_name_english\" text\n);\n-- BUSINESS RULES:\n-- Translates product_category_name to product_category_name_english. Use English name for category questions.",
+    "datasource_id": "olist"
+  }
+]

@@ -1,0 +1,24 @@
+name: fx_rates
+table_reference:
+  catalog: ''
+  schema: public
+  table: fx_rates
+columns:
+- name: currency
+  type: VARCHAR
+  is_calculated: false
+  not_null: true
+  is_primary_key: true
+  description: "Currency code: USD (1.00000), EUR (1.08000), INR (0.01200)."
+  properties: {}
+- name: usd_per_unit
+  type: DECIMAL
+  is_calculated: false
+  not_null: true
+  is_primary_key: false
+  description: "Exchange rate to USD. Multiply amount_cents::numeric / 100 by usd_per_unit."
+  properties: {}
+primary_key: currency
+cached: false
+properties:
+  description: "Exchange rates to USD. Currencies: USD (1.00000), EUR (1.08000), INR (0.01200). USD value = amount_cents::numeric / 100 * fx_rates.usd_per_unit using invoice currency."

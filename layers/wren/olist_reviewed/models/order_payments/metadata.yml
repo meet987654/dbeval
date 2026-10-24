@@ -1,0 +1,44 @@
+name: order_payments
+table_reference:
+  catalog: ''
+  schema: public
+  table: order_payments
+columns:
+- name: order_id
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: payment_sequential
+  type: BIGINT
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: payment_type
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: payment_installments
+  type: BIGINT
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: payment_value
+  type: DOUBLE
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+  description: Payment value for installment. Order payment value = SUM(payment_value)
+    per order.
+primary_key: order_id
+cached: false
+properties:
+  description: Order payments table. Order payment value = SUM of that order's rows
+    in order_payments (one order can have several payment rows). Never join payments
+    to items directly; it multiplies rows.

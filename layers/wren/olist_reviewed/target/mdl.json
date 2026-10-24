@@ -1,0 +1,578 @@
+{
+  "catalog": "wren",
+  "schema": "public",
+  "models": [
+    {
+      "name": "customers",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "customers"
+      },
+      "columns": [
+        {
+          "name": "customer_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "customer_unique_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {},
+          "description": "Customer identifier representing a person. Use customer_unique_id for unique customer count."
+        },
+        {
+          "name": "customer_zip_code_prefix",
+          "type": "BIGINT",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "customer_city",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "customer_state",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "customer_id",
+      "cached": false,
+      "properties": {
+        "description": "Customer (a person) = customers.customer_unique_id. customer_id is per order, so counting customer_id counts orders, not people."
+      }
+    },
+    {
+      "name": "geolocation",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "geolocation"
+      },
+      "columns": [
+        {
+          "name": "geolocation_zip_code_prefix",
+          "type": "BIGINT",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "geolocation_lat",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "geolocation_lng",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "geolocation_city",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "geolocation_state",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "geolocation_zip_code_prefix",
+      "cached": false,
+      "properties": {}
+    },
+    {
+      "name": "order_items",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "order_items"
+      },
+      "columns": [
+        {
+          "name": "order_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "order_item_id",
+          "type": "BIGINT",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "product_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "seller_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "shipping_limit_date",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "price",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {},
+          "description": "Item sales price. Freight is NOT sales."
+        },
+        {
+          "name": "freight_value",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {},
+          "description": "Freight amount. Freight is NOT sales."
+        }
+      ],
+      "primaryKey": "order_id",
+      "cached": false,
+      "properties": {
+        "description": "Order items table. Sales / sold = order items on orders whose status is NOT IN ('canceled', 'unavailable'). order_items.price is the sales amount. Freight is NOT sales."
+      }
+    },
+    {
+      "name": "order_payments",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "order_payments"
+      },
+      "columns": [
+        {
+          "name": "order_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "payment_sequential",
+          "type": "BIGINT",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "payment_type",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "payment_installments",
+          "type": "BIGINT",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "payment_value",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {},
+          "description": "Payment value for installment. Order payment value = SUM(payment_value) per order."
+        }
+      ],
+      "primaryKey": "order_id",
+      "cached": false,
+      "properties": {
+        "description": "Order payments table. Order payment value = SUM of that order's rows in order_payments (one order can have several payment rows). Never join payments to items directly; it multiplies rows."
+      }
+    },
+    {
+      "name": "order_reviews",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "order_reviews"
+      },
+      "columns": [
+        {
+          "name": "review_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "order_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "review_score",
+          "type": "BIGINT",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "review_comment_title",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "review_comment_message",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "review_creation_date",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {},
+          "description": "Review creation date as text; cast to timestamp. Use most recent if multiple reviews exist."
+        },
+        {
+          "name": "review_answer_timestamp",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "review_id",
+      "cached": false,
+      "properties": {
+        "description": "Order reviews table. If an order has several reviews, use the most recent one by review_creation_date::timestamp."
+      }
+    },
+    {
+      "name": "orders",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "orders"
+      },
+      "columns": [
+        {
+          "name": "order_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "customer_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "order_status",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {},
+          "description": "Order status. Delivered = 'delivered'. Cancelled/unavailable excluded from sales."
+        },
+        {
+          "name": "order_purchase_timestamp",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {},
+          "description": "Purchase timestamp as text; cast to timestamp."
+        },
+        {
+          "name": "order_approved_at",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "order_delivered_carrier_date",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "order_delivered_customer_date",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {},
+          "description": "Customer delivery timestamp as text; cast to timestamp."
+        },
+        {
+          "name": "order_estimated_delivery_date",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {},
+          "description": "Estimated delivery timestamp as text; cast to timestamp."
+        },
+        {
+          "name": "is_delivered",
+          "type": "BOOLEAN",
+          "isCalculated": true,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "expression": "order_status = 'delivered'",
+          "description": "True if order_status = 'delivered'.",
+          "properties": {}
+        }
+      ],
+      "primaryKey": "order_id",
+      "cached": false,
+      "properties": {
+        "description": "Orders table. Date columns are text; cast to timestamps (e.g. order_purchase_timestamp::timestamp). Delivered = order_status = 'delivered'. Late = order_delivered_customer_date::timestamp > order_estimated_delivery_date::timestamp. Delivery time = days from purchase to delivered date."
+      }
+    },
+    {
+      "name": "product_category_name_translation",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "product_category_name_translation"
+      },
+      "columns": [
+        {
+          "name": "product_category_name",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "product_category_name_english",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {},
+          "description": "English category name. Use for category reporting."
+        }
+      ],
+      "primaryKey": "product_category_name",
+      "cached": false,
+      "properties": {
+        "description": "Category translations table. Category = English name (product_category_name_english). If no translation, use Portuguese."
+      }
+    },
+    {
+      "name": "products",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "products"
+      },
+      "columns": [
+        {
+          "name": "product_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "product_category_name",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {},
+          "description": "Category in Portuguese. Join to product_category_name_translation for English name."
+        },
+        {
+          "name": "product_name_lenght",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "product_description_lenght",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "product_photos_qty",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "product_weight_g",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "product_length_cm",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "product_height_cm",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "product_width_cm",
+          "type": "DOUBLE",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "product_id",
+      "cached": false,
+      "properties": {
+        "description": "Products table. Category = English name from product_category_name_translation. If no translation, use product_category_name (Portuguese). Products with no category are ignored."
+      }
+    },
+    {
+      "name": "sellers",
+      "tableReference": {
+        "catalog": "",
+        "schema": "public",
+        "table": "sellers"
+      },
+      "columns": [
+        {
+          "name": "seller_id",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "seller_zip_code_prefix",
+          "type": "BIGINT",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "seller_city",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        },
+        {
+          "name": "seller_state",
+          "type": "VARCHAR",
+          "isCalculated": false,
+          "notNull": false,
+          "isPrimaryKey": false,
+          "properties": {}
+        }
+      ],
+      "primaryKey": "seller_id",
+      "cached": false,
+      "properties": {}
+    }
+  ],
+  "relationships": [],
+  "views": [],
+  "dataSource": "postgres",
+  "layoutVersion": 2
+}

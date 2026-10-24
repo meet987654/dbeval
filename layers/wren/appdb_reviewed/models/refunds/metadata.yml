@@ -1,0 +1,37 @@
+name: refunds
+table_reference:
+  catalog: ''
+  schema: public
+  table: refunds
+columns:
+- name: id
+  type: INTEGER
+  is_calculated: false
+  not_null: true
+  is_primary_key: true
+  properties: {}
+- name: invoice_id
+  type: INTEGER
+  is_calculated: false
+  not_null: true
+  is_primary_key: false
+  description: "Links refund to invoice via invoices.id. Currency is inherited from invoice."
+  properties: {}
+- name: amount_cents
+  type: INTEGER
+  is_calculated: false
+  not_null: true
+  is_primary_key: false
+  description: "Refund amount in cents. USD value = amount_cents::numeric / 100 * fx_rates.usd_per_unit using invoice currency."
+  properties: {}
+- name: created_at
+  type: TIMESTAMPTZ
+  is_calculated: false
+  not_null: true
+  is_primary_key: false
+  description: "Timestamp when refund was created. Refunds count in the period created_at falls in."
+  properties: {}
+primary_key: id
+cached: false
+properties:
+  description: "Refunds for a period: refunds with created_at in period, real accounts only, in USD. A refund belongs to an invoice through refunds.invoice_id (no FK) and uses currency of invoice. Net revenue = gross revenue minus refunds for the same period (cash basis) computed as two separate sums with separate date filters (paid_at for invoices, created_at for refunds)."

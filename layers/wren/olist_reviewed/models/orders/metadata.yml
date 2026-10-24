@@ -1,0 +1,74 @@
+name: orders
+table_reference:
+  catalog: ''
+  schema: public
+  table: orders
+columns:
+- name: order_id
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: customer_id
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: order_status
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+  description: Order status. Delivered = 'delivered'. Cancelled/unavailable excluded
+    from sales.
+- name: order_purchase_timestamp
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+  description: Purchase timestamp as text; cast to timestamp.
+- name: order_approved_at
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: order_delivered_carrier_date
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+- name: order_delivered_customer_date
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+  description: Customer delivery timestamp as text; cast to timestamp.
+- name: order_estimated_delivery_date
+  type: VARCHAR
+  is_calculated: false
+  not_null: false
+  is_primary_key: false
+  properties: {}
+  description: Estimated delivery timestamp as text; cast to timestamp.
+- name: is_delivered
+  type: BOOLEAN
+  is_calculated: true
+  not_null: false
+  is_primary_key: false
+  expression: order_status = 'delivered'
+  description: True if order_status = 'delivered'.
+  properties: {}
+primary_key: order_id
+cached: false
+properties:
+  description: Orders table. Date columns are text; cast to timestamps (e.g. order_purchase_timestamp::timestamp).
+    Delivered = order_status = 'delivered'. Late = order_delivered_customer_date::timestamp
+    > order_estimated_delivery_date::timestamp. Delivery time = days from purchase
+    to delivered date.
