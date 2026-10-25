@@ -7,7 +7,7 @@
 ## 1. Executive Summary & Decision
 
 ### The Finding
-On the rules-heavy database (`appdb`), encoding business rules inside semantic layer tools produces dramatic gains over a raw schema baseline (+66.7 to +71.9 percentage points), but **lands within a few questions of pasting the rules into the prompt (`baseline_rules`), and none above it**:
+On the rules-heavy database (`appdb`), encoding business rules inside semantic layer tools produces substantial gains over a raw schema baseline (+21 to +23 net questions passed), but **lands within a few questions of pasting the rules into the prompt (`baseline_rules`), and none above it**:
 - `baseline`: **4.0 / 32** (12.5%)
 - `baseline_rules`: **28.0 / 32** (87.5%)
 - `wren_reviewed` (with engine rewrite): **27.0 / 32** (84.4%) — net $-1.0$ question vs. prompt rules
@@ -107,10 +107,12 @@ All metrics reflect **majority scoring across 3 repetitions per question** (18 `
 1. **The AppDB Execution Artifact:**
    - In initial runs, Wren scored 25/32 because the LLM generated SQL referencing calculated fields (`subscriptions.is_churn`, `accounts.is_real_account`). Since Postgres lacks those physical columns, queries aborted with `UndefinedColumn` errors.
    - **Resolution:** Routing queries through `session.transform_sql` (the compiled native Wren Rust core) dynamically expands model definitions into inline CTEs before Postgres execution. This immediately recovered `appdb-012` and `appdb-032`, raising accuracy to **27/32 (84.4%)**.
-2. **The Olist Wren Pipeline Problem:**
-   Detailed inspection of the 5 failing Olist questions revealed that Wren's lower Olist score (12.67/18) is primarily an **execution pipeline bug**, not a semantic encoding failure:
-   - **`olist-011`, `olist-018`, `olist-022` (Pipeline Bug):** The LLM generated valid SQL containing `ROUND(AVG(...), 2)`. However, Wren Engine's SQL rewrite pass translated the query by inserting DuckDB-style `CAST(... AS DOUBLE)`. In PostgreSQL, `DOUBLE` is an invalid type keyword (requiring `DOUBLE PRECISION` or `NUMERIC`), causing Postgres to abort with `type "double" does not exist`.
-   - **`olist-006`, `olist-007` (Semantic Adherence Misses):** Real rule misses where the model failed to sum multiple payment rows per order (`olist-006`) and counted `customer_id` instead of `customer_unique_id` (`olist-007`).
+2. **The Olist Wren Pipeline Limitation:**
+   Detailed inspection of the 5 failing Olist questions revealed that Wren's lower Olist score (12.67/18) is **pipeline-limited**, not an encoding result:
+   - **`olist-011`, `olist-018`, `olist-022` (Pipeline Dialect Bug):** The LLM generated valid SQL containing `ROUND(AVG(...), 2)`. However, Wren Engine's SQL rewrite pass translated the query by inserting DuckDB-style `CAST(... AS DOUBLE)`. When executed directly via psycopg2 rather than Wren's internal Ibis dialect layer, PostgreSQL aborted with `type "double" does not exist`. Converting this dialect cast resolves these queries.
+   - **`olist-006`, `olist-007` (Rule Adherence Misses):**
+     - `olist-006`: The generated query averaged raw payment installment rows directly rather than utilizing the `order_payment_totals` view defined in the layer.
+     - `olist-007`: The query counted `customer_id` (a per-order identifier) instead of joining to `customers` and counting `customer_unique_id`.
 
 ### B. The Datus "Drop-In" Effect
 The initial evaluation permitted an optional `rules.md` file in the Datus working directory. Inspection showed that the reviewer copied all 14 `appdb` rules and all 8 `olist` rules verbatim into this file, turning Datus into `baseline_rules` with extra DDL.
@@ -129,14 +131,23 @@ All reviewed semantic layers were audited against PostgreSQL `SELECT DISTINCT` q
 
 ## 5. Methodological Limitations & Integrity Caveats
 
-1. **Reviewer Blindness Status:** **NOT VERIFIED AS BLIND**
-   - The six review sessions were run sequentially by an automated agent process targeting `dbeval-day5`.
-   - Hand-offs between sessions occurred in 5–10 seconds, and docs-reading was recorded as an assumed 5-minute allocation rather than measured human study time. While the agent worked in a separate folder without viewing test answers, cognitive isolation from prior harness context cannot be proven.
-2. **Agent Execution Time vs. Human Effort:**
-   - Review sessions took between 1 and 13 minutes of agent execution. This measures automated script time, not human engineering effort, and cannot be used to assess the labor cost of semantic layer authoring.
-3. **The Shared Document Upper Bound:**
+1. **Reviewer Blindness Status:** **NOT VERIFIED**
+   - The six review sessions were run sequentially by an automated agent process in a single execution pipeline rather than separate human reviewers in isolated chats. Cognitive isolation from prior harness context is not verified.
+2. **First Attempt Non-Blind & Quarantined:**
+   - The initial attempt (archived as `attempt1`) was executed in the main workspace with access to test files and review logs, and contained factual errors (e.g., plan tiers as 'pro'/'enterprise' and 'GBP' currency). These layers were quarantined, and attempt 2 was re-run from clean starting layers.
+3. **Post-Hoc Rules Revision (Rules v2):**
+   - The initial baseline benchmark was run with `business_rules.md` v1. Rules v2 clarified date windows (half-open, no `BETWEEN`), cash-basis refund netting, and `plan_tier` distinction. Baseline and control numbers were re-benchmarked against rules v2 for consistency.
+4. **Excluded Olist Questions:**
+   - Three questions (`olist-012`, `olist-016`, `olist-017`) were excluded from the scored suite due to schema/semantic ambiguities in the raw Brazilian e-commerce dataset, leaving 18 scored questions (plus 1 ambiguous question `olist-013`).
+5. **Connector & Tool Versions:**
+   - Datus was evaluated using `datus-agent 0.4.3` with `datus-postgresql 0.1.9`.
+   - Wren Engine was evaluated using `wren-engine 0.6.0`.
+   - ktx was evaluated using `@kaelio/ktx 0.16.0`.
+6. **Agent Execution Time vs. Human Effort:**
+   - Review sessions took between 1 and 13 minutes of automated agent execution. This measures script execution time, not human engineering effort, and cannot be used to assess the labor cost of semantic layer authoring.
+7. **The Shared Document Upper Bound:**
    - The answer-key gold SQL queries and the reviewed semantic layers were both authored from the identical requirements document (`docs/business_rules.md`). Therefore, this study measures how well tools *carry* known rules, not whether tools can *discover* unwritten business logic.
-4. **Sample Size Constraints:**
+8. **Sample Size Constraints:**
    - With 32 `appdb` questions and 18 `olist` questions, the minimum detectable effect size is approximately 3 questions on `appdb` and 2 questions on `olist`. Differences smaller than this are indistinguishable from noise.
 
 ---

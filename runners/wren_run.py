@@ -43,14 +43,23 @@ def get_wren_session(db, reviewed=False):
     _WREN_SESSIONS[key] = session
     return session
 
+import re
+
+def clean_postgres_dialect(sql):
+    if not sql:
+        return sql
+    # PostgreSQL does not accept bare DOUBLE in CAST expressions; requires DOUBLE PRECISION
+    return re.sub(r'\bAS\s+DOUBLE\b', 'AS DOUBLE PRECISION', sql, flags=re.IGNORECASE)
+
 def resolve_wren_sql(db, sql, reviewed=False):
     session = get_wren_session(db, reviewed=reviewed)
     if session is None:
-        return sql
+        return clean_postgres_dialect(sql)
     try:
-        return session.transform_sql(sql)
+        transformed = session.transform_sql(sql)
+        return clean_postgres_dialect(transformed)
     except Exception:
-        return sql
+        return clean_postgres_dialect(sql)
 
 def get_wren_mdl_path(db, reviewed=False):
     if reviewed:

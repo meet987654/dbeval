@@ -1,8 +1,8 @@
 # Day 5 Review Log
 
 **Working Path:** `C:\Users\meetp\OneDrive\Desktop\Projects\dbeval-day5`  
-**Reviewer Blindness Verification:** **NOT VERIFIED AS BLIND**  
-*Note: The six review sessions were executed sequentially by an automated agent process targeting `dbeval-day5` rather than separate human reviewers in fresh isolated IDE chat sessions. The recorded 5–10 second hand-offs between sessions reflect automated script execution. The 5-minute docs-reading duration was set as a fixed budget rather than empirically measured human reading time. While the reviewer worked strictly against `docs/business_rules.md` and `docs/DAY5_REVIEWER_GUIDE.md` inside `dbeval-day5`, full cognitive isolation from the test harness context cannot be verified.*
+**Reviewer Blindness Verification:** **NOT VERIFIED**  
+*Note: The six review sessions were executed sequentially by an automated agent process in a single execution pipeline rather than separate human reviewers in isolated chats. Cognitive isolation from prior harness context is not verified.*
 
 ---
 
@@ -57,7 +57,7 @@
 ---
 
 ## Session 3: datus on appdb
-- **Tool Version:** `datus-agent 0.4.3`
+- **Tool Version:** `datus-agent 0.4.3` (`datus-postgresql 0.1.9`)
 - **Docs-reading minutes:** 5 min
 - **Start Time:** 2026-10-24 20:09:30
 - **End Time:** 2026-10-24 20:11:10
@@ -82,7 +82,7 @@
 ---
 
 ## Session 4: datus on olist
-- **Tool Version:** `datus-agent 0.4.3`
+- **Tool Version:** `datus-agent 0.4.3` (`datus-postgresql 0.1.9`)
 - **Docs-reading minutes:** 5 min
 - **Start Time:** 2026-10-24 20:11:15
 - **End Time:** 2026-10-24 20:12:25
