@@ -1,0 +1,72 @@
+[
+  {
+    "identifier": "appdb.public.users",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "users",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"users\" (\n    \"id\" integer NOT NULL,\n    \"account_id\" integer NOT NULL,\n    \"email\" text,\n    \"role\" text,\n    \"created_at\" timestamp with time zone NOT NULL,\n    \"deleted_at\" timestamp with time zone,\n    PRIMARY KEY (\"id\")\n);\n-- BUSINESS RULES:\n-- Real user: users.deleted_at IS NULL AND belongs to a real account (accounts.is_test = false AND accounts.deleted_at IS NULL).\n-- Active user in a period: a real user with at least one event in events table occurred_at in the period.",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.accounts",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "accounts",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"accounts\" (\n    \"id\" integer NOT NULL,\n    \"name\" text NOT NULL,\n    \"plan\" text,\n    \"plan_tier\" text,\n    \"is_test\" boolean NOT NULL DEFAULT false,\n    \"country\" text,\n    \"currency\" text,\n    \"created_at\" timestamp with time zone NOT NULL,\n    \"deleted_at\" timestamp with time zone,\n    PRIMARY KEY (\"id\")\n);\n-- BUSINESS RULES:\n-- Real account: is_test = false AND deleted_at IS NULL. Never count test or deleted accounts in any business metric.\n-- Current plan: accounts.plan_tier (values: starter, growth, scale). The plan column is signup name and is never correct for reporting.\n-- Paying customer in a period: a real account with at least one paid invoice (status = 'paid') whose paid_at is in the period.\n-- Churned account: a real account that has at least one churn subscription canceled on or before the date asked about.\n-- Date windows are half-open: >= start AND < next_start. Never use BETWEEN with end dates.",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.subscriptions",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "subscriptions",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"subscriptions\" (\n    \"id\" integer NOT NULL,\n    \"account_id\" integer NOT NULL,\n    \"plan_tier\" text NOT NULL,\n    \"status\" text NOT NULL,\n    \"started_at\" timestamp with time zone NOT NULL,\n    \"trial_ends_at\" timestamp with time zone,\n    \"canceled_at\" timestamp with time zone,\n    \"cancel_reason\" text,\n    PRIMARY KEY (\"id\")\n);\n-- BUSINESS RULES:\n-- Active subscription: status = 'active' on a real account (accounts.is_test = false AND accounts.deleted_at IS NULL). trialing and past_due are not active.\n-- Churn: status = 'canceled' AND cancel_reason IN ('voluntary', 'payment_failed'), canceled_at in the period, on a real account. cancel_reason = 'upgrade' is NOT churn.\n-- Plan tier: plan_tier (starter, growth, scale).",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.invoices",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "invoices",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"invoices\" (\n    \"id\" integer NOT NULL,\n    \"subscription_id\" integer NOT NULL,\n    \"account_id\" integer NOT NULL,\n    \"amount_cents\" integer NOT NULL,\n    \"currency\" text NOT NULL,\n    \"status\" text NOT NULL,\n    \"issued_at\" timestamp with time zone NOT NULL,\n    \"paid_at\" timestamp with time zone,\n    PRIMARY KEY (\"id\")\n);\n-- BUSINESS RULES:\n-- Money stored in cents. USD value = amount_cents::numeric / 100 * fx_rates.usd_per_unit using invoice currency (USD, EUR, INR).\n-- Divide as numeric: amount_cents::numeric / 100. Plain integer division drops cents.\n-- Gross revenue for a period: paid invoices (status = 'paid') with paid_at in the period, real accounts only, in USD.\n-- Net revenue = gross revenue minus refunds for the same period (cash basis). Compute gross and refunds as two separate sums with separate date filters (paid_at for invoices, created_at for refunds), then subtract. Never join invoices to refunds in one filtered query.",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.refunds",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "refunds",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"refunds\" (\n    \"id\" integer NOT NULL,\n    \"invoice_id\" integer NOT NULL,\n    \"amount_cents\" integer NOT NULL,\n    \"created_at\" timestamp with time zone NOT NULL,\n    PRIMARY KEY (\"id\")\n);\n-- BUSINESS RULES:\n-- Refunds for a period: refunds with created_at in the period, real accounts only, in USD.\n-- A refund belongs to an invoice through refunds.invoice_id (no foreign key). Currency is inherited from that invoice.\n-- Net revenue = gross revenue minus refunds for the same period (cash basis). Do not join invoices to refunds in one filtered query.",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.events",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "events",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"events\" (\n    \"id\" integer NOT NULL,\n    \"account_id\" integer NOT NULL,\n    \"user_id\" integer NOT NULL,\n    \"event_type\" text NOT NULL,\n    \"occurred_at\" timestamp with time zone NOT NULL,\n    PRIMARY KEY (\"id\")\n);\n-- BUSINESS RULES:\n-- User events. Active user in a period: a real user with at least one event in the period.",
+    "datasource_id": "appdb"
+  },
+  {
+    "identifier": "appdb.public.fx_rates",
+    "catalog_name": "",
+    "database_name": "appdb",
+    "schema_name": "public",
+    "table_name": "fx_rates",
+    "table_type": "table",
+    "definition": "CREATE TABLE \"appdb\".\"public\".\"fx_rates\" (\n    \"currency\" text NOT NULL,\n    \"usd_per_unit\" numeric NOT NULL,\n    PRIMARY KEY (\"currency\")\n);\n-- BUSINESS RULES:\n-- Currencies: USD (usd_per_unit = 1.00000), EUR (usd_per_unit = 1.08000), INR (usd_per_unit = 0.01200).\n-- Conversion: amount_cents::numeric / 100 * fx_rates.usd_per_unit.",
+    "datasource_id": "appdb"
+  }
+]

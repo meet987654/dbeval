@@ -45,6 +45,7 @@ SYSTEM_RUNNERS = {
     "ktx_reviewed": ktx_run.answer_reviewed,
     "wren_reviewed": wren_run.answer_reviewed,
     "datus_reviewed": datus_run.answer_reviewed,
+    "datus_reviewed_defonly": datus_run.answer_reviewed_defonly,
 }
 
 def load_questions(db):
@@ -223,7 +224,7 @@ def main():
     ap = argparse.ArgumentParser(description="dbeval comprehensive test suite runner")
     ap.add_argument(
         "--system",
-        choices=["baseline", "ktx", "datus", "wren", "schema_only", "schema_true_joins", "baseline_rules", "ktx_reviewed", "wren_reviewed", "datus_reviewed", "controls", "reviewed", "all", "everything"],
+        choices=["baseline", "ktx", "datus", "wren", "schema_only", "schema_true_joins", "baseline_rules", "ktx_reviewed", "wren_reviewed", "datus_reviewed", "datus_reviewed_defonly", "controls", "reviewed", "all", "everything"],
         default="all",
         help="System to test: 'all' (baseline, ktx, datus, wren), 'controls', 'reviewed', 'everything' (all systems), or specific system name"
     )

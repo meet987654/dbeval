@@ -24,7 +24,33 @@ SYSTEM_PROMPT = (
     "Return only the SQL, with no explanation and no markdown."
 )
 
+import base64
+from wren.mdl import get_session_context
+
+_WREN_SESSIONS = {}
 _CACHE = {}
+
+def get_wren_session(db, reviewed=False):
+    key = f"{db}_reviewed" if reviewed else db
+    if key in _WREN_SESSIONS:
+        return _WREN_SESSIONS[key]
+    path = get_wren_mdl_path(db, reviewed=reviewed)
+    if not os.path.exists(path):
+        return None
+    with open(path, "r", encoding="utf-8") as f:
+        manifest_b64 = base64.b64encode(f.read().encode("utf-8")).decode("utf-8")
+    session = get_session_context(manifest_b64, None, None, "postgres")
+    _WREN_SESSIONS[key] = session
+    return session
+
+def resolve_wren_sql(db, sql, reviewed=False):
+    session = get_wren_session(db, reviewed=reviewed)
+    if session is None:
+        return sql
+    try:
+        return session.transform_sql(sql)
+    except Exception:
+        return sql
 
 def get_wren_mdl_path(db, reviewed=False):
     if reviewed:
@@ -157,7 +183,8 @@ def answer(db, question, reviewed=False):
         result["sql"] = sql
         if not b.looks_read_only(sql):
             raise ValueError("Refused: not a single SELECT/WITH statement")
-        result["columns"], result["rows"] = b.run_sql(db, sql)
+        exec_sql = resolve_wren_sql(db, sql, reviewed=reviewed)
+        result["columns"], result["rows"] = b.run_sql(db, exec_sql)
     except Exception as e:
         result["error"] = f"{type(e).__name__}: {str(e)[:300]}"
     result["seconds"] = round(time.time() - started, 2)

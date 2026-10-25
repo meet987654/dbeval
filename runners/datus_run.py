@@ -26,7 +26,9 @@ SYSTEM_PROMPT = (
 
 _CACHE = {}
 
-def get_datus_dir(db, reviewed=False):
+def get_datus_dir(db, reviewed=False, defonly=False):
+    if defonly:
+        return os.path.join(ROOT, "layers", "datus", f"{db}_reviewed_defonly")
     if reviewed:
         return os.path.join(ROOT, "layers", "datus", f"{db}_reviewed")
     if db == "olist":
@@ -35,12 +37,12 @@ def get_datus_dir(db, reviewed=False):
         return os.path.join(ROOT, "layers", "datus", "appdb_v2")
     raise ValueError(f"Unknown database: {db}")
 
-def datus_context_text(db, reviewed=False):
-    cache_key = f"{db}_reviewed" if reviewed else db
+def datus_context_text(db, reviewed=False, defonly=False):
+    cache_key = f"{db}_defonly" if defonly else (f"{db}_reviewed" if reviewed else db)
     if cache_key in _CACHE:
         return _CACHE[cache_key]
 
-    base_dir = get_datus_dir(db, reviewed=reviewed)
+    base_dir = get_datus_dir(db, reviewed=reviewed, defonly=defonly)
     meta_path = os.path.join(base_dir, "schema_metadata.json")
     val_path = os.path.join(base_dir, "schema_value.json")
     agent_path = os.path.join(base_dir, "agent.yml")
@@ -100,10 +102,16 @@ def datus_context_text(db, reviewed=False):
     _CACHE[cache_key] = ctx
     return ctx
 
-def answer(db, question, reviewed=False):
+def answer(db, question, reviewed=False, defonly=False):
     started = time.time()
+    if defonly:
+        sys_name = "datus_reviewed_defonly"
+    elif reviewed:
+        sys_name = "datus_reviewed"
+    else:
+        sys_name = "datus"
     result = {
-        "system": "datus_reviewed" if reviewed else "datus",
+        "system": sys_name,
         "db": db,
         "question": question,
         "sql": None,
@@ -116,7 +124,7 @@ def answer(db, question, reviewed=False):
         "seconds": 0.0,
     }
     try:
-        context = datus_context_text(db, reviewed=reviewed)
+        context = datus_context_text(db, reviewed=reviewed, defonly=defonly)
         user_prompt = f"SCHEMA & SEMANTIC LAYER\n{context}\n\nQUESTION\n{question}\n\nSQL:"
         raw, t_in, t_out = b.call_llm(SYSTEM_PROMPT, user_prompt)
         result["tokens_in"], result["tokens_out"] = t_in, t_out
@@ -133,6 +141,9 @@ def answer(db, question, reviewed=False):
 
 def answer_reviewed(db, question):
     return answer(db, question, reviewed=True)
+
+def answer_reviewed_defonly(db, question):
+    return answer(db, question, reviewed=False, defonly=True)
 
 def show(r):
     print("=" * 70)
