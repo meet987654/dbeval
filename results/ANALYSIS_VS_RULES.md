@@ -17,7 +17,7 @@ Source: `results/raw/suite_results_all.csv`. Rows dropped for infrastructure err
 | schema_only | 3/32 | 9.4% | 0 |
 | schema_true_joins | 4/32 | 12.5% | 0 |
 | wren | 4/32 | 12.5% | 0 |
-| wren_reviewed | 27/32 | 84.4% | 4 |
+| wren_reviewed | 28/32 | 87.5% | 3 |
 | wren_reviewed_unresolved | 25/32 | 78.1% | 8 |
 
 *flaky = passed in some runs but not all.
@@ -36,7 +36,7 @@ Paired comparison against `baseline_rules` (question score: pass rate across run
 | schema_only | 0 | 26 | -25 | -78.1 | [-90.6, -64.1] | 0.000 |
 | schema_true_joins | 0 | 25 | -24 | -75.0 | [-89.1, -60.9] | 0.000 |
 | wren | 0 | 25 | -24 | -75.0 | [-89.1, -60.9] | 0.000 |
-| wren_reviewed | 2 | 4 | -1 | -3.1 | [-10.9, +4.7] | 0.688 |
+| wren_reviewed | 2 | 3 | +0 | +0.0 | [-5.2, +5.7] | 1.000 |
 | wren_reviewed_unresolved | 2 | 7 | -3 | -9.4 | [-18.8, -1.0] | 0.180 |
 
 One question is worth 3.1 points on this database. An interval that includes 0, or p above 0.05, means the difference is not distinguishable from noise.
@@ -56,7 +56,7 @@ One question is worth 3.1 points on this database. An interval that includes 0, 
 | schema_only | 11/18 | 61.1% | 0 |
 | schema_true_joins | 12.5/18 | 69.4% | 1 |
 | wren | 14/18 | 77.8% | 2 |
-| wren_reviewed | 12.6667/18 | 70.4% | 3 |
+| wren_reviewed | 14/18 | 77.8% | 2 |
 | wren_reviewed_unresolved | 13.3333/18 | 74.1% | 2 |
 
 *flaky = passed in some runs but not all.
@@ -75,7 +75,7 @@ Paired comparison against `baseline_rules` (question score: pass rate across run
 | schema_only | 0 | 4 | -4 | -22.2 | [-44.4, -5.6] | 0.125 |
 | schema_true_joins | 1 | 3 | -2.5 | -13.9 | [-33.3, +2.8] | 0.625 |
 | wren | 1 | 2 | -1 | -5.6 | [-19.4, +5.6] | 1.000 |
-| wren_reviewed | 0 | 4 | -2.33333 | -13.0 | [-27.8, -1.9] | 0.125 |
+| wren_reviewed | 1 | 3 | -1 | -5.6 | [-22.2, +11.1] | 0.625 |
 | wren_reviewed_unresolved | 0 | 3 | -1.66667 | -9.3 | [-22.2, +0.0] | 0.250 |
 
 One question is worth 5.6 points on this database. An interval that includes 0, or p above 0.05, means the difference is not distinguishable from noise.

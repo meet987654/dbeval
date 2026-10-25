@@ -7,15 +7,15 @@
 ## 1. Executive Summary & Decision
 
 ### The Finding
-On the rules-heavy database (`appdb`), encoding business rules inside semantic layer tools produces substantial gains over a raw schema baseline (+21 to +23 net questions passed), but **lands within a few questions of pasting the rules into the prompt (`baseline_rules`), and none above it**:
+On the rules-heavy database (`appdb`), encoding business rules inside semantic layer tools produces substantial gains over a raw schema baseline (+21 to +24 net questions passed), but **lands within 0 to 3 questions of pasting the rules into the prompt (`baseline_rules`), and none sits reliably above it**:
 - `baseline`: **4.0 / 32** (12.5%)
 - `baseline_rules`: **28.0 / 32** (87.5%)
-- `wren_reviewed` (with engine rewrite): **27.0 / 32** (84.4%) — net $-1.0$ question vs. prompt rules
+- `wren_reviewed` (with engine rewrite & dialect transpile): **28.0 / 32** (87.5%) — net $+0.0$ questions vs. prompt rules (tied)
 - `ktx_reviewed`: **26.33 / 32** (82.3%) — net $-1.67$ questions vs. prompt rules
 - `datus_reviewed` (with free-text drop-in): **26.33 / 32** (82.3%) — net $-1.67$ questions vs. prompt rules
 - `datus_reviewed_defonly` (definition comments only): **25.33 / 32** (79.2%) — net $-2.67$ questions vs. prompt rules
 
-At our sample size (32 `appdb` questions, 18 `olist` questions), every reviewed tool is within 1 to 3 questions of `baseline_rules`, and all 95% paired bootstrap confidence intervals span zero. There is **no evidence of an advantage for tool structures over prompt rules at this sample size**.
+At our sample size (32 `appdb` questions, 18 `olist` questions), every reviewed tool is within 0 to 3 questions of `baseline_rules`, and all 95% paired bootstrap confidence intervals span zero. There is **no evidence of an advantage for tool structures over prompt rules at this sample size**.
 
 ### Decision: Pivot to Rule Capture and Verification
 Per the pre-registered decision framework in [`docs/DAY5_PROTOCOL.md`](file:///c:/Users/meetp/OneDrive/Desktop/Projects/dbeval/docs/DAY5_PROTOCOL.md):
@@ -29,7 +29,7 @@ Per the pre-registered decision framework in [`docs/DAY5_PROTOCOL.md`](file:///c
 
 | Hypothesis | Pre-Registered Expectation | Empirical Readout | Status |
 |---|---|---|:---:|
-| **H1** | Tools with executable definitions (views, calculated columns) beat `baseline_rules` on complex logic (dates, currencies, net revenue). | Even with native SQL expansion through Wren Engine, `wren_reviewed` scored 27/32 vs 28/32 for `baseline_rules` (net $-1$ question, $p = 0.688$, 95% CI $[-10.9, +4.7]$). | **No evidence of advantage at this sample size** |
+| **H1** | Tools with executable definitions (views, calculated columns) beat `baseline_rules` on complex logic (dates, currencies, net revenue). | With native SQL expansion through Wren Engine and dialect transpilation, `wren_reviewed` scored 28.0/32 on `appdb`, matching `baseline_rules` (28.0/32; net $+0$ questions, $p = 1.000$, 95% CI $[-5.2, +5.7]$). | **No evidence of advantage at this sample size** |
 | **H2** | Tools that only store prose descriptions match `baseline_rules`, not more. | `ktx_reviewed` (26.33/32) and `datus_reviewed_defonly` (25.33/32) land within 1.7 to 2.7 questions of `baseline_rules` on `appdb`, and within 0.3 questions on `olist`. | **Supported** |
 | **H3** | Rushed reviews leave rules unencoded, scoring below `baseline_rules`. | When Datus was stripped of the drop-in rules document (`datus_reviewed_defonly`), accuracy dropped by 1.0 question on `appdb` and 1.67 questions on `olist`. | **Partly supported by a narrow margin** |
 
@@ -48,7 +48,7 @@ All metrics reflect **majority scoring across 3 repetitions per question** (18 `
 | **`schema_true_joins`** (FK oracle) | 4.0 / 32 | 12.5% | 12.5 / 18 | 69.4% |
 | **`baseline_rules`** (raw prompt rules) | **28.0 / 32** | **87.5%** | **15.0 / 18** | **83.3%** |
 | **`ktx_reviewed`** (YAML metrics & desc) | 26.33 / 32 | 82.3% | 15.0 / 18 | 83.3% |
-| **`wren_reviewed`** *(with engine rewrite)* | 27.0 / 32 | 84.4% | 12.67 / 18 | 70.4% |
+| **`wren_reviewed`** *(with engine rewrite)* | **28.0 / 32** | **87.5%** | 14.0 / 18 | 77.8% |
 | *`wren_reviewed_unresolved`* *(pre-fix)* | 25.0 / 32 | 78.1% | 13.33 / 18 | 74.1% |
 | **`datus_reviewed`** *(with free-text drop-in)* | 26.33 / 32 | 82.3% | 16.33 / 18 | 90.7% |
 | **`datus_reviewed_defonly`** *(DDL comments only)* | 25.33 / 32 | 79.2% | 14.67 / 18 | 81.5% |
@@ -61,7 +61,7 @@ All metrics reflect **majority scoring across 3 repetitions per question** (18 `
 | System | Fixed | Broke | Net Questions | Diff (Pts) | 95% Bootstrap CI | Sign-Test $p$ |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|
 | **`baseline_rules`** | 25 | 0 | +24.0 | +75.0 | [+60.9, +89.1] | $p < 0.001$ |
-| **`wren_reviewed`** | 25 | 1 | +23.0 | +71.9 | [+55.2, +87.5] | $p < 0.001$ |
+| **`wren_reviewed`** | 25 | 0 | +24.0 | +75.0 | [+60.4, +88.5] | $p < 0.001$ |
 | **`ktx_reviewed`** | 24 | 0 | +22.33 | +69.8 | [+54.2, +84.4] | $p < 0.001$ |
 | **`datus_reviewed`** *(with drop-in)* | 25 | 1 | +22.33 | +69.8 | [+52.1, +86.5] | $p < 0.001$ |
 | **`datus_reviewed_defonly`** | 24 | 1 | +21.33 | +66.7 | [+47.9, +83.3] | $p < 0.001$ |
@@ -73,7 +73,7 @@ All metrics reflect **majority scoring across 3 repetitions per question** (18 `
 | **`datus_reviewed`** *(with drop-in)* | 5 | 2 | +3.33 | +18.5 | [-7.4, +44.4] | $p = 0.453$ |
 | **`ktx_reviewed`** | 2 | 0 | +2.0 | +11.1 | [+0.0, +27.8] | $p = 0.500$ |
 | **`datus_reviewed_defonly`** | 3 | 2 | +1.67 | +9.3 | [-13.0, +31.5] | $p = 1.000$ |
-| **`wren_reviewed`** | 3 | 4 | -0.33 | -1.9 | [-24.1, +20.4] | $p = 1.000$ |
+| **`wren_reviewed`** | 3 | 2 | +1.0 | +5.6 | [-14.8, +27.8] | $p = 1.000$ |
 
 *Takeaway:* On `appdb`, all rule-bearing systems achieve large, statistically significant improvements over baseline ($p < 0.001$). On `olist`, no system is statistically distinguishable from baseline.
 
@@ -84,7 +84,7 @@ All metrics reflect **majority scoring across 3 repetitions per question** (18 `
 #### `appdb` (32 questions)
 | System | Fixed | Broke | Net Questions | Diff (Pts) | 95% Bootstrap CI | Sign-Test $p$ |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|
-| **`wren_reviewed`** | 2 | 4 | -1.0 | -3.1 | [-10.9, +4.7] | $p = 0.688$ |
+| **`wren_reviewed`** | 2 | 3 | +0.0 | +0.0 | [-5.2, +5.7] | $p = 1.000$ |
 | **`ktx_reviewed`** | 1 | 4 | -1.67 | -5.2 | [-13.0, +1.6] | $p = 0.375$ |
 | **`datus_reviewed`** *(with drop-in)* | 2 | 4 | -1.67 | -5.2 | [-15.1, +3.6] | $p = 0.688$ |
 | **`datus_reviewed_defonly`** | 2 | 6 | -2.67 | -8.3 | [-19.8, +2.1] | $p = 0.289$ |
@@ -95,24 +95,26 @@ All metrics reflect **majority scoring across 3 repetitions per question** (18 `
 | **`datus_reviewed`** *(with drop-in)* | 2 | 1 | +1.33 | +7.4 | [-7.4, +25.9] | $p = 1.000$ |
 | **`ktx_reviewed`** | 1 | 1 | +0.0 | +0.0 | [-16.7, +16.7] | $p = 1.000$ |
 | **`datus_reviewed_defonly`** | 0 | 1 | -0.33 | -1.9 | [-5.6, +0.0] | $p = 1.000$ |
-| **`wren_reviewed`** | 0 | 4 | -2.33 | -13.0 | [-27.8, -1.9] | $p = 0.125$ |
+| **`wren_reviewed`** | 1 | 3 | -1.0 | -5.6 | [-22.2, +11.1] | $p = 0.625$ |
 
-*Takeaway:* When measured against pasting rules in the prompt (`baseline_rules`), all reviewed systems land within 1 to 3 questions, and none beat it.
+*Takeaway:* When measured against pasting rules in the prompt (`baseline_rules`), all reviewed systems land within 0 to 3 questions, and none beat it.
 
 ---
 
 ## 4. Deep-Dives & Failure Attributions
 
-### A. Wren Engine Execution & Olist Failure Audit
+### A. Wren Engine Execution & Dialect Fix
 1. **The AppDB Execution Artifact:**
    - In initial runs, Wren scored 25/32 because the LLM generated SQL referencing calculated fields (`subscriptions.is_churn`, `accounts.is_real_account`). Since Postgres lacks those physical columns, queries aborted with `UndefinedColumn` errors.
-   - **Resolution:** Routing queries through `session.transform_sql` (the compiled native Wren Rust core) dynamically expands model definitions into inline CTEs before Postgres execution. This immediately recovered `appdb-012` and `appdb-032`, raising accuracy to **27/32 (84.4%)**.
-2. **The Olist Wren Pipeline Limitation:**
-   Detailed inspection of the 5 failing Olist questions revealed that Wren's lower Olist score (12.67/18) is **pipeline-limited**, not an encoding result:
-   - **`olist-011`, `olist-018`, `olist-022` (Pipeline Dialect Bug):** The LLM generated valid SQL containing `ROUND(AVG(...), 2)`. However, Wren Engine's SQL rewrite pass translated the query by inserting DuckDB-style `CAST(... AS DOUBLE)`. When executed directly via psycopg2 rather than Wren's internal Ibis dialect layer, PostgreSQL aborted with `type "double" does not exist`. Converting this dialect cast resolves these queries.
-   - **`olist-006`, `olist-007` (Rule Adherence Misses):**
+   - **Resolution:** Routing queries through `session.transform_sql` (the compiled native Wren Rust core) dynamically expands model definitions into inline CTEs before Postgres execution. This immediately recovered calculated field queries, reaching **28.0 / 32 (87.5%)** on `appdb`.
+2. **The Olist Dialect Fix and Re-Run:**
+   - **Diagnosis:** In earlier runs on Olist, three failures (`olist-011`, `olist-018`, `olist-022`) occurred because Wren Engine's SQL rewrite pass translated `ROUND(AVG(...), 2)` by inserting DuckDB-style `CAST(... AS DOUBLE)`. When executed directly via psycopg2 rather than through Wren's internal Ibis dialect layer, PostgreSQL aborted with `type "double" does not exist`.
+   - **Fix & Re-Run:** In `runners/wren_run.py`, queries are transpiled via `sqlglot.transpile(sql, read="duckdb", write="postgres")` (with regex fallback to `AS DOUBLE PRECISION`). Re-running 3 full repetitions of `wren_reviewed` confirmed that `olist-011`, `olist-018`, and `olist-022` all passed 3/3 runs, with zero remaining dialect errors. This lifted Wren's Olist score to **14.0 / 18 (77.8%)**.
+   - **Remaining Rule Adherence Misses:**
      - `olist-006`: The generated query averaged raw payment installment rows directly rather than utilizing the `order_payment_totals` view defined in the layer.
      - `olist-007`: The query counted `customer_id` (a per-order identifier) instead of joining to `customers` and counting `customer_unique_id`.
+     - `olist-001`: The model generated SQL qualifying the table as `olist.sellers` instead of `sellers`.
+     - `olist-008`: In 2 of 3 runs, an unjoined `cc_orders` alias was referenced; it passed in run 3.
 
 ### B. The Datus "Drop-In" Effect
 The initial evaluation permitted an optional `rules.md` file in the Datus working directory. Inspection showed that the reviewer copied all 14 `appdb` rules and all 8 `olist` rules verbatim into this file, turning Datus into `baseline_rules` with extra DDL.
@@ -149,6 +151,10 @@ All reviewed semantic layers were audited against PostgreSQL `SELECT DISTINCT` q
    - The answer-key gold SQL queries and the reviewed semantic layers were both authored from the identical requirements document (`docs/business_rules.md`). Therefore, this study measures how well tools *carry* known rules, not whether tools can *discover* unwritten business logic.
 8. **Sample Size Constraints:**
    - With 32 `appdb` questions and 18 `olist` questions, the minimum detectable effect size is approximately 3 questions on `appdb` and 2 questions on `olist`. Differences smaller than this are indistinguishable from noise.
+9. **Commit Provenance of Benchmark Numbers:**
+   - Baseline, out-of-the-box context layers, and control benchmarks were executed at commit `124585c` (tagged `study-v1`).
+   - Initial reviewed layers audit and drop-in split were recorded at commit `ea085f2` (tagged `study-v1.1`).
+   - Patched Wren runner (with `sqlglot` dialect transpilation), 3-run Wren re-evaluation, regenerated paired statistics, and final scoreboard numbers were produced at commit `study-v1.2`.
 
 ---
 

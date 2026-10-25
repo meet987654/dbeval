@@ -4,7 +4,7 @@
 
 **Final Study Report:** Read the full findings in [**`results/REPORT.md`**](file:///results/REPORT.md).
 
-> **Core Finding:** On our rules-heavy SaaS benchmark (`appdb`), encoding business rules inside semantic layer tools produces massive accuracy gains over a raw schema baseline (from 12.5% to 79%–84%), but **lands within a few questions of pasting those rules into the prompt (`baseline_rules` at 87.5%), and none above it**. At this sample size (32 appdb questions, 18 Olist questions), there is **no evidence of an advantage for tool structures over raw prompt rules**.
+> **Core Finding:** On our rules-heavy SaaS benchmark (`appdb`), encoding business rules inside semantic layer tools produces massive accuracy gains over a raw schema baseline (from 12.5% to 79%–88%), but **lands within 0 to 3 questions of pasting those rules into the prompt (`baseline_rules` at 87.5%), and none sits reliably above it**. At this sample size (32 appdb questions, 18 Olist questions), there is **no evidence of an advantage for tool structures over raw prompt rules**.
 >
 > **Decision: PIVOT.** The business rules themselves are the primary lever, not the tool structure. Future work pivots from benchmarking static semantic layer formats to **automated rule capture, induction, and verification**.
 
@@ -15,14 +15,14 @@
 - [x] **Day 3: Out-of-the-Box Layer Generation:** Built and audited semantic layers for ktx, Datus, and Wren Engine across both databases. Benchmarked ktx inferred join quality (100% precision). Rebuilt `appdb_v2` after `REFERENCES` grant. Exported Datus LanceDB metadata to JSON and Parquet.
 - [x] **Question Suite Frozen (`suite-v1`):** 53 validated questions (34 `appdb`, 19 `olist`, consisting of 50 scored and 3 ambiguous). Tagged `suite-v1`.
 - [x] **Day 4: Test Harness & 3x Full Evaluation:** Built runners and `scorer/run_suite.py`. Completed 3 full evaluation passes (600 queries) with `codestral-2508` across all 4 systems on both databases. Context layers improved Olist accuracy by ~9.3 percentage points over baseline while cutting prompt tokens by up to 75%. Raw logs saved in `results/raw/suite_results_20261021_184203.csv`.
-- [x] **Day 5: Timed Review, Execution Fixes & Final Report:** Encoded business rules across ktx, Wren Engine, and Datus. Fixed Wren engine SQL rewriting pass to resolve calculated fields. Isolated the Datus free-text drop-in effect. Completed 3 repetitions (1,450 total runs) and generated paired statistical reports (`scorer/analyze.py`) and failure attribution (`scorer/label_failures.py`). Tagged `study-v1`.
+- [x] **Day 5: Timed Review, Execution Fixes & Final Report:** Encoded business rules across ktx, Wren Engine, and Datus. Fixed Wren engine SQL rewriting pass to resolve calculated fields. Isolated the Datus free-text drop-in effect. Completed 3 repetitions (1,450 total runs) and generated paired statistical reports (`scorer/analyze.py`) and failure attribution (`scorer/label_failures.py`). Tagged `study-v1` and `study-v1.2`.
 
 ---
 
 ## The Decision Rule
 
 At the end of Week 0, the project moved forward based on the pre-registered criteria in `docs/DAY5_PROTOCOL.md`:
-- **Outcome: Pivot to Rule Induction & Verification.** Reviewed tools all landed near `baseline_rules` (Wren 27.0/32, ktx 26.33/32, Datus 25.33–26.33/32 vs. baseline_rules 28.0/32). Rules are the lever. Future efforts focus on discovering and verifying candidate rules directly from production databases and query logs.
+- **Outcome: Pivot to Rule Induction & Verification.** Reviewed tools all landed near `baseline_rules` (Wren 28.0/32 matching baseline_rules 28.0/32, ktx 26.33/32, Datus 25.33–26.33/32). Rules are the lever. Future efforts focus on discovering and verifying candidate rules directly from production databases and query logs.
 
 ---
 
@@ -31,7 +31,7 @@ At the end of Week 0, the project moved forward based on the pre-registered crit
 A fair, neutral benchmark comparing four ways of letting an LLM answer database questions over Postgres:
 1. **Plain LLM Baseline** (Schema + 3 sample values per column)
 2. **ktx** (`@kaelio/ktx@0.16.0`)
-3. **Datus (stored context)** (`datus-agent 0.4.3` + `datus-postgresql 0.1.2`)
+3. **Datus (stored context)** (`datus-agent 0.4.3` + `datus-postgresql 0.1.9`)
 4. **Wren Engine** (`wren-engine 0.6.0`)
 
 Evaluated over two distinct databases:

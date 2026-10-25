@@ -23,13 +23,13 @@ Failures are categorized by automated comparison of candidate SQL against the go
 | `missing:refund_netting+soft_delete` | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 0 |
 | `missing:refund_netting+soft_delete+test_filter` | 1 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 | `missing:soft_delete` | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 3 | 0 | 0 |
-| `missing:soft_delete+test_filter` | 17 | 1 | 14 | 3 | 2 | 16 | 1 | 17 | 16 | 14 | 2 | 1 |
+| `missing:soft_delete+test_filter` | 17 | 1 | 14 | 3 | 2 | 16 | 1 | 17 | 16 | 14 | 1 | 1 |
 | `missing:test_filter` | 1 | 0 | 2 | 0 | 0 | 1 | 0 | 2 | 3 | 1 | 0 | 0 |
 | `other` | 0 | 3 | 0 | 0 | 2 | 0 | 3 | 0 | 0 | 0 | 1 | 2 |
 | `sql_error:grouping_error` | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 1 | 1 | 0 | 0 |
-| `sql_error:runtime_error` | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 0 |
+| `sql_error:runtime_error` | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 | `sql_error:undefined_function` | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 3 |
-| **TOTAL FAILURES** | 28 | 5 | 27 | 6 | 6 | 28 | 6 | 29 | 28 | 28 | 5 | 7 |
+| **TOTAL FAILURES** | 28 | 5 | 27 | 6 | 6 | 28 | 6 | 29 | 28 | 28 | 3 | 7 |
 
 
 ## Database: olist
@@ -40,10 +40,10 @@ Failures are categorized by automated comparison of candidate SQL against the go
 | `missing:date_cast+sales_status_filter` | 1 | 0 | 1 | 0 | 0 | 1 | 0 | 1 | 0 | 0 | 0 | 0 |
 | `missing:sales_status_filter` | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 0 |
 | `other` | 1 | 2 | 2 | 1 | 2 | 1 | 2 | 1 | 1 | 1 | 1 | 1 |
-| `sql_error:runtime_error` | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 |
+| `sql_error:runtime_error` | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 0 |
 | `sql_error:syntax_error` | 0 | 1 | 1 | 1 | 1 | 1 | 0 | 1 | 1 | 1 | 0 | 1 |
-| `sql_error:undefined_function` | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 3 | 1 |
-| **TOTAL FAILURES** | 5 | 3 | 6 | 2 | 3 | 4 | 3 | 7 | 6 | 5 | 5 | 4 |
+| `sql_error:undefined_function` | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 |
+| **TOTAL FAILURES** | 5 | 3 | 6 | 2 | 3 | 4 | 3 | 7 | 6 | 5 | 4 | 4 |
 
 
 ## Detailed Inspection: `other` and `baseline_rules` Failures
@@ -254,7 +254,7 @@ WHERE a.is_test = false
   AND i.paid_at >= '2026-01-01'
   AND i.paid_at < '2027-01-01'
 GROUP BY a.id
-HAVING SUM((i.amount_cents::numeric / 100) * f.usd_per_unit) - SUM(COALESCE((r.amount_cents::numeric / 100) * f.usd_per_unit, 0)) > 2000
+HAVING SUM((i.amount_cents::numeric / 100) * f.usd_per_unit) - COALESCE(SUM((r.amount_cents::numeric / 100) * f.usd_per_unit), 0) > 2000
 ```
 
 ```sql

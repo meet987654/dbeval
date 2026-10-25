@@ -48,8 +48,13 @@ import re
 def clean_postgres_dialect(sql):
     if not sql:
         return sql
-    # PostgreSQL does not accept bare DOUBLE in CAST expressions; requires DOUBLE PRECISION
-    return re.sub(r'\bAS\s+DOUBLE\b', 'AS DOUBLE PRECISION', sql, flags=re.IGNORECASE)
+    # Use sqlglot to cleanly transpile engine dialect constructs (e.g. DuckDB CAST(... AS DOUBLE)) to PostgreSQL
+    try:
+        import sqlglot
+        return sqlglot.transpile(sql, read="duckdb", write="postgres")[0]
+    except Exception:
+        # Fallback regex if sqlglot transpile encounters unparseable syntax
+        return re.sub(r'\bAS\s+DOUBLE(?!\s+PRECISION)\b', 'AS DOUBLE PRECISION', sql, flags=re.IGNORECASE)
 
 def resolve_wren_sql(db, sql, reviewed=False):
     session = get_wren_session(db, reviewed=reviewed)
