@@ -1,6 +1,23 @@
-pandas>=2.0.0
-sqlalchemy>=2.0.0
-psycopg2-binary>=2.9.9
-pyyaml>=6.0.1
-python-dotenv>=1.0.0
-openai>=1.0.0
+# Core database & execution
+sqlalchemy==2.1.5
+psycopg2-binary==2.9.13
+pandas==2.3.3
+pyyaml==6.0.1
+python-dotenv==1.2.2
+
+# LLM APIs & clients (OpenAI-compatible client used for Mistral AI Codestral & Groq)
+openai==2.54.0
+groq==1.1.1
+
+# Dialect transpilation & SQL analysis
+sqlglot==27.29.0
+sqlparse==0.5.1
+
+# Semantic layer tools & frameworks
+wren-engine==0.6.0
+wren-core-py==0.8.1
+ibis-framework==10.8.0
+datus-agent==0.4.3
+datus-postgresql==0.1.9
+lancedb==0.34.0
+duckdb==1.5.2

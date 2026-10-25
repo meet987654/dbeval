@@ -103,18 +103,18 @@ All metrics reflect **majority scoring across 3 repetitions per question** (18 `
 
 ## 4. Deep-Dives & Failure Attributions
 
-### A. Wren Engine Execution & Dialect Fix
-1. **The AppDB Execution Artifact:**
+### A. Wren Engine Execution, Arithmetic Audit & Pipeline Artifacts
+1. **The AppDB Execution Artifact & Arithmetic Audit:**
    - In initial runs, Wren scored 25/32 because the LLM generated SQL referencing calculated fields (`subscriptions.is_churn`, `accounts.is_real_account`). Since Postgres lacks those physical columns, queries aborted with `UndefinedColumn` errors.
-   - **Resolution:** Routing queries through `session.transform_sql` (the compiled native Wren Rust core) dynamically expands model definitions into inline CTEs before Postgres execution. This immediately recovered calculated field queries, reaching **28.0 / 32 (87.5%)** on `appdb`.
-2. **The Olist Dialect Fix and Re-Run:**
-   - **Diagnosis:** In earlier runs on Olist, three failures (`olist-011`, `olist-018`, `olist-022`) occurred because Wren Engine's SQL rewrite pass translated `ROUND(AVG(...), 2)` by inserting DuckDB-style `CAST(... AS DOUBLE)`. When executed directly via psycopg2 rather than through Wren's internal Ibis dialect layer, PostgreSQL aborted with `type "double" does not exist`.
-   - **Fix & Re-Run:** In `runners/wren_run.py`, queries are transpiled via `sqlglot.transpile(sql, read="duckdb", write="postgres")` (with regex fallback to `AS DOUBLE PRECISION`). Re-running 3 full repetitions of `wren_reviewed` confirmed that `olist-011`, `olist-018`, and `olist-022` all passed 3/3 runs, with zero remaining dialect errors. This lifted Wren's Olist score to **14.0 / 18 (77.8%)**.
-   - **Remaining Rule Adherence Misses:**
-     - `olist-006`: The generated query averaged raw payment installment rows directly rather than utilizing the `order_payment_totals` view defined in the layer.
-     - `olist-007`: The query counted `customer_id` (a per-order identifier) instead of joining to `customers` and counting `customer_unique_id`.
-     - `olist-001`: The model generated SQL qualifying the table as `olist.sellers` instead of `sellers`.
-     - `olist-008`: In 2 of 3 runs, an unjoined `cc_orders` alias was referenced; it passed in run 3.
+   - **Resolution:** Routing queries through `session.transform_sql` (the compiled native Wren Rust core) dynamically expands model definitions into inline CTEs before Postgres execution.
+   - **Arithmetic Semantics Audit:** Because DuckDB transpilation uses floating-point division (`/`) whereas Postgres truncates integer division, we audited whether Wren's score lift to **28.0 / 32 (87.5%)** resulted from engine arithmetic masking integer-division errors (e.g. `/ 100`). An audit of all changed questions (`appdb-005`, `011`, `025`, `033`) confirmed that **zero `/ 100` money questions flipped between runs**. All currency queries already explicitly cast `amount_cents::numeric / 100` per prompt business rules. The score change was driven by LLM query variation: `appdb-005` (1/3 to 3/3) properly qualified `s.plan_tier` to prevent column ambiguity on joins, while `appdb-011` (2/3 to 3/3) consistently adopted the expanded `is_churn` and `is_real_account` calculated columns.
+2. **The Olist Dialect Fix and Qualification Rendering Artifact:**
+   - **Dialect Fix & Re-Run:** Three Olist failures (`olist-011`, `olist-018`, `olist-022`) occurred because Wren Engine's SQL rewrite pass translated `ROUND(AVG(...), 2)` by inserting DuckDB-style `CAST(... AS DOUBLE)`, causing Postgres to abort with `type "double" does not exist`. Transpiling queries via `sqlglot.transpile(sql, read="duckdb", write="postgres")` resolved all three questions across 3/3 runs, lifting Wren's Olist score to **14.0 / 18 (77.8%)**.
+   - **`olist-001` Context Rendering Artifact:** "How many sellers are there?" failed in 3/3 runs because the model wrote `FROM olist.sellers`. The prompt context header emitted `DATABASE: olist`, prompting the model to qualify the table with the database name instead of the schema `public.sellers`. This is a context rendering artifact rather than a failure of semantic rule adherence. With `olist-001` accounted for, Wren's effective rule adherence on Olist reaches **15.0 / 18 (83.3%)**, matching `baseline_rules`.
+   - **True Rule Adherence Misses on Olist:**
+     - `olist-006` (3/3): The generated query averaged raw payment installment rows directly rather than utilizing the `order_payment_totals` view defined in the layer.
+     - `olist-007` (3/3): The query counted `customer_id` (a per-order identifier) instead of joining to `customers` and counting `customer_unique_id`.
+     - `olist-008` (2/3): In 2 of 3 runs, an unjoined `cc_orders` alias was referenced; it passed in run 3.
 
 ### B. The Datus "Drop-In" Effect
 The initial evaluation permitted an optional `rules.md` file in the Datus working directory. Inspection showed that the reviewer copied all 14 `appdb` rules and all 8 `olist` rules verbatim into this file, turning Datus into `baseline_rules` with extra DDL.

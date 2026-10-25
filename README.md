@@ -91,6 +91,57 @@ The benchmark evaluates **53 total questions** across both databases:
 
 All systems under test run against the exact same LLM:
 - **Evaluation Model:** `codestral-2508` via Mistral AI (`https://api.mistral.ai/v1`)
-- **Throughput & Limits:** 625,000 tokens/min and 2.08 requests/sec on Mistral's Experiment plan.
+- **Throughput & Limits:** 625,000 tokens/min and 2.08 requests/sec on Mistral's Experiment plan (free tier).
 - **Rate Pacing:** 1.1s inter-request pause with automatic exponential backoff retry on HTTP 429.
 - **Independent Validation Oracles:** `openai/gpt-oss-120b` and `qwen/qwen3.8-27b` via Groq.
+
+---
+
+## How to Reproduce
+
+You can reproduce the evaluation locally. The answering model runs on Mistral AI's free experiment tier.
+
+### 1. Environment Setup
+```bash
+git clone https://github.com/meet987654/dbeval.git
+cd dbeval
+pip install -r requirements.txt
+cp .env.example .env
+# Set your MISTRAL_API_KEY in .env
+```
+
+### 2. Start PostgreSQL Databases via Docker
+Launch the PostgreSQL 16 container hosting `appdb` and `olist` (port 5433):
+```bash
+docker compose up -d
+```
+*(If seeding from scratch, run `python db/seed_appdb.py` and `python db/load_olist.py`).*
+
+### 3. Run Benchmark Suites
+```bash
+# Smoke test on 3 questions:
+python scorer/run_suite.py --system baseline --db appdb --only appdb-001,appdb-002,appdb-003
+
+# Run 3 repetitions of all systems on both databases:
+python scorer/run_suite.py --system everything --db both --runs 3
+```
+
+### 4. Run Paired Statistical Analysis
+Compute exact sign-test p-values, 95% bootstrap confidence intervals, and failure classifications:
+```bash
+# Analysis vs plain LLM baseline:
+python scorer/analyze.py results/raw/suite_results_all.csv --baseline baseline --ties half --out results/ANALYSIS_REVIEWED.md
+
+# Analysis vs prompt rules (baseline_rules):
+python scorer/analyze.py results/raw/suite_results_all.csv --baseline baseline_rules --ties half --out results/ANALYSIS_VS_RULES.md
+
+# Categorize failure attributions:
+python scorer/label_failures.py results/raw/suite_results_all.csv --out results/FAILURES_REVIEWED.md
+```
+
+---
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
