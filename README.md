@@ -104,6 +104,7 @@ You can reproduce the evaluation locally. The answering model runs on Mistral AI
 ### 1. Environment Setup
 ```bash
 git clone https://github.com/meet987654/dbeval.git
+# Note for Windows: if hitting MAX_PATH limits, use: git clone -c core.longpaths=true <url>
 cd dbeval
 pip install -r requirements.txt
 cp .env.example .env
@@ -115,10 +116,13 @@ Launch the PostgreSQL 16 container hosting `appdb` and `olist` (port 5433):
 ```bash
 docker compose up -d
 ```
-*(If seeding from scratch, run `python db/seed_appdb.py` and `python db/load_olist.py`).*
+*(If seeding the databases from scratch, run `python db/seed_appdb.py` to generate synthetic SaaS data. Loading the raw Brazilian e-commerce dataset via `python db/load_olist.py` downloads from Kaggle and requires a Kaggle account configured with `kaggle.json` or environment credentials).*
 
-### 3. Run Benchmark Suites
+### 3. Verify Comparator & Run Benchmark Suites
 ```bash
+# Verify the comparison engine:
+python scorer/test_compare.py
+
 # Smoke test on 3 questions:
 python scorer/run_suite.py --system baseline --db appdb --only appdb-001,appdb-002,appdb-003
 
