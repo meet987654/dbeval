@@ -27,6 +27,17 @@ All metrics reflect majority scoring across 3 repetitions per question evaluated
 
 ---
 
+### Upstream Open-Source Contributions & Fixes
+
+During benchmark execution and engine audits, `dbeval` surfaced and resolved two fundamental failure modes in upstream repositories:
+
+1. **[`kaelio/ktx#377`](https://github.com/kaelio/ktx/issues/377)** — *Silent Enrichment Failure & Cache Poisoning*:
+   When external LLM enrichment failed (e.g. gateway 404 or rate limits), `@kaelio/ktx` silently reported exit code 0, cached empty/null results, and bypassed per-table resume. Fixed with total failure detection, truthful exit status reporting, and safe resume handling.
+2. **[`Datus-ai/Datus-agent#1542`](https://github.com/Datus-ai/Datus-agent/issues/1542)** — *Foreign Key Omission in Reconstructed Table DDL*:
+   `datus-postgresql` reconstructed table DDL by restricting constraints to `contype IN ('p', 'u')`, omitting all foreign keys and forcing LLMs to guess join keys. Patched in `datus-db-adapters` with deterministic constraint ordering and unvalidated (`NOT VALID`) foreign key separation.
+
+---
+
 ## Overview
 
 A fair, neutral benchmark comparing four ways of letting an LLM answer database questions over Postgres:

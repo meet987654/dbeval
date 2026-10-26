@@ -178,3 +178,20 @@ flowchart TD
 2. **Inputs:** Database contents, information schema, and a synthetic query log of 100 historical queries.
 3. **Mechanism:** An induction pipeline that generates candidate rules (e.g. *"Should `is_test = true` be excluded from reporting?"*), verifies candidate filters against table distributions, and compiles an automated `rules.md`.
 4. **Evaluation:** Score the induced rules through the existing `dbeval` benchmark harness to measure rule recovery precision, recall, and end-to-end downstream SQL accuracy.
+
+---
+
+## 7. Upstream Open-Source Contributions & Discovered Failure Modes
+
+In addition to benchmark scoring, `dbeval` functioned as an active stress-testing and verification harness for the evaluated open-source tools. Rigorous evaluation against real-world schemas uncovered two fundamental failure modes in upstream repositories, both of which were documented, isolated with minimal reproductions, and patched:
+
+### 1. `@kaelio/ktx` — Silent Enrichment Failure & Cache Poisoning
+- **Issue:** [`kaelio/ktx#377`](https://github.com/kaelio/ktx/issues/377)
+- **Failure Mode:** When external LLM provider calls fail completely during local schema enrichment (e.g. gateway 404, rate limits, or bad credentials), `local-enrichment.ts` reported `completed` with exit code 0, cached empty/null results in SQLite `scan:descriptions`, and bypassed per-table resume on subsequent runs.
+- **Upstream Fix:** Added total failure detection, truthful non-zero exit status reporting, Windows SQLite handle cleanup, and prevented incomplete cache short-circuiting so subsequent runs resume incomplete tables.
+
+### 2. `Datus` (`datus-postgresql`) — Foreign Key Omission in Reconstructed Table DDL
+- **Issue:** [`Datus-ai/Datus-agent#1542`](https://github.com/Datus-ai/Datus-agent/issues/1542)
+- **PR:** [`Datus-ai/datus-db-adapters`](https://github.com/Datus-ai/datus-db-adapters)
+- **Failure Mode:** In `PostgreSQLConnector._get_ddl()`, constraint extraction was restricted to `c.contype IN ('p', 'u')`, completely omitting `'f'` (foreign keys). Reconstructed table DDL stored in `schema_metadata.json` and indexed in LanceDB contained zero foreign key relationships, forcing downstream models to guess join keys from column names alone.
+- **Upstream Fix:** Expanded constraint extraction to `contype IN ('p', 'u', 'f')`, ordered constraints deterministically (`PRIMARY KEY` $\rightarrow$ `UNIQUE` $\rightarrow$ `FOREIGN KEY`), and cleanly separated unvalidated (`NOT VALID`) foreign keys into standalone `ALTER TABLE` statements to maintain valid PostgreSQL execution grammar.

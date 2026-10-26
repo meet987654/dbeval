@@ -31,6 +31,8 @@ pgdata/
 
 # Tool working directories / local runners
 ktx/
+datus-agent/
+datus-db-adapters/
 ktx_olist/
 ktx_appdb*/
 wren_olist/
