@@ -30,6 +30,7 @@ yarn-error.log*
 pgdata/
 
 # Tool working directories / local runners
+ktx/
 ktx_olist/
 ktx_appdb*/
 wren_olist/
