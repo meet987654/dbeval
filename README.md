@@ -107,6 +107,7 @@ git clone https://github.com/meet987654/dbeval.git
 # Note for Windows: if hitting MAX_PATH limits, use: git clone -c core.longpaths=true <url>
 cd dbeval
 pip install -r requirements.txt
+# Note: Python 3.11 or 3.12 is recommended. On Python 3.13+, run: pip install -U "sqlalchemy>=2.0.36"
 cp .env.example .env
 # Set your MISTRAL_API_KEY in .env
 ```
@@ -116,7 +117,7 @@ Launch the PostgreSQL 16 container hosting `appdb` and `olist` (port 5433):
 ```bash
 docker compose up -d
 ```
-*(If seeding the databases from scratch, run `python db/seed_appdb.py` to generate synthetic SaaS data. Loading the raw Brazilian e-commerce dataset via `python db/load_olist.py` downloads from Kaggle and requires a Kaggle account configured with `kaggle.json` or environment credentials).*
+*(If seeding the databases from scratch, run `python db/seed_appdb.py` to generate synthetic SaaS data. Close other connections to `appdb` before re-running the seed script, as dropping tables requires an exclusive lock. Loading the raw Brazilian e-commerce dataset via `python db/load_olist.py` downloads from Kaggle and requires a Kaggle account configured with `kaggle.json` or environment credentials).*
 
 ### 3. Verify Comparator & Run Benchmark Suites
 ```bash
