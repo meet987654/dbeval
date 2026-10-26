@@ -1,28 +1,29 @@
 # dbeval
 
-> Which data-agent context layer works best on *your* database? A neutral head-to-head, starting with Postgres.
+> Which data-agent context layer works best on *your* database? A neutral head-to-head evaluation over Postgres.
 
-**Final Study Report:** Read the full findings in [**`results/REPORT.md`**](file:///results/REPORT.md).
-
-> **Core Finding:** On our rules-heavy SaaS benchmark (`appdb`), encoding business rules inside semantic layer tools produces massive accuracy gains over a raw schema baseline (from 12.5% to 79%–88%), but **lands within 0 to 3 questions of pasting those rules into the prompt (`baseline_rules` at 87.5%), and none sits reliably above it**. At this sample size (32 appdb questions, 18 Olist questions), there is **no evidence of an advantage for tool structures over raw prompt rules**.
->
-> **Decision: PIVOT.** The business rules themselves are the primary lever, not the tool structure. Future work pivots from benchmarking static semantic layer formats to **automated rule capture, induction, and verification**.
-
-## Status
-
-- [x] **Day 1: Baseline & Second Database:** Seeded `appdb` with real-world SaaS edge cases (test accounts, soft deletes, multi-currency cents, cancels vs. churn). Built `runners/baseline.py`.
-- [x] **Day 2: Business Rules & Question Suites:** Defined answer-key rules in `docs/business_rules.md`. Created dual-oracle validation harness (`scorer/validate_gold.py`) with Groq models.
-- [x] **Day 3: Out-of-the-Box Layer Generation:** Built and audited semantic layers for ktx, Datus, and Wren Engine across both databases. Benchmarked ktx inferred join quality (100% precision). Rebuilt `appdb_v2` after `REFERENCES` grant. Exported Datus LanceDB metadata to JSON and Parquet.
-- [x] **Question Suite Frozen (`suite-v1`):** 53 validated questions (34 `appdb`, 19 `olist`, consisting of 50 scored and 3 ambiguous). Tagged `suite-v1`.
-- [x] **Day 4: Test Harness & 3x Full Evaluation:** Built runners and `scorer/run_suite.py`. Completed 3 full evaluation passes (600 queries) with `codestral-2508` across all 4 systems on both databases. Context layers improved Olist accuracy by ~9.3 percentage points over baseline while cutting prompt tokens by up to 75%. Raw logs saved in `results/raw/suite_results_20261021_184203.csv`.
-- [x] **Day 5: Timed Review, Execution Fixes & Final Report:** Encoded business rules across ktx, Wren Engine, and Datus. Fixed Wren engine SQL rewriting pass to resolve calculated fields. Isolated the Datus free-text drop-in effect. Completed 3 repetitions (1,450 total runs) and generated paired statistical reports (`scorer/analyze.py`) and failure attribution (`scorer/label_failures.py`). Tagged `study-v1` and `study-v1.2`.
+📖 **Final Evaluation Report:** Read the full findings, statistical tests, and failure analyses in [**`results/REPORT.md`**](results/REPORT.md).
 
 ---
 
-## The Decision Rule
+### TL;DR
 
-At the end of Week 0, the project moved forward based on the pre-registered criteria in `docs/DAY5_PROTOCOL.md`:
-- **Outcome: Pivot to Rule Induction & Verification.** Reviewed tools all landed near `baseline_rules` (Wren 28.0/32 matching baseline_rules 28.0/32, ktx 26.33/32, Datus 25.33–26.33/32). Rules are the lever. Future efforts focus on discovering and verifying candidate rules directly from production databases and query logs.
+1. **Rules are the primary lever:** Encoding business rules lifts text-to-SQL accuracy from 12.5% to 87.5% on SaaS edge cases, but structuring them in semantic layer tools lands within 0 to 3 questions of pasting the rules directly into the prompt (`baseline_rules`).
+2. **Tool structures show no statistical advantage:** At 50 questions across 3 repetitions (1,450 runs), all reviewed tools (ktx, Wren Engine, Datus) tie or sit slightly below raw prompt rules (all 95% bootstrap CIs span zero).
+3. **Decision: PIVOT.** Future work shifts from benchmarking static semantic layer formats to **automated rule capture, induction, and verification** directly from databases and query logs.
+
+### Head-to-Head Benchmark Results
+
+All metrics reflect majority scoring across 3 repetitions per question evaluated with `codestral-2508` via Mistral AI.
+
+| System | `appdb` (32 Qs) | `appdb` Acc | `olist` (18 Qs) | `olist` Acc | Net vs. `baseline_rules` |
+|---|:---:|:---:|:---:|:---:|:---:|
+| **`baseline`** (raw schema + samples) | 4.0 / 32 | 12.5% | 13.0 / 18 | 72.2% | -24.0 Qs ($p < 0.001$) |
+| **`baseline_rules`** (prompt rules) | **28.0 / 32** | **87.5%** | **15.0 / 18** | **83.3%** | — (reference) |
+| **`wren_reviewed`** *(with engine rewrite)* | **28.0 / 32** | **87.5%** | 14.0 / 18 | 77.8% | +0.0 Qs ($p = 1.000$) |
+| **`ktx_reviewed`** *(YAML metrics & desc)* | 26.33 / 32 | 82.3% | 15.0 / 18 | 83.3% | -1.67 Qs ($p = 0.375$) |
+| **`datus_reviewed`** *(with free-text drop-in)* | 26.33 / 32 | 82.3% | **16.33 / 18** | **90.7%** | -1.67 Qs ($p = 0.688$) |
+| **`datus_reviewed_defonly`** *(DDL comments only)* | 25.33 / 32 | 79.2% | 14.67 / 18 | 81.5% | -2.67 Qs ($p = 0.289$) |
 
 ---
 
@@ -146,7 +147,21 @@ python scorer/label_failures.py results/raw/suite_results_all.csv --out results/
 
 ---
 
+## Development Milestones & Status Log
+
+- [x] **Day 1: Baseline & Second Database:** Seeded `appdb` with real-world SaaS edge cases (test accounts, soft deletes, multi-currency cents, cancels vs. churn). Built `runners/baseline.py`.
+- [x] **Day 2: Business Rules & Question Suites:** Defined answer-key rules in `docs/business_rules.md`. Created dual-oracle validation harness (`scorer/validate_gold.py`) with Groq models.
+- [x] **Day 3: Out-of-the-Box Layer Generation:** Built and audited semantic layers for ktx, Datus, and Wren Engine across both databases. Benchmarked ktx inferred join quality (100% precision). Rebuilt `appdb_v2` after `REFERENCES` grant. Exported Datus LanceDB metadata to JSON and Parquet.
+- [x] **Question Suite Frozen (`suite-v1`):** 53 validated questions (34 `appdb`, 19 `olist`, consisting of 50 scored and 3 ambiguous). Tagged `suite-v1`.
+- [x] **Day 4: Test Harness & 3x Full Evaluation:** Built runners and `scorer/run_suite.py`. Completed 3 full evaluation passes (600 queries) with `codestral-2508` across all 4 systems on both databases. Context layers improved Olist accuracy by ~9.3 percentage points over baseline while cutting prompt tokens by up to 75%. Raw logs saved in `results/raw/suite_results_20261021_184203.csv`.
+- [x] **Day 5: Timed Review, Execution Fixes & Final Report:** Encoded business rules across ktx, Wren Engine, and Datus. Fixed Wren engine SQL rewriting pass to resolve calculated fields. Isolated the Datus free-text drop-in effect. Completed 3 repetitions (1,450 total runs) and generated paired statistical reports (`scorer/analyze.py`) and failure attribution (`scorer/label_failures.py`). Tagged `study-v1` and `study-v1.3`.
+
+### Pre-Registered Decision Rule
+At the end of Week 0, the project evaluated the pre-registered criteria in `docs/DAY5_PROTOCOL.md`:
+- **Outcome: Pivot to Rule Induction & Verification.** Reviewed tools all landed near `baseline_rules` (Wren 28.0/32 matching baseline_rules 28.0/32, ktx 26.33/32, Datus 25.33–26.33/32). Rules are the lever. Future efforts focus on discovering and verifying candidate rules directly from production databases and query logs.
+
+---
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
-
