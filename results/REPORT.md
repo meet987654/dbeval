@@ -17,11 +17,11 @@ On the rules-heavy database (`appdb`), encoding business rules inside semantic l
 
 At our sample size (32 `appdb` questions, 18 `olist` questions), every reviewed tool is within 0 to 3 questions of `baseline_rules`, and all 95% paired bootstrap confidence intervals span zero. There is **no evidence of an advantage for tool structures over prompt rules at this sample size**.
 
-### Decision: Pivot to Rule Capture and Verification
+### Open Question / Next Step: Rule Capture and Verification, Untested
 Per the pre-registered decision framework in [`docs/DAY5_PROTOCOL.md`](file:///c:/Users/meetp/OneDrive/Desktop/Projects/dbeval/docs/DAY5_PROTOCOL.md):
 - **A "Go" on a neutral comparative scoreboard between these tools is not supported**, because no tool is reliably distinguishable from another or from `baseline_rules`.
 - **A "Stop" is rejected**, because the rules effect itself is massive and unequivocal: explicit rules lift accuracy from $12.5\%$ to $87.5\%$ on `appdb`.
-- **Outcome: PIVOT.** The rules are the primary lever, not the tool structure. Future work should focus on **automated rule capture, induction, and verification** (discovering candidate rules from databases and query logs) rather than benchmarking static semantic layer formats.
+- **Open question / next step: rule capture and verification, untested.** The rules are the primary lever, not the tool structure. Future work should focus on exploring whether **automated rule capture, induction, and verification** (discovering candidate rules directly from databases and query logs) is tractable, rather than benchmarking static semantic layer formats.
 
 ---
 
@@ -183,16 +183,16 @@ flowchart TD
 
 ## 7. Upstream Issues Filed & Proposed Fixes
 
-In addition to benchmark scoring, `dbeval` functioned as an active testing harness for the evaluated open-source tools. Rigorous evaluation against real-world schemas uncovered two failure modes in upstream repositories. Issues were filed and fixes were proposed on forks (both open, not merged):
+In addition to benchmark scoring, `dbeval` functioned as an active testing harness for the evaluated open-source tools. Rigorous evaluation against real-world schemas uncovered two failure modes in upstream repositories. Issues were filed and fixes were proposed in upstream pull requests (both open, not merged):
 
 ### 1. `@kaelio/ktx` — Silent Enrichment Failure & Cache Poisoning
 - **Issue Filed:** [`kaelio/ktx#377`](https://github.com/kaelio/ktx/issues/377)
-- **Proposed Fix on Fork:** [`Kaelio/ktx#378`](https://github.com/Kaelio/ktx/pull/378) / [`meet987654/ktx:fix/description-enrichment-silent-failure`](https://github.com/meet987654/ktx/tree/fix/description-enrichment-silent-failure) *(open, not merged)*
+- **Proposed Fix in PR:** [`Kaelio/ktx#378`](https://github.com/Kaelio/ktx/pull/378) *(open, not merged)*
 - **Failure Mode:** When external LLM provider calls fail completely during local schema enrichment (e.g. gateway 404 from `/language-model`, rate limits, or bad credentials), `local-enrichment.ts` reported `completed` with exit code 0, cached empty/null results in `descriptions.json` and SQLite `scan:descriptions`, and bypassed per-table resume on subsequent runs in `ktx 0.16.0`.
 - **Proposed Fix:** Adds total failure detection, truthful non-zero exit status reporting, Windows SQLite handle cleanup, and prevents incomplete cache short-circuiting so subsequent runs resume incomplete tables.
 
 ### 2. `Datus` (`datus-postgresql`) — Foreign Key Omission in Reconstructed Table DDL
 - **Issue Filed:** [`Datus-ai/Datus-agent#1542`](https://github.com/Datus-ai/Datus-agent/issues/1542)
-- **Proposed Fix on Fork:** [`Datus-ai/datus-db-adapters#177`](https://github.com/Datus-ai/datus-db-adapters/pull/177) / [`meet987654/datus-db-adapters:fix/postgresql-ddl-foreign-keys`](https://github.com/meet987654/datus-db-adapters/tree/fix/postgresql-ddl-foreign-keys) *(open, not merged)*
+- **Proposed Fix in PR:** [`Datus-ai/datus-db-adapters#177`](https://github.com/Datus-ai/datus-db-adapters/pull/177) *(open, not merged)*
 - **Failure Mode:** In `PostgreSQLConnector._get_ddl()`, constraint extraction was restricted to `c.contype IN ('p', 'u')`, completely omitting `'f'` (foreign keys). Reconstructed table DDL stored in `schema_metadata.json` and indexed in LanceDB contained zero foreign key relationships, forcing downstream models to guess join keys from column names alone.
 - **Proposed Fix:** Expands constraint extraction to `contype IN ('p', 'u', 'f')`, orders constraints deterministically (`PRIMARY KEY` $\rightarrow$ `UNIQUE` $\rightarrow$ `FOREIGN KEY`), and cleanly separates unvalidated (`NOT VALID`) foreign keys into standalone `ALTER TABLE` statements to maintain valid PostgreSQL execution grammar.
