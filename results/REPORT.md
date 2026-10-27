@@ -181,17 +181,18 @@ flowchart TD
 
 ---
 
-## 7. Upstream Open-Source Contributions & Discovered Failure Modes
+## 7. Upstream Issues Filed & Proposed Fixes
 
-In addition to benchmark scoring, `dbeval` functioned as an active stress-testing and verification harness for the evaluated open-source tools. Rigorous evaluation against real-world schemas uncovered two fundamental failure modes in upstream repositories, both of which were documented, isolated with minimal reproductions, and patched:
+In addition to benchmark scoring, `dbeval` functioned as an active testing harness for the evaluated open-source tools. Rigorous evaluation against real-world schemas uncovered two failure modes in upstream repositories. Issues were filed and fixes were proposed on forks (both open, not merged):
 
 ### 1. `@kaelio/ktx` — Silent Enrichment Failure & Cache Poisoning
-- **Issue:** [`kaelio/ktx#377`](https://github.com/kaelio/ktx/issues/377)
-- **Failure Mode:** When external LLM provider calls fail completely during local schema enrichment (e.g. gateway 404, rate limits, or bad credentials), `local-enrichment.ts` reported `completed` with exit code 0, cached empty/null results in SQLite `scan:descriptions`, and bypassed per-table resume on subsequent runs.
-- **Upstream Fix:** Added total failure detection, truthful non-zero exit status reporting, Windows SQLite handle cleanup, and prevented incomplete cache short-circuiting so subsequent runs resume incomplete tables.
+- **Issue Filed:** [`kaelio/ktx#377`](https://github.com/kaelio/ktx/issues/377)
+- **Proposed Fix on Fork:** [`Kaelio/ktx#378`](https://github.com/Kaelio/ktx/pull/378) / [`meet987654/ktx:fix/description-enrichment-silent-failure`](https://github.com/meet987654/ktx/tree/fix/description-enrichment-silent-failure) *(open, not merged)*
+- **Failure Mode:** When external LLM provider calls fail completely during local schema enrichment (e.g. gateway 404 from `/language-model`, rate limits, or bad credentials), `local-enrichment.ts` reported `completed` with exit code 0, cached empty/null results in `descriptions.json` and SQLite `scan:descriptions`, and bypassed per-table resume on subsequent runs in `ktx 0.16.0`.
+- **Proposed Fix:** Adds total failure detection, truthful non-zero exit status reporting, Windows SQLite handle cleanup, and prevents incomplete cache short-circuiting so subsequent runs resume incomplete tables.
 
 ### 2. `Datus` (`datus-postgresql`) — Foreign Key Omission in Reconstructed Table DDL
-- **Issue:** [`Datus-ai/Datus-agent#1542`](https://github.com/Datus-ai/Datus-agent/issues/1542)
-- **PR:** [`Datus-ai/datus-db-adapters`](https://github.com/Datus-ai/datus-db-adapters)
+- **Issue Filed:** [`Datus-ai/Datus-agent#1542`](https://github.com/Datus-ai/Datus-agent/issues/1542)
+- **Proposed Fix on Fork:** [`Datus-ai/datus-db-adapters#177`](https://github.com/Datus-ai/datus-db-adapters/pull/177) / [`meet987654/datus-db-adapters:fix/postgresql-ddl-foreign-keys`](https://github.com/meet987654/datus-db-adapters/tree/fix/postgresql-ddl-foreign-keys) *(open, not merged)*
 - **Failure Mode:** In `PostgreSQLConnector._get_ddl()`, constraint extraction was restricted to `c.contype IN ('p', 'u')`, completely omitting `'f'` (foreign keys). Reconstructed table DDL stored in `schema_metadata.json` and indexed in LanceDB contained zero foreign key relationships, forcing downstream models to guess join keys from column names alone.
-- **Upstream Fix:** Expanded constraint extraction to `contype IN ('p', 'u', 'f')`, ordered constraints deterministically (`PRIMARY KEY` $\rightarrow$ `UNIQUE` $\rightarrow$ `FOREIGN KEY`), and cleanly separated unvalidated (`NOT VALID`) foreign keys into standalone `ALTER TABLE` statements to maintain valid PostgreSQL execution grammar.
+- **Proposed Fix:** Expands constraint extraction to `contype IN ('p', 'u', 'f')`, orders constraints deterministically (`PRIMARY KEY` $\rightarrow$ `UNIQUE` $\rightarrow$ `FOREIGN KEY`), and cleanly separates unvalidated (`NOT VALID`) foreign keys into standalone `ALTER TABLE` statements to maintain valid PostgreSQL execution grammar.
