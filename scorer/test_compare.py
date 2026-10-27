@@ -1,4 +1,8 @@
+import os
+import sys
 from decimal import Decimal
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from compare import same
 
 g = lambda *a, **k: same(*a, **k)
