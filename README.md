@@ -3,6 +3,7 @@
 > Which data-agent context layer works best on *your* database? A neutral head-to-head evaluation over Postgres.
 
 📖 **Final Evaluation Report:** Read the full findings, statistical tests, and failure analyses in [**`results/REPORT.md`**](results/REPORT.md).  
+
 ⚖️ **License:** Licensed under the [MIT License](LICENSE).
 
 ---
