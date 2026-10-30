@@ -33,7 +33,7 @@ All metrics reflect majority scoring across 3 repetitions per question evaluated
 | **`baseline`** (raw schema + samples) | 4.0 / 32 | 12.5% | 13.0 / 18 | 72.2% | -24.0 Qs ($p < 0.001$) |
 | **`baseline_rules`** (prompt rules) | **28.0 / 32** | **87.5%** | **15.0 / 18** | **83.3%** | — (reference) |
 | **`wren_reviewed`** *(with engine rewrite)* | **28.0 / 32** | **87.5%** | 14.0 / 18 | 77.8% | +0.0 Qs ($p = 1.000$) |
-| **`ktx_reviewed`** *(YAML metrics & desc)* | 26.33 / 32 | 82.3% | 15.0 / 18 | 83.3% | -1.67 Qs ($p = 0.375$) |
+| **`ktx_reviewed`** *(description-based)* | 26.33 / 32 | 82.3% | 15.0 / 18 | 83.3% | -1.67 Qs ($p = 0.375$) |
 | **`datus_reviewed`** *(with free-text drop-in)* | 26.33 / 32 | 82.3% | **16.33 / 18** | **90.7%** | -1.67 Qs ($p = 0.688$) |
 | **`datus_reviewed_defonly`** *(DDL comments only)* | 25.33 / 32 | 79.2% | 14.67 / 18 | 81.5% | -2.67 Qs ($p = 0.289$) |
 
@@ -225,6 +225,12 @@ All systems under test run against the exact same LLM (**`codestral-2508`** via 
 - [x] **Day 4: Test Harness & 3x Full Evaluation:** Built runners and `scorer/run_suite.py`. Completed 3 full evaluation passes with `codestral-2508` across all 4 systems on both databases.
 - [x] **Day 5: Timed Review, Execution Fixes & Final Report:** Encoded business rules across ktx, Wren Engine, and Datus. Fixed Wren engine SQL rewriting pass to resolve calculated fields. Isolated the Datus free-text drop-in effect. Completed 50 scored questions, 3 runs each, and generated paired statistical reports (`scorer/analyze.py`) and failure attribution (`scorer/label_failures.py`). Tagged `study-v1` and `study-v1.3`.
 - [x] **Post-Study Tool Audits & Upstream Fixes:** Identified silent enrichment failure in ktx (filed `kaelio/ktx#377`, proposed fix `kaelio/ktx#378`) and missing foreign keys in Datus (filed `Datus-ai/Datus-agent#1542`, proposed fix `Datus-ai/datus-db-adapters#177`).
+
+---
+
+## Contributing
+
+Contributions, bug reports, and adapter improvements are welcome! Please check out [**`CONTRIBUTING.md`**](CONTRIBUTING.md) for development setup, reproduction guidelines, and pull request procedures.
 
 ---
 

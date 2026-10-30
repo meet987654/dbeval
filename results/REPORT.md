@@ -47,7 +47,7 @@ All metrics reflect **majority scoring across 3 repetitions per question** (18 `
 | **`schema_only`** (no samples) | 3.0 / 32 | 9.4% | 11.0 / 18 | 61.1% |
 | **`schema_true_joins`** (FK oracle) | 4.0 / 32 | 12.5% | 12.5 / 18 | 69.4% |
 | **`baseline_rules`** (raw prompt rules) | **28.0 / 32** | **87.5%** | **15.0 / 18** | **83.3%** |
-| **`ktx_reviewed`** (YAML metrics & desc) | 26.33 / 32 | 82.3% | 15.0 / 18 | 83.3% |
+| **`ktx_reviewed`** (description-based) | 26.33 / 32 | 82.3% | 15.0 / 18 | 83.3% |
 | **`wren_reviewed`** *(with engine rewrite)* | **28.0 / 32** | **87.5%** | 14.0 / 18 | 77.8% |
 | *`wren_reviewed_unresolved`* *(pre-fix)* | 25.0 / 32 | 78.1% | 13.33 / 18 | 74.1% |
 | **`datus_reviewed`** *(with free-text drop-in)* | 26.33 / 32 | 82.3% | 16.33 / 18 | 90.7% |
