@@ -54,17 +54,24 @@ Please treat all contributors and maintainers with kindness, professional courte
 
 Before making changes, verify that the test harness and analysis scripts run cleanly:
 
-1. **Verify Python compilation & basic tests:**
+1. **Verify Python compilation & unit tests:**
    ```bash
    python -m compileall runners scorer db scripts
+   python scorer/test_compare.py
+   python scorer/test_validate_questions.py
    ```
 
-2. **Run headline zero-setup analysis:**
+2. **Validate question suites:**
+   ```bash
+   python scorer/validate_questions.py
+   ```
+
+3. **Run headline zero-setup analysis:**
    ```bash
    python scorer/analyze.py results/raw/suite_results_all.csv --ties half --matrix /tmp/per_question.csv
    ```
 
-3. **Run local quickstart (requires Docker + 1 LLM API key):**
+4. **Run local quickstart (requires Docker + 1 LLM API key):**
    ```bash
    python scripts/quickstart.py
    ```
