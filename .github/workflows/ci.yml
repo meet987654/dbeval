@@ -25,6 +25,11 @@ jobs:
       - name: Run scorer unit tests
         run: |
           python scorer/test_compare.py
+          python scorer/test_validate_questions.py
+
+      - name: Validate question suites
+        run: |
+          python scorer/validate_questions.py
 
       - name: Run Option 0 headline analysis
         run: |
