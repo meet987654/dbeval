@@ -59,6 +59,7 @@ Before making changes, verify that the test harness and analysis scripts run cle
    python -m compileall runners scorer db scripts
    python scorer/test_compare.py
    python scorer/test_validate_questions.py
+   python scorer/test_analyze.py
    ```
 
 2. **Validate question suites:**
