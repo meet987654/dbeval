@@ -60,6 +60,7 @@ Before making changes, verify that the test harness and analysis scripts run cle
    python scorer/test_compare.py
    python scorer/test_validate_questions.py
    python scorer/test_analyze.py
+   python runners/test_baseline.py
    ```
 
 2. **Validate question suites:**
@@ -72,7 +73,7 @@ Before making changes, verify that the test harness and analysis scripts run cle
    python scorer/analyze.py results/raw/suite_results_all.csv --ties half --matrix /tmp/per_question.csv
    ```
 
-4. **Run local quickstart (requires Docker + 1 LLM API key):**
+4. **Run local quickstart (requires Docker + 1 LLM API key or local Ollama):**
    ```bash
    python scripts/quickstart.py
    ```

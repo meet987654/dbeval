@@ -10,9 +10,13 @@ Needs: pip install sqlalchemy psycopg2-binary pyyaml python-dotenv anthropic
        (or `openai` instead of `anthropic`)
 
 .env settings (names only, put your real values in your own .env):
-    LLM_PROVIDER=anthropic          # or openai
+    LLM_PROVIDER=anthropic          # or openai, mistral, groq, ollama, vllm
     LLM_MODEL=<one model for the whole project>
     ANTHROPIC_API_KEY=...           # or OPENAI_API_KEY=...
+    # For local offline LLMs (no API key required):
+    # LLM_PROVIDER=ollama
+    # LLM_MODEL=qwen2.5-coder:14b
+    # OLLAMA_BASE_URL=http://localhost:11434/v1
     READER_URL_OLIST=postgresql://reader:reader@localhost:5433/olist
     READER_URL_APPDB=postgresql://reader:reader@localhost:5433/appdb
 """
@@ -137,7 +141,7 @@ def call_llm(system, user):
             messages=[{"role": "user", "content": user}],
         )
         return r.content[0].text, r.usage.input_tokens, r.usage.output_tokens
-    if provider in ("openai", "groq", "mistral"):
+    if provider in ("openai", "groq", "mistral", "ollama", "vllm"):
         from openai import OpenAI
 
         if provider == "groq":
@@ -146,14 +150,24 @@ def call_llm(system, user):
         elif provider == "mistral":
             api_key = os.getenv("MISTRAL_API_KEY") or os.getenv("OPENAI_API_KEY")
             base_url = os.getenv("MISTRAL_BASE_URL") or os.getenv("OPENAI_BASE_URL") or "https://api.mistral.ai/v1"
+        elif provider == "ollama":
+            api_key = os.getenv("OLLAMA_API_KEY") or "ollama"
+            base_url = os.getenv("OLLAMA_BASE_URL") or "http://localhost:11434/v1"
+        elif provider == "vllm":
+            api_key = os.getenv("VLLM_API_KEY") or "dummy"
+            base_url = os.getenv("VLLM_BASE_URL") or "http://localhost:8000/v1"
         else:
             api_key = os.getenv("OPENAI_API_KEY")
             base_url = os.getenv("OPENAI_BASE_URL")
 
-        client = OpenAI(api_key=api_key, base_url=base_url)
+        timeout_sec = float(os.getenv("LLM_TIMEOUT", "120.0"))
+        client = OpenAI(api_key=api_key, base_url=base_url, timeout=timeout_sec)
+        is_local = provider in ("ollama", "vllm")
+
         for attempt in range(5):
             try:
-                time.sleep(1.1)  # Pace calls to stay within ~1 req/sec limits
+                if not is_local:
+                    time.sleep(1.1)  # Pace cloud calls to stay within ~1 req/sec limits
                 r = client.chat.completions.create(
                     model=model, temperature=0,
                     messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],

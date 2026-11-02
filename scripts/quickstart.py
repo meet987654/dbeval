@@ -51,7 +51,7 @@ def check_docker():
 
 
 def check_api_key():
-    """Verify at least one supported LLM API key is set."""
+    """Verify at least one supported LLM API key or local runner configuration is set."""
     provider = os.getenv("LLM_PROVIDER", "").lower()
 
     if not provider:
@@ -63,27 +63,53 @@ def check_api_key():
             provider = "openai"
         elif os.getenv("GROQ_API_KEY"):
             provider = "groq"
+        elif os.getenv("OLLAMA_BASE_URL"):
+            provider = "ollama"
+        elif os.getenv("VLLM_BASE_URL"):
+            provider = "vllm"
         else:
-            print("[Error] Missing LLM API key.")
-            print("Please configure your LLM provider and API key in .env or your environment:")
-            print("  LLM_PROVIDER=mistral   # or anthropic, openai, groq")
+            print("[Error] Missing LLM configuration.")
+            print("Please configure your LLM provider in .env or your environment:")
+            print("  LLM_PROVIDER=mistral   # or anthropic, openai, groq, ollama, vllm")
             print("  LLM_MODEL=codestral-2508")
             print("  MISTRAL_API_KEY=your_api_key_here")
+            print("\nFor local offline execution (no API key required):")
+            print("  LLM_PROVIDER=ollama")
+            print("  LLM_MODEL=qwen2.5-coder:14b")
             print("\nSee .env.example for template.")
             sys.exit(1)
         os.environ["LLM_PROVIDER"] = provider
 
-    key_map = {
-        "anthropic": "ANTHROPIC_API_KEY",
-        "openai": "OPENAI_API_KEY",
-        "mistral": "MISTRAL_API_KEY",
-        "groq": "GROQ_API_KEY",
-    }
-    key_var = key_map.get(provider, "OPENAI_API_KEY")
-    if not os.getenv(key_var) and not os.getenv("OPENAI_API_KEY"):
-        print(f"[Error] Missing {key_var} for LLM_PROVIDER={provider}.")
-        print(f"Please export {key_var} or add it to your .env file.")
-        sys.exit(1)
+    if provider in ("ollama", "vllm"):
+        base_url = (
+            os.getenv("OLLAMA_BASE_URL") or "http://localhost:11434/v1"
+            if provider == "ollama"
+            else os.getenv("VLLM_BASE_URL") or "http://localhost:8000/v1"
+        )
+        try:
+            import urllib.request
+            req = urllib.request.Request(
+                base_url.rstrip("/") + "/models",
+                headers={"User-Agent": "dbeval-quickstart"},
+            )
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                if resp.status != 200:
+                    raise RuntimeError(f"HTTP {resp.status}")
+        except Exception:
+            print(f"[Warning] Could not reach {provider} endpoint at {base_url}.")
+            print(f"Make sure {provider} is running locally (e.g. `ollama serve`).")
+    else:
+        key_map = {
+            "anthropic": "ANTHROPIC_API_KEY",
+            "openai": "OPENAI_API_KEY",
+            "mistral": "MISTRAL_API_KEY",
+            "groq": "GROQ_API_KEY",
+        }
+        key_var = key_map.get(provider, "OPENAI_API_KEY")
+        if not os.getenv(key_var) and not os.getenv("OPENAI_API_KEY"):
+            print(f"[Error] Missing {key_var} for LLM_PROVIDER={provider}.")
+            print(f"Please export {key_var} or add it to your .env file.")
+            sys.exit(1)
 
     if not os.getenv("LLM_MODEL"):
         default_models = {
@@ -91,6 +117,8 @@ def check_api_key():
             "mistral": "codestral-2508",
             "openai": "gpt-4o",
             "groq": "llama-3.3-70b-versatile",
+            "ollama": "qwen2.5-coder:14b",
+            "vllm": "Qwen/Qwen2.5-Coder-14B-Instruct",
         }
         os.environ["LLM_MODEL"] = default_models.get(provider, "codestral-2508")
 
