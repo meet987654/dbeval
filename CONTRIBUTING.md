@@ -73,9 +73,13 @@ Before making changes, verify that the test harness and analysis scripts run cle
    python scorer/analyze.py results/raw/suite_results_all.csv --ties half --matrix /tmp/per_question.csv
    ```
 
-4. **Run local quickstart (requires Docker + 1 LLM API key or local Ollama):**
+4. **Run local quickstart (PostgreSQL or zero-Docker SQLite):**
    ```bash
+   # Standard mode (requires Docker + PostgreSQL container on port 5433):
    python scripts/quickstart.py
+
+   # Zero-Docker mode (runs locally using SQLite test fixture, no Docker daemon needed):
+   python scripts/quickstart.py --db-type sqlite
    ```
 
 ---

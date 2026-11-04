@@ -30,6 +30,7 @@ COMMENT ON statements in the database, or you would be helping the tools):
  9. Active user = a non-deleted user with at least one event in the period.
 """
 
+import argparse
 import os
 import random
 from datetime import datetime, timedelta, timezone
@@ -120,6 +121,86 @@ CREATE TABLE events (
 CREATE TABLE fx_rates (
     currency     text PRIMARY KEY,
     usd_per_unit numeric(10, 5) NOT NULL
+);
+"""
+
+SQLITE_DDL = """
+DROP TABLE IF EXISTS events;
+DROP TABLE IF EXISTS refunds;
+DROP TABLE IF EXISTS invoices;
+DROP TABLE IF EXISTS subscriptions;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS accounts;
+DROP TABLE IF EXISTS fx_rates;
+
+CREATE TABLE accounts (
+    id          INTEGER PRIMARY KEY,
+    name        TEXT NOT NULL,
+    plan        TEXT,
+    plan_tier   TEXT,
+    is_test     BOOLEAN NOT NULL DEFAULT 0,
+    country     TEXT,
+    currency    TEXT,
+    created_at  TIMESTAMP NOT NULL,
+    deleted_at  TIMESTAMP
+);
+
+CREATE TABLE users (
+    id          INTEGER PRIMARY KEY,
+    account_id  INTEGER NOT NULL,
+    email       TEXT,
+    role        TEXT,
+    created_at  TIMESTAMP NOT NULL,
+    deleted_at  TIMESTAMP,
+    FOREIGN KEY (account_id) REFERENCES accounts(id)
+);
+
+CREATE TABLE subscriptions (
+    id            INTEGER PRIMARY KEY,
+    account_id    INTEGER NOT NULL,
+    plan_tier     TEXT NOT NULL,
+    status        TEXT NOT NULL,
+    started_at    TIMESTAMP NOT NULL,
+    trial_ends_at TIMESTAMP,
+    canceled_at   TIMESTAMP,
+    cancel_reason TEXT,
+    FOREIGN KEY (account_id) REFERENCES accounts(id)
+);
+
+CREATE TABLE invoices (
+    id              INTEGER PRIMARY KEY,
+    subscription_id INTEGER NOT NULL,
+    account_id      INTEGER NOT NULL,
+    amount_cents    INTEGER NOT NULL,
+    currency        TEXT NOT NULL,
+    status          TEXT NOT NULL,
+    issued_at       TIMESTAMP NOT NULL,
+    paid_at         TIMESTAMP,
+    FOREIGN KEY (subscription_id) REFERENCES subscriptions(id),
+    FOREIGN KEY (account_id) REFERENCES accounts(id)
+);
+
+CREATE TABLE refunds (
+    id            INTEGER PRIMARY KEY,
+    invoice_id    INTEGER NOT NULL,
+    amount_cents  INTEGER NOT NULL,
+    created_at    TIMESTAMP NOT NULL,
+    FOREIGN KEY (invoice_id) REFERENCES invoices(id)
+);
+
+CREATE TABLE events (
+    id          INTEGER PRIMARY KEY,
+    account_id  INTEGER NOT NULL,
+    user_id     INTEGER NOT NULL,
+    event_type  TEXT NOT NULL,
+    occurred_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (account_id) REFERENCES accounts(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE fx_rates (
+    currency     TEXT PRIMARY KEY,
+    usd_per_unit NUMERIC(10, 5) NOT NULL
 );
 """
 
@@ -305,30 +386,66 @@ def insert(conn, table, rows):
         conn.execute(stmt, rows[i : i + 5000])
 
 
-def main():
+def seed_database(url=None, sqlite_path=None):
+    """Seed appdb data into either PostgreSQL or SQLite."""
     rng = random.Random(42)
     accounts, users, subs, invoices, refunds, events = build_data(rng)
 
-    engine = make_engine(ADMIN_URL)
-    with engine.begin() as conn:
-        conn.execute(text(DDL))
-        for cur, rate in FX.items():
-            conn.execute(
-                text("INSERT INTO fx_rates VALUES (:c, :r)"), {"c": cur, "r": rate}
-            )
-        insert(conn, "accounts", accounts)
-        insert(conn, "users", users)
-        insert(conn, "subscriptions", subs)
-        insert(conn, "invoices", invoices)
-        insert(conn, "refunds", refunds)
-        insert(conn, "events", events)
-        conn.execute(text("GRANT USAGE ON SCHEMA public TO reader"))
-        conn.execute(text("GRANT SELECT ON ALL TABLES IN SCHEMA public TO reader"))
+    if sqlite_path:
+        os.makedirs(os.path.dirname(os.path.abspath(sqlite_path)), exist_ok=True)
+        url = f"sqlite:///{os.path.abspath(sqlite_path)}"
 
-    print("appdb seeded:")
+    url = url or ADMIN_URL
+    is_sqlite = url.startswith("sqlite")
+
+    engine = make_engine(url)
+    try:
+        with engine.begin() as conn:
+            if is_sqlite:
+                for stmt in SQLITE_DDL.strip().split(";"):
+                    stmt = stmt.strip()
+                    if stmt:
+                        conn.execute(text(stmt))
+            else:
+                conn.execute(text(DDL))
+
+            for cur, rate in FX.items():
+                conn.execute(
+                    text("INSERT INTO fx_rates VALUES (:c, :r)"), {"c": cur, "r": rate}
+                )
+            insert(conn, "accounts", accounts)
+            insert(conn, "users", users)
+            insert(conn, "subscriptions", subs)
+            insert(conn, "invoices", invoices)
+            insert(conn, "refunds", refunds)
+            insert(conn, "events", events)
+
+            if not is_sqlite:
+                conn.execute(text("GRANT USAGE ON SCHEMA public TO reader"))
+                conn.execute(text("GRANT SELECT ON ALL TABLES IN SCHEMA public TO reader"))
+    finally:
+        engine.dispose()
+
+    target_desc = sqlite_path if sqlite_path else url
+    print(f"appdb seeded ({target_desc}):")
     for name, rows in [("accounts", accounts), ("users", users), ("subscriptions", subs),
                        ("invoices", invoices), ("refunds", refunds), ("events", events)]:
         print(f"  {name:14s} {len(rows):>7d}")
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description="Seed appdb synthetic SaaS database.")
+    ap.add_argument(
+        "--sqlite",
+        nargs="?",
+        const="db/appdb.sqlite",
+        default=None,
+        help="Seed into local SQLite database file instead of PostgreSQL (default: db/appdb.sqlite)",
+    )
+    ap.add_argument("--url", default=None, help="Database connection URL override")
+    args = ap.parse_args(argv)
+
+    seed_database(url=args.url, sqlite_path=args.sqlite)
 
 
 if __name__ == "__main__":
