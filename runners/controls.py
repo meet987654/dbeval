@@ -34,23 +34,33 @@ def schema_only_text(db):
 
     engine = b.reader_engine(db)
     lines = []
-    with engine.connect() as conn:
-        cols = conn.execute(text("""
-            SELECT table_name, column_name, data_type
-            FROM information_schema.columns
-            WHERE table_schema = 'public'
-            ORDER BY table_name, ordinal_position
-        """)).fetchall()
+    if engine.dialect.name == "sqlite":
+        from sqlalchemy import inspect
 
-        tables = {}
-        for table, column, dtype in cols:
-            tables.setdefault(table, []).append((column, dtype))
-
-        for table, columns in sorted(tables.items()):
+        insp = inspect(engine)
+        for table in sorted(insp.get_table_names()):
             lines.append(f"TABLE {table}")
-            for column, dtype in columns:
-                lines.append(f"  {column} {dtype}")
+            for col in insp.get_columns(table):
+                lines.append(f"  {col['name']} {str(col['type']).lower()}")
             lines.append("")
+    else:
+        with engine.connect() as conn:
+            cols = conn.execute(text("""
+                SELECT table_name, column_name, data_type
+                FROM information_schema.columns
+                WHERE table_schema = 'public'
+                ORDER BY table_name, ordinal_position
+            """)).fetchall()
+
+            tables = {}
+            for table, column, dtype in cols:
+                tables.setdefault(table, []).append((column, dtype))
+
+            for table, columns in sorted(tables.items()):
+                lines.append(f"TABLE {table}")
+                for column, dtype in columns:
+                    lines.append(f"  {column} {dtype}")
+                lines.append("")
 
     ctx = "\n".join(lines).strip()
     _CACHE_SCHEMA_ONLY[db] = ctx

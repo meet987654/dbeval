@@ -61,12 +61,41 @@ def make_engine(url):
     return create_engine(url)
 
 
+_engines = {}
+
+
 def reader_engine(db):
     url = os.getenv(f"READER_URL_{db.upper()}") or f"postgresql://reader:reader@localhost:5433/{db}"
-    return make_engine(url)
+    if db not in _engines or _engines[db]["url"] != url:
+        if db in _engines:
+            _engines[db]["engine"].dispose()
+        _engines[db] = {"url": url, "engine": make_engine(url)}
+    return _engines[db]["engine"]
+
+
+def dispose_engine(db=None):
+    """Dispose active database connection pool(s)."""
+    if db and db in _engines:
+        _engines[db]["engine"].dispose()
+        del _engines[db]
+    elif not db:
+        for entry in _engines.values():
+            entry["engine"].dispose()
+        _engines.clear()
 
 
 _schema_cache = {}
+
+
+def adapt_sql_for_sqlite(sql):
+    """Adapt PostgreSQL dialect patterns in gold or generated SQL for SQLite execution."""
+    if not sql:
+        return sql
+    # Replace cast ::numeric with CAST(... AS NUMERIC)
+    sql = re.sub(r'(\b[\w\.]+)::numeric\b', r'CAST(\1 AS NUMERIC)', sql, flags=re.IGNORECASE)
+    # Remove Postgres ::text cast
+    sql = re.sub(r'::text\b', '', sql, flags=re.IGNORECASE)
+    return sql
 
 
 def schema_text(db):
@@ -75,43 +104,74 @@ def schema_text(db):
         return _schema_cache[db]
     engine = reader_engine(db)
     lines = []
-    with engine.connect() as conn:
-        cols = conn.execute(
-            text(
-                "SELECT table_name, column_name, data_type FROM information_schema.columns "
-                "WHERE table_schema = 'public' ORDER BY table_name, ordinal_position"
-            )
-        ).fetchall()
-        keys = conn.execute(
-            text(
-                "SELECT conrelid::regclass::text, pg_get_constraintdef(oid) FROM pg_constraint "
-                "WHERE contype IN ('p', 'f') AND connamespace = 'public'::regnamespace "
-                "ORDER BY 1"
-            )
-        ).fetchall()
 
-        tables = {}
-        for table, column, dtype in cols:
-            tables.setdefault(table, []).append((column, dtype))
+    if engine.dialect.name == "sqlite":
+        from sqlalchemy import inspect
 
-        for table, columns in tables.items():
-            lines.append(f"TABLE {table}")
-            for column, dtype in columns:
-                # sample from the first 200 non-null rows only, so it is cheap on big tables
-                sample_sql = (
-                    f'SELECT DISTINCT v FROM (SELECT "{column}"::text AS v FROM "{table}" '
-                    f'WHERE "{column}" IS NOT NULL LIMIT 200) s LIMIT {SAMPLES_PER_COLUMN}'
+        insp = inspect(engine)
+        tables = insp.get_table_names()
+        with engine.connect() as conn:
+            for table in sorted(tables):
+                lines.append(f"TABLE {table}")
+                cols = insp.get_columns(table)
+                fks = insp.get_foreign_keys(table)
+                for col in cols:
+                    c_name = col["name"]
+                    c_type = str(col["type"]).lower()
+                    sample_sql = (
+                        f'SELECT DISTINCT "{c_name}" FROM "{table}" '
+                        f'WHERE "{c_name}" IS NOT NULL LIMIT {SAMPLES_PER_COLUMN}'
+                    )
+                    try:
+                        samples = [str(r[0])[:40] for r in conn.execute(text(sample_sql))]
+                    except Exception:
+                        samples = []
+                    lines.append(f"  {c_name} {c_type}  e.g. {samples}")
+                for fk in fks:
+                    c_cols = ", ".join(fk.get("constrained_columns", []))
+                    r_cols = ", ".join(fk.get("referred_columns", []))
+                    r_tbl = fk.get("referred_table")
+                    lines.append(f"  CONSTRAINT FOREIGN KEY ({c_cols}) REFERENCES {r_tbl}({r_cols})")
+                lines.append("")
+    else:
+        with engine.connect() as conn:
+            cols = conn.execute(
+                text(
+                    "SELECT table_name, column_name, data_type FROM information_schema.columns "
+                    "WHERE table_schema = 'public' ORDER BY table_name, ordinal_position"
                 )
-                try:
-                    samples = [str(r[0])[:40] for r in conn.execute(text(sample_sql))]
-                except Exception:
-                    conn.rollback()
-                    samples = []
-                lines.append(f"  {column} {dtype}  e.g. {samples}")
-            for t, definition in keys:
-                if t.strip('"') == table:
-                    lines.append(f"  CONSTRAINT {definition}")
-            lines.append("")
+            ).fetchall()
+            keys = conn.execute(
+                text(
+                    "SELECT conrelid::regclass::text, pg_get_constraintdef(oid) FROM pg_constraint "
+                    "WHERE contype IN ('p', 'f') AND connamespace = 'public'::regnamespace "
+                    "ORDER BY 1"
+                )
+            ).fetchall()
+
+            tables = {}
+            for table, column, dtype in cols:
+                tables.setdefault(table, []).append((column, dtype))
+
+            for table, columns in tables.items():
+                lines.append(f"TABLE {table}")
+                for column, dtype in columns:
+                    # sample from the first 200 non-null rows only, so it is cheap on big tables
+                    sample_sql = (
+                        f'SELECT DISTINCT v FROM (SELECT "{column}"::text AS v FROM "{table}" '
+                        f'WHERE "{column}" IS NOT NULL LIMIT 200) s LIMIT {SAMPLES_PER_COLUMN}'
+                    )
+                    try:
+                        samples = [str(r[0])[:40] for r in conn.execute(text(sample_sql))]
+                    except Exception:
+                        conn.rollback()
+                        samples = []
+                    lines.append(f"  {column} {dtype}  e.g. {samples}")
+                for t, definition in keys:
+                    if t.strip('"') == table:
+                        lines.append(f"  CONSTRAINT {definition}")
+                lines.append("")
+
     _schema_cache[db] = "\n".join(lines)
     return _schema_cache[db]
 
@@ -119,9 +179,14 @@ def schema_text(db):
 def run_sql(db, sql):
     """Run one read-only statement with a timeout and a row limit."""
     engine = reader_engine(db)
+    is_sqlite = engine.dialect.name == "sqlite"
+    if is_sqlite:
+        sql = adapt_sql_for_sqlite(sql)
+
     with engine.connect() as conn:
-        conn.execute(text("SET TRANSACTION READ ONLY"))
-        conn.execute(text(f"SET LOCAL statement_timeout = {TIMEOUT_MS}"))
+        if not is_sqlite:
+            conn.execute(text("SET TRANSACTION READ ONLY"))
+            conn.execute(text(f"SET LOCAL statement_timeout = {TIMEOUT_MS}"))
         result = conn.execute(text(sql))
         columns = list(result.keys())
         rows = [tuple(r) for r in result.fetchmany(ROW_LIMIT)]

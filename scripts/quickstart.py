@@ -155,28 +155,57 @@ def wait_for_postgres(timeout_seconds=30):
     return False
 
 
-def main():
+def main(argv=None):
+    import argparse
+
+    ap = argparse.ArgumentParser(description="Quickstart benchmark for dbeval: Baseline vs. Baseline + Rules")
+    ap.add_argument(
+        "--db-type",
+        choices=["postgres", "sqlite"],
+        default="postgres",
+        help="Database backend to use (default: postgres, or sqlite for zero-Docker mode)",
+    )
+    ap.add_argument(
+        "--sqlite-path",
+        default=None,
+        help="Custom SQLite file path when --db-type sqlite is selected (default: db/appdb.sqlite)",
+    )
+    args = ap.parse_args(argv)
+    use_sqlite = args.db_type == "sqlite"
+
     print("=" * 65)
-    print(" dbeval Quickstart: Baseline vs. Baseline + Rules")
+    title_suffix = " (Zero-Docker SQLite Mode)" if use_sqlite else ""
+    print(f" dbeval Quickstart: Baseline vs. Baseline + Rules{title_suffix}")
     print("=" * 65)
 
     print("\n[1/5] Checking environment & credentials...")
-    check_docker()
+    if use_sqlite:
+        print("  -> Zero-Docker mode enabled (--db-type sqlite); Docker check skipped.")
+    else:
+        check_docker()
+        print("  -> Docker daemon is running.")
     check_api_key()
     check_python_dependencies()
-    print("  -> Docker daemon is running.")
     print(f"  -> LLM provider: {os.getenv('LLM_PROVIDER')} (model: {os.getenv('LLM_MODEL')})")
 
-    print("\n[2/5] Starting database container (docker compose up -d)...")
-    subprocess.run(["docker", "compose", "up", "-d"], cwd=ROOT, check=True)
-    print("  -> Waiting for PostgreSQL on localhost:5433...")
-    if not wait_for_postgres():
-        print("[Error] PostgreSQL did not become ready in time.")
-        sys.exit(1)
-    print("  -> PostgreSQL is ready.")
+    print(f"\n[2/5] Preparing database ({'SQLite local file' if use_sqlite else 'docker compose up -d'})...")
+    if use_sqlite:
+        sqlite_file = args.sqlite_path or os.path.join(ROOT, "db", "appdb.sqlite")
+        os.environ["READER_URL_APPDB"] = f"sqlite:///{os.path.abspath(sqlite_file)}"
+        print(f"  -> Using local SQLite database at {sqlite_file}")
+    else:
+        subprocess.run(["docker", "compose", "up", "-d"], cwd=ROOT, check=True)
+        print("  -> Waiting for PostgreSQL on localhost:5433...")
+        if not wait_for_postgres():
+            print("[Error] PostgreSQL did not become ready in time.")
+            sys.exit(1)
+        print("  -> PostgreSQL is ready.")
 
     print("\n[3/5] Seeding synthetic appdb SaaS database...")
-    subprocess.run([sys.executable, os.path.join(ROOT, "db", "seed_appdb.py")], cwd=ROOT, check=True)
+    seed_cmd = [sys.executable, os.path.join(ROOT, "db", "seed_appdb.py")]
+    if use_sqlite:
+        seed_cmd.extend(["--sqlite", sqlite_file])
+    subprocess.run(seed_cmd, cwd=ROOT, check=True)
     print("  -> appdb seeded successfully.")
 
     print("\n[4/5] Running 10 appdb questions across baseline and baseline_rules...")

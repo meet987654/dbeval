@@ -150,9 +150,9 @@ python scorer/analyze.py results/raw/suite_results_all.csv --ties half --baselin
 
 ---
 
-### Option 1: Quickstart Execution Script (Requires Docker + 1 API Key)
+### Option 1: Quickstart Execution Script (Requires Docker + 1 API Key, or Zero-Docker SQLite)
 
-To spin up the PostgreSQL database, seed `appdb`, and run a live 10-question evaluation comparing `baseline` vs `baseline_rules`:
+To spin up the test database, seed `appdb`, and run a live 10-question evaluation comparing `baseline` vs `baseline_rules`:
 
 ```bash
 # 1. Install dependencies
@@ -161,8 +161,11 @@ pip install -r requirements.txt
 # 2. Configure .env with your LLM API key (e.g. Mistral, Anthropic, or OpenAI)
 cp .env.example .env
 
-# 3. Run quickstart
+# 3. Run quickstart (Standard mode with Docker + PostgreSQL):
 python scripts/quickstart.py
+
+# Or run in Zero-Docker mode using a local SQLite fixture (no Docker daemon needed):
+python scripts/quickstart.py --db-type sqlite
 ```
 
 *Expected Result:* `baseline` scores low (failing on SaaS traps such as test accounts, soft deletes, and cents conversion), while `baseline_rules` scores high as prompt rules clarify those edge cases.
