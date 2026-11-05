@@ -150,7 +150,7 @@ python scorer/analyze.py results/raw/suite_results_all.csv --ties half --baselin
 
 ---
 
-### Option 1: Quickstart Execution Script (Requires Docker + 1 API Key, or Zero-Docker SQLite)
+### Option 1: Quickstart Execution Script (Docker or Zero-Docker SQLite + LLM Provider)
 
 To spin up the test database, seed `appdb`, and run a live 10-question evaluation comparing `baseline` vs `baseline_rules`:
 
@@ -158,7 +158,7 @@ To spin up the test database, seed `appdb`, and run a live 10-question evaluatio
 # 1. Install dependencies
 pip install -r requirements.txt
 
-# 2. Configure .env with your LLM API key (e.g. Mistral, Anthropic, or OpenAI)
+# 2. Configure .env with your LLM provider credentials (e.g. Mistral, Anthropic, OpenAI, or local Ollama/vLLM)
 cp .env.example .env
 
 # 3. Run quickstart (Standard mode with Docker + PostgreSQL):
@@ -228,6 +228,7 @@ All systems under test run against the exact same LLM (**`codestral-2508`** via 
 - [x] **Day 4: Test Harness & 3x Full Evaluation:** Built runners and `scorer/run_suite.py`. Completed 3 full evaluation passes with `codestral-2508` across all 4 systems on both databases.
 - [x] **Day 5: Timed Review, Execution Fixes & Final Report:** Encoded business rules across ktx, Wren Engine, and Datus. Fixed Wren engine SQL rewriting pass to resolve calculated fields. Isolated the Datus free-text drop-in effect. Completed 50 scored questions, 3 runs each, and generated paired statistical reports (`scorer/analyze.py`) and failure attribution (`scorer/label_failures.py`). Tagged `study-v1` and `study-v1.3`.
 - [x] **Post-Study Tool Audits & Upstream Fixes:** Identified silent enrichment failure in ktx (filed `kaelio/ktx#377`, proposed fix `kaelio/ktx#378`) and missing foreign keys in Datus (filed `Datus-ai/Datus-agent#1542`, proposed fix `Datus-ai/datus-db-adapters#177`).
+- [x] **Local & Offline LLM Support:** Integrated offline local inference runners for Ollama and vLLM (`runners/baseline.py`).
 
 ---
 
