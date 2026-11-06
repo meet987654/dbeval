@@ -28,6 +28,8 @@ yarn-error.log*
 
 # Database data
 pgdata/
+*.sqlite
+*.db
 
 # Tool working directories / local runners
 ktx/
