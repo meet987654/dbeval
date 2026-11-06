@@ -31,7 +31,7 @@ import controls
 from compare import same
 
 BENCHMARK_SYSTEMS = ["baseline", "ktx", "datus", "wren"]
-CONTROL_SYSTEMS = ["schema_only", "schema_true_joins", "baseline_rules"]
+CONTROL_SYSTEMS = ["schema_only", "schema_true_joins", "baseline_rules", "ruleminer_rules"]
 REVIEWED_SYSTEMS = ["ktx_reviewed", "wren_reviewed", "datus_reviewed"]
 
 SYSTEM_RUNNERS = {
@@ -42,6 +42,7 @@ SYSTEM_RUNNERS = {
     "schema_only": controls.answer_schema_only,
     "schema_true_joins": controls.answer_schema_true_joins,
     "baseline_rules": controls.answer_baseline_rules,
+    "ruleminer_rules": controls.answer_ruleminer_rules,
     "ktx_reviewed": ktx_run.answer_reviewed,
     "wren_reviewed": wren_run.answer_reviewed,
     "datus_reviewed": datus_run.answer_reviewed,
