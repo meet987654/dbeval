@@ -229,6 +229,7 @@ All systems under test run against the exact same LLM (**`codestral-2508`** via 
 - [x] **Day 5: Timed Review, Execution Fixes & Final Report:** Encoded business rules across ktx, Wren Engine, and Datus. Fixed Wren engine SQL rewriting pass to resolve calculated fields. Isolated the Datus free-text drop-in effect. Completed 50 scored questions, 3 runs each, and generated paired statistical reports (`scorer/analyze.py`) and failure attribution (`scorer/label_failures.py`). Tagged `study-v1` and `study-v1.3`.
 - [x] **Post-Study Tool Audits & Upstream Fixes:** Identified silent enrichment failure in ktx (filed `kaelio/ktx#377`, proposed fix `kaelio/ktx#378`) and missing foreign keys in Datus (filed `Datus-ai/Datus-agent#1542`, proposed fix `Datus-ai/datus-db-adapters#177`).
 - [x] **Local & Offline LLM Support:** Integrated offline local inference runners for Ollama and vLLM (`runners/baseline.py`).
+- [x] **RuleMiner Automated Discovery Spike (Issue #5):** Built prototype pipeline (`ruleminer/`) inducing business rules, currency scales, implicit joins, and lifecycle states from schemas and query log ASTs ([`docs/RULEMINER.md`](docs/RULEMINER.md)).
 
 ---
 

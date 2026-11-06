@@ -150,3 +150,15 @@ def answer_baseline_rules(db, question):
     rules = rules_for(db)
     prompt = f"SCHEMA & SEMANTIC LAYER\n{schema}\n\nBUSINESS RULES & INSTRUCTIONS:\n{rules}\n\nQUESTION\n{question}\n\nSQL:"
     return _execute_runner("baseline_rules", db, question, prompt)
+
+def answer_ruleminer_rules(db, question):
+    from ruleminer.runner import get_induced_rules_text
+
+    schema = b.schema_text(db)
+    rules = get_induced_rules_text(db)
+    prompt = (
+        f"SCHEMA & SEMANTIC LAYER\n{schema}\n\n"
+        f"BUSINESS RULES & INSTRUCTIONS (AUTOMATICALLY DISCOVERED BY RULEMINER):\n{rules}\n\n"
+        f"QUESTION\n{question}\n\nSQL:"
+    )
+    return _execute_runner("ruleminer_rules", db, question, prompt)
