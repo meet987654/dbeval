@@ -278,58 +278,82 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
 <style>
 :root {
   color-scheme: light;
-  --bg:#f5f6fc; --surface:#fff; --surface-raised:#fbfaff;
-  --text:#202440; --muted:#70758f; --border:#e5e5f1;
-  --accent:#665ce7; --accent-strong:#8873f4;
-  --pass:#13876f; --pass-soft:#e6f7f0;
-  --fail:#d94f70; --fail-soft:#fff0f2;
-  --flaky:#a96c0b; --flaky-soft:#fff4de;
-  --missing:#818aa3; --missing-soft:#f0f1f7;
-  --shadow:0 12px 32px rgba(40,38,91,.07);
-  --shadow-hover:0 18px 38px rgba(40,38,91,.13);
-  --glow:rgba(117,97,228,.11);
+  --bg:#F3F1EA; --surface:#FFFFFF; --surface-raised:#F8F7F2;
+  --text:#18211D; --muted:#65716B; --border:#E2E0D8;
+  --accent:#2F6F4E; --accent-strong:#3E805E; --accent-secondary:#DE306E;
+  --pass:#2F6F4E; --pass-soft:#EAF2EC;
+  --fail:#BE3657; --fail-soft:#FBECEF;
+  --flaky:#94600E; --flaky-soft:#F9F0DD;
+  --missing:#77827B; --missing-soft:#EDF0ED;
+  --header-text:#18211D; --header-muted:#65716B;
+  --toggle-bg:rgba(255,255,255,.72); --toggle-border:#D7D8CF;
+  --toggle-icon:#D08A20;
+  --shadow:0 8px 24px rgba(34,49,39,.055);
+  --shadow-hover:0 12px 28px rgba(34,49,39,.09);
 }
 [data-theme="dark"] {
   color-scheme:dark;
-  --bg:#10111f; --surface:#191a2d; --surface-raised:#20213a;
-  --text:#f1efff; --muted:#aaa9c7; --border:#34344f;
-  --accent:#aa91ff; --accent-strong:#69dfd1;
-  --pass:#5be0b3; --pass-soft:#193a35;
-  --fail:#ff819c; --fail-soft:#422633;
-  --flaky:#ffd071; --flaky-soft:#45371f;
-  --missing:#adb4cb; --missing-soft:#2b2d42;
-  --shadow:0 14px 36px rgba(0,0,0,.24);
-  --shadow-hover:0 20px 42px rgba(0,0,0,.36);
-  --glow:rgba(133,103,238,.15);
+  --bg:#0B1220; --surface:#0D1D2D; --surface-raised:#102638;
+  --text:#E8F0FE; --muted:#A7B5C4; --border:#20384A;
+  --accent:#4FD1C5; --accent-strong:#68DCD1; --accent-secondary:#EE68A5;
+  --pass:#4FD1C5; --pass-soft:#153A3D;
+  --fail:#EE68A5; --fail-soft:#3D2638;
+  --flaky:#F1BD68; --flaky-soft:#3B3327;
+  --missing:#A7B5C4; --missing-soft:#243443;
+  --header-text:#E8F0FE; --header-muted:#A7B5C4;
+  --toggle-bg:rgba(16,38,56,.82); --toggle-border:#285A61;
+  --toggle-icon:#B8A7E8;
+  --shadow:0 8px 24px rgba(0,0,0,.16);
+  --shadow-hover:0 12px 28px rgba(0,0,0,.24);
 }
 * {box-sizing:border-box}
 html {min-height:100%;scroll-behavior:smooth}
 body {
   min-height:100vh;margin:0;
-  background:radial-gradient(ellipse at 50% 0,var(--glow),transparent 46%),var(--bg);
+  background:var(--bg);
   color:var(--text);
   font:15px/1.6 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   letter-spacing:.005em;
-  transition:background-color .25s ease,color .25s ease;
+  transition:background .3s ease,color .25s ease;
 }
 header {
-  padding:35px max(22px,calc((100% - 1200px)/2)) 38px;
-  color:#f5fbff;
-  background:
-    radial-gradient(ellipse at 85% 0,rgba(127,104,245,.38),transparent 43%),
-    linear-gradient(118deg,#201b46 0%,#32315f 54%,#236a76 100%);
-  border-bottom:1px solid rgba(255,255,255,.12);
+  padding:22px max(22px,calc((100% - 1200px)/2));
+  color:var(--header-text);background:var(--surface-raised);
+  border-bottom:1px solid var(--border);
+  transition:background .3s ease,color .3s ease,border-color .3s ease;
 }
+.header-inner {display:flex;align-items:center;justify-content:space-between;gap:18px}
+.header-brand {min-width:0}
 header h1 {
-  margin:0;font-size:clamp(27px,4vw,38px);font-weight:750;
-  letter-spacing:-.04em;line-height:1.2;
+  margin:0;font-size:clamp(23px,3vw,30px);font-weight:730;
+  letter-spacing:-.035em;line-height:1.25;
 }
-header p {color:#d5d4eb;margin:10px 0 0;font-size:14px}
+header p {color:var(--header-muted);margin:5px 0 0;font-size:13px}
+#theme {
+  display:grid;place-items:center;flex:0 0 auto;
+  width:40px;height:40px;min-height:40px;padding:0;
+  border:1px solid var(--toggle-border);border-radius:12px;
+  color:var(--toggle-icon);background:var(--toggle-bg);
+  box-shadow:0 1px 2px rgba(20,35,27,.04);
+  font-size:19px;line-height:1;
+  transition:transform .22s ease,color .25s ease,background .25s ease,
+    border-color .25s ease,box-shadow .25s ease;
+}
+#theme:hover {
+  transform:translateY(-1px);
+  background:var(--surface);border-color:var(--accent);
+  box-shadow:0 4px 12px rgba(20,35,27,.1);
+}
+#theme:focus-visible {
+  outline:3px solid color-mix(in srgb,var(--accent) 35%,transparent);
+  outline-offset:3px;
+}
 main {max-width:1240px;margin:30px auto;padding:0 22px 54px}
 .toolbar,.panel,.metric {
   background:var(--surface);border:1px solid var(--border);
   border-radius:16px;box-shadow:var(--shadow);
-  transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease;
+  transition:background .3s ease,color .3s ease,border-color .3s ease,
+    box-shadow .2s ease,transform .2s ease;
 }
 .toolbar {
   padding:17px 18px;display:flex;gap:14px;align-items:end;
@@ -341,16 +365,16 @@ label {font-size:10px;color:var(--muted);font-weight:750;letter-spacing:.11em}
 select,button {
   min-height:42px;font:inherit;color:var(--text);background:var(--surface);
   border:1px solid var(--border);border-radius:10px;padding:9px 13px;
-  transition:border-color .2s ease,box-shadow .2s ease,background-color .2s ease;
+  transition:color .25s ease,background .3s ease,border-color .2s ease,box-shadow .2s ease;
 }
 select {cursor:pointer}
 button {
-  cursor:pointer;color:#fff;font-weight:650;
-  border-color:transparent;
-  background:linear-gradient(115deg,var(--accent-strong),var(--accent));
-  box-shadow:0 5px 14px color-mix(in srgb,var(--accent) 23%,transparent);
+  cursor:pointer;color:var(--surface);font-weight:650;
+  border-color:var(--accent);
+  background:var(--accent);
+  box-shadow:0 3px 9px color-mix(in srgb,var(--accent) 16%,transparent);
 }
-button:hover {transform:translateY(-1px);filter:brightness(1.06)}
+button:hover {transform:translateY(-1px);filter:brightness(1.08)}
 select:hover,select:focus-visible,button:focus-visible {
   border-color:var(--accent);
   outline:3px solid color-mix(in srgb,var(--accent) 22%,transparent);
@@ -362,15 +386,15 @@ select:hover,select:focus-visible,button:focus-visible {
 }
 .metric {
   position:relative;overflow:hidden;padding:18px 19px 17px;
-  background:linear-gradient(145deg,var(--surface),var(--surface-raised));
+  background:var(--surface);
 }
 .metric::before {
   content:"";position:absolute;inset:0 0 auto;height:3px;
-  background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 28%,transparent));
+  background:var(--accent);
 }
-.metric:nth-child(2)::before {background:linear-gradient(90deg,#6a67dd,#aa91ff)}
-.metric:nth-child(3)::before {background:linear-gradient(90deg,#13876f,#69d0a6)}
-.metric:nth-child(4)::before {background:linear-gradient(90deg,#bc791a,#f0be58)}
+.metric:nth-child(2)::before {background:var(--accent-secondary)}
+.metric:nth-child(3)::before {background:var(--pass)}
+.metric:nth-child(4)::before {background:var(--flaky)}
 .metric span {display:block;color:var(--muted);font-size:11px;font-weight:650;letter-spacing:.04em}
 .metric strong {display:block;font-size:29px;font-weight:750;letter-spacing:-.035em;margin-top:6px}
 .panel {padding:22px;margin-bottom:21px;min-width:0}
@@ -378,11 +402,11 @@ select:hover,select:focus-visible,button:focus-visible {
 .sub {color:var(--muted);font-size:13px;margin:0 0 19px}
 .chart-wrap {overflow-x:auto}
 svg {display:block;width:100%;min-width:450px;height:auto;overflow:visible}
-#accuracy rect {filter:drop-shadow(0 3px 4px color-mix(in srgb,var(--accent) 24%,transparent));transition:opacity .2s ease}
+#accuracy rect {filter:drop-shadow(0 2px 3px color-mix(in srgb,var(--accent) 16%,transparent));transition:opacity .2s ease}
 #accuracy rect:hover {opacity:1}
 .legend {display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin:0 0 12px}
 .legend span {display:inline-flex;align-items:center}
-.dot {display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;box-shadow:0 0 0 3px color-mix(in srgb,currentColor 10%,transparent)}
+.dot {display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px}
 .heatmap-wrap {overflow:auto}
 table {border-collapse:separate;border-spacing:5px 6px;width:100%;min-width:600px}
 th,td {padding:9px 10px;text-align:center;font-size:11px}
@@ -394,9 +418,10 @@ th:first-child {background:var(--surface)}
 .cell {
   min-width:62px;border:1px solid transparent;border-radius:8px;
   font-size:10px;font-weight:750;letter-spacing:.04em;
-  transition:transform .16s ease,box-shadow .16s ease;
+  transition:background .3s ease,color .3s ease,border-color .3s ease,
+    transform .16s ease,box-shadow .16s ease;
 }
-.cell:hover {transform:translateY(-2px);box-shadow:0 5px 12px rgba(20,35,55,.12)}
+.cell:hover {transform:translateY(-1px);box-shadow:0 3px 9px rgba(20,35,27,.1)}
 .cell.pass {background:var(--pass-soft);color:var(--pass);border-color:color-mix(in srgb,var(--pass) 17%,transparent)}
 .cell.fail {background:var(--fail-soft);color:var(--fail);border-color:color-mix(in srgb,var(--fail) 17%,transparent)}
 .cell.flaky {background:var(--flaky-soft);color:var(--flaky);border-color:color-mix(in srgb,var(--flaky) 19%,transparent)}
@@ -405,6 +430,7 @@ th:first-child {background:var(--surface)}
 .flaky-system {
   padding:14px 15px;border:1px solid var(--border);border-radius:12px;
   background:var(--surface-raised);
+  transition:background .3s ease,color .3s ease,border-color .3s ease,box-shadow .2s ease;
 }
 .flaky-system:hover {border-color:color-mix(in srgb,var(--flaky) 40%,var(--border));box-shadow:var(--shadow)}
 .flaky-system strong {display:block;margin-bottom:5px;font-weight:700}
@@ -415,11 +441,10 @@ footer {text-align:center;color:var(--muted);font-size:11px;padding:15px 10px}
 ::selection {background:color-mix(in srgb,var(--accent) 25%,transparent)}
 @media(max-width:600px) {
   main {padding:0 13px 36px;margin-top:20px}
-  header {padding:27px 19px 30px}
+  header {padding:18px 19px}
   .panel {padding:16px}
   .toolbar {padding:14px}
   .control {min-width:100%}
-  .toolbar button {width:100%}
   .metric strong {font-size:26px}
 }
 @media(prefers-reduced-motion:reduce) {
@@ -429,8 +454,16 @@ footer {text-align:center;color:var(--muted);font-size:11px;padding:15px 10px}
 </head>
 <body>
 <header>
-  <h1>dbeval Benchmark Dashboard</h1>
-  <p>Question-level accuracy, statistical uncertainty and run consistency</p>
+  <div class="header-inner">
+    <div class="header-brand">
+      <h1>dbeval Benchmark Dashboard</h1>
+      <p>Question-level accuracy, statistical uncertainty and run consistency</p>
+    </div>
+    <button id="theme" type="button" aria-label="Switch to dark mode"
+      title="Switch to dark mode" aria-pressed="false">
+      <span id="theme-icon" aria-hidden="true">☀️</span>
+    </button>
+  </div>
 </header>
 <main>
   <section class="toolbar">
@@ -442,7 +475,6 @@ footer {text-align:center;color:var(--muted);font-size:11px;padding:15px 10px}
       <label for="database">DATABASE</label>
       <select id="database"></select>
     </div>
-    <button id="theme" type="button">Switch to dark mode</button>
   </section>
 
   <section class="metrics" id="metrics"></section>
@@ -622,12 +654,37 @@ datasets.forEach((dataset,index)=>{
 });
 datasetSelect.addEventListener("change",populateDatabases);
 databaseSelect.addEventListener("change",render);
-document.getElementById("theme").addEventListener("click",()=>{
+const themeButton=document.getElementById("theme");
+const themeIcon=document.getElementById("theme-icon");
+const themeStorageKey="dbeval-dashboard-theme";
+try {
+  const savedTheme=localStorage.getItem(themeStorageKey);
+  if(savedTheme==="light"||savedTheme==="dark") {
+    document.documentElement.dataset.theme=savedTheme;
+  }
+} catch(error) {
+  console.warn("Unable to read the saved dashboard theme preference.",error);
+}
+function updateThemeButton() {
+  const dark=document.documentElement.dataset.theme==="dark";
+  const action=dark?"Switch to light mode":"Switch to dark mode";
+  themeIcon.textContent=dark?"🌙":"☀️";
+  themeButton.setAttribute("aria-label",action);
+  themeButton.title=action;
+  themeButton.setAttribute("aria-pressed",String(dark));
+}
+themeButton.addEventListener("click",()=>{
   const dark=document.documentElement.dataset.theme!=="dark";
-  document.documentElement.dataset.theme=dark?"dark":"light";
-  document.getElementById("theme").textContent=
-    dark?"Switch to light mode":"Switch to dark mode";
+  const theme=dark?"dark":"light";
+  document.documentElement.dataset.theme=theme;
+  updateThemeButton();
+  try {
+    localStorage.setItem(themeStorageKey,theme);
+  } catch(error) {
+    console.warn("Unable to save the dashboard theme preference.",error);
+  }
 });
+updateThemeButton();
 populateDatabases();
 </script>
 </body>
