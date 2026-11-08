@@ -4,6 +4,7 @@ psycopg2-binary==2.9.13
 pandas==2.3.3
 pyyaml==6.0.1
 python-dotenv==1.2.2
+pytz>=2024.1
 
 # LLM APIs & clients (OpenAI-compatible client used for Mistral AI Codestral & Groq)
 openai==2.54.0

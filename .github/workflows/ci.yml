@@ -20,7 +20,7 @@ jobs:
 
       - name: Install minimal dependencies
         run: |
-          pip install pyyaml sqlalchemy openai sqlglot duckdb duckdb-engine
+          pip install pyyaml sqlalchemy openai sqlglot duckdb duckdb-engine pytz
 
       - name: Run scorer, runner, and ruleminer unit tests
         run: |
