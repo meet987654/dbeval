@@ -134,8 +134,8 @@ def test_sqlite_seeding_and_execution():
             assert "CONSTRAINT FOREIGN KEY" in schema
 
             # Test basic queries via run_sql
-            cols, rows = run_sql("appdb", "SELECT COUNT(*) FROM accounts WHERE is_test = false AND deleted_at IS NULL")
-            assert cols == ["COUNT(*)"]
+            cols, rows = run_sql("appdb", "SELECT COUNT(*) AS cnt FROM accounts WHERE is_test = false AND deleted_at IS NULL")
+            assert cols == ["cnt"]
             assert rows[0][0] == 1745
 
             # Test query with ::numeric adaptation
@@ -152,6 +152,49 @@ def test_sqlite_seeding_and_execution():
             dispose_engine("appdb")
 
 
+def test_duckdb_seeding_and_execution():
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmpdir:
+        duckdb_file = os.path.join(tmpdir, "test_appdb.duckdb")
+        s.seed_database(duckdb_path=duckdb_file)
+
+        assert os.path.exists(duckdb_file)
+
+        env = {"READER_URL_APPDB": f"duckdb:///{os.path.abspath(duckdb_file)}"}
+        with patch.dict(os.environ, env, clear=False):
+            _schema_cache.clear()
+            schema = schema_text("appdb")
+            assert "TABLE accounts" in schema
+            assert "TABLE invoices" in schema
+            assert "CONSTRAINT FOREIGN KEY" in schema
+            assert "CONSTRAINT PRIMARY KEY" in schema
+
+            # Test basic queries via run_sql
+            cols, rows = run_sql("appdb", "SELECT COUNT(*) AS cnt FROM accounts WHERE is_test = false AND deleted_at IS NULL")
+            assert cols == ["cnt"]
+            assert rows[0][0] == 1745
+
+            # Test native Postgres analytical query with ::numeric casts and joins
+            cols2, rows2 = run_sql(
+                "appdb",
+                "SELECT ROUND(SUM(i.amount_cents::numeric / 100 * f.usd_per_unit), 2) "
+                "FROM invoices i JOIN fx_rates f ON f.currency = i.currency "
+                "JOIN accounts a ON a.id = i.account_id "
+                "WHERE i.status = 'paid' AND i.paid_at >= '2026-07-01 00:00:00+00' AND i.paid_at < '2026-10-01 00:00:00+00' "
+                "AND a.is_test = false AND a.deleted_at IS NULL"
+            )
+            assert round(float(rows2[0][0]), 2) == 267974.59
+
+            # Test Postgres DATE_TRUNC and INTERVAL arithmetic in DuckDB
+            cols3, rows3 = run_sql(
+                "appdb",
+                "SELECT date_trunc('month', paid_at) + INTERVAL '30 days' "
+                "FROM invoices WHERE paid_at IS NOT NULL LIMIT 1"
+            )
+            assert len(rows3) == 1
+
+            dispose_engine("appdb")
+
+
 def run_all_tests():
     test_extract_sql()
     test_looks_read_only()
@@ -160,6 +203,7 @@ def run_all_tests():
     test_call_llm_vllm_configuration()
     test_call_llm_unknown_provider()
     test_sqlite_seeding_and_execution()
+    test_duckdb_seeding_and_execution()
     print("baseline.py: all unit tests passed")
 
 

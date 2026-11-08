@@ -21,3 +21,4 @@ datus-agent==0.4.3
 datus-postgresql==0.1.9
 lancedb==0.34.0
 duckdb==1.5.2
+duckdb-engine>=0.13.0

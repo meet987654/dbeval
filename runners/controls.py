@@ -43,6 +43,24 @@ def schema_only_text(db):
             for col in insp.get_columns(table):
                 lines.append(f"  {col['name']} {str(col['type']).lower()}")
             lines.append("")
+    elif engine.dialect.name == "duckdb":
+        with engine.connect() as conn:
+            cols = conn.execute(text("""
+                SELECT table_name, column_name, data_type
+                FROM information_schema.columns
+                WHERE table_schema IN ('main', 'public')
+                ORDER BY table_name, ordinal_position
+            """)).fetchall()
+
+            tables = {}
+            for table, column, dtype in cols:
+                tables.setdefault(table, []).append((column, dtype))
+
+            for table, columns in sorted(tables.items()):
+                lines.append(f"TABLE {table}")
+                for column, dtype in columns:
+                    lines.append(f"  {column} {dtype.lower()}")
+                lines.append("")
     else:
         with engine.connect() as conn:
             cols = conn.execute(text("""

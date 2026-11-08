@@ -73,12 +73,15 @@ Before making changes, verify that the test harness and analysis scripts run cle
    python scorer/analyze.py results/raw/suite_results_all.csv --ties half --matrix /tmp/per_question.csv
    ```
 
-4. **Run local quickstart (PostgreSQL or zero-Docker SQLite):**
+4. **Run local quickstart (PostgreSQL, DuckDB, or SQLite):**
    ```bash
    # Standard mode (requires Docker + PostgreSQL container on port 5433):
    python scripts/quickstart.py
 
-   # Zero-Docker mode (runs locally using SQLite test fixture, no Docker daemon needed):
+   # Zero-Docker mode with in-process DuckDB (fast analytical engine with native Postgres SQL):
+   python scripts/quickstart.py --db-type duckdb
+
+   # Zero-Docker mode with SQLite:
    python scripts/quickstart.py --db-type sqlite
    ```
 
