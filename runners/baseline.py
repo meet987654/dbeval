@@ -133,6 +133,53 @@ def schema_text(db):
                     r_tbl = fk.get("referred_table")
                     lines.append(f"  CONSTRAINT FOREIGN KEY ({c_cols}) REFERENCES {r_tbl}({r_cols})")
                 lines.append("")
+    elif engine.dialect.name == "duckdb":
+        with engine.connect() as conn:
+            cols = conn.execute(
+                text(
+                    "SELECT table_name, column_name, data_type FROM information_schema.columns "
+                    "WHERE table_schema IN ('main', 'public') ORDER BY table_name, ordinal_position"
+                )
+            ).fetchall()
+
+            tables = {}
+            for table, column, dtype in cols:
+                tables.setdefault(table, []).append((column, dtype))
+
+            try:
+                constraints_rows = conn.execute(
+                    text(
+                        "SELECT table_name, constraint_type, constraint_column_names, "
+                        "referenced_table, referenced_column_names FROM duckdb_constraints()"
+                    )
+                ).fetchall()
+            except Exception:
+                constraints_rows = []
+
+            constraints_by_table = {}
+            for t_name, c_type, c_cols, ref_tbl, ref_cols in constraints_rows:
+                if c_type == "PRIMARY KEY" and c_cols:
+                    constraints_by_table.setdefault(t_name, []).append(f"PRIMARY KEY ({', '.join(c_cols)})")
+                elif c_type == "FOREIGN KEY" and c_cols and ref_tbl and ref_cols:
+                    constraints_by_table.setdefault(t_name, []).append(
+                        f"FOREIGN KEY ({', '.join(c_cols)}) REFERENCES {ref_tbl}({', '.join(ref_cols)})"
+                    )
+
+            for table, columns in sorted(tables.items()):
+                lines.append(f"TABLE {table}")
+                for column, dtype in columns:
+                    sample_sql = (
+                        f'SELECT DISTINCT v FROM (SELECT "{column}"::text AS v FROM "{table}" '
+                        f'WHERE "{column}" IS NOT NULL LIMIT 200) s LIMIT {SAMPLES_PER_COLUMN}'
+                    )
+                    try:
+                        samples = [str(r[0])[:40] for r in conn.execute(text(sample_sql))]
+                    except Exception:
+                        samples = []
+                    lines.append(f"  {column} {dtype.lower()}  e.g. {samples}")
+                for c_def in constraints_by_table.get(table, []):
+                    lines.append(f"  CONSTRAINT {c_def}")
+                lines.append("")
     else:
         with engine.connect() as conn:
             cols = conn.execute(
@@ -180,11 +227,12 @@ def run_sql(db, sql):
     """Run one read-only statement with a timeout and a row limit."""
     engine = reader_engine(db)
     is_sqlite = engine.dialect.name == "sqlite"
+    is_duckdb = engine.dialect.name == "duckdb"
     if is_sqlite:
         sql = adapt_sql_for_sqlite(sql)
 
     with engine.connect() as conn:
-        if not is_sqlite:
+        if not is_sqlite and not is_duckdb:
             conn.execute(text("SET TRANSACTION READ ONLY"))
             conn.execute(text(f"SET LOCAL statement_timeout = {TIMEOUT_MS}"))
         result = conn.execute(text(sql))

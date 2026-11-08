@@ -204,6 +204,86 @@ CREATE TABLE fx_rates (
 );
 """
 
+DUCKDB_DDL = """
+DROP TABLE IF EXISTS events;
+DROP TABLE IF EXISTS refunds;
+DROP TABLE IF EXISTS invoices;
+DROP TABLE IF EXISTS subscriptions;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS accounts;
+DROP TABLE IF EXISTS fx_rates;
+
+CREATE TABLE accounts (
+    id          integer PRIMARY KEY,
+    name        text NOT NULL,
+    plan        text,
+    plan_tier   text,
+    is_test     boolean NOT NULL DEFAULT false,
+    country     text,
+    currency    text,
+    created_at  timestamptz NOT NULL,
+    deleted_at  timestamptz
+);
+
+CREATE TABLE users (
+    id          integer PRIMARY KEY,
+    account_id  integer NOT NULL,
+    email       text,
+    role        text,
+    created_at  timestamptz NOT NULL,
+    deleted_at  timestamptz,
+    FOREIGN KEY (account_id) REFERENCES accounts(id)
+);
+
+CREATE TABLE subscriptions (
+    id            integer PRIMARY KEY,
+    account_id    integer NOT NULL,
+    plan_tier     text NOT NULL,
+    status        text NOT NULL,
+    started_at    timestamptz NOT NULL,
+    trial_ends_at timestamptz,
+    canceled_at   timestamptz,
+    cancel_reason text,
+    FOREIGN KEY (account_id) REFERENCES accounts(id)
+);
+
+CREATE TABLE invoices (
+    id              integer PRIMARY KEY,
+    subscription_id integer NOT NULL,
+    account_id      integer NOT NULL,
+    amount_cents    integer NOT NULL,
+    currency        text NOT NULL,
+    status          text NOT NULL,
+    issued_at       timestamptz NOT NULL,
+    paid_at         timestamptz,
+    FOREIGN KEY (subscription_id) REFERENCES subscriptions(id),
+    FOREIGN KEY (account_id) REFERENCES accounts(id)
+);
+
+CREATE TABLE refunds (
+    id            integer PRIMARY KEY,
+    invoice_id    integer NOT NULL,
+    amount_cents  integer NOT NULL,
+    created_at    timestamptz NOT NULL,
+    FOREIGN KEY (invoice_id) REFERENCES invoices(id)
+);
+
+CREATE TABLE events (
+    id          integer PRIMARY KEY,
+    account_id  integer NOT NULL,
+    user_id     integer NOT NULL,
+    event_type  text NOT NULL,
+    occurred_at timestamptz NOT NULL,
+    FOREIGN KEY (account_id) REFERENCES accounts(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE fx_rates (
+    currency     text PRIMARY KEY,
+    usd_per_unit numeric(10, 5) NOT NULL
+);
+"""
+
 
 def make_engine(url):
     """Pick whichever Postgres driver is installed (psycopg2 or psycopg 3)."""
@@ -386,23 +466,33 @@ def insert(conn, table, rows):
         conn.execute(stmt, rows[i : i + 5000])
 
 
-def seed_database(url=None, sqlite_path=None):
-    """Seed appdb data into either PostgreSQL or SQLite."""
+def seed_database(url=None, sqlite_path=None, duckdb_path=None):
+    """Seed appdb data into PostgreSQL, SQLite, or DuckDB."""
     rng = random.Random(42)
     accounts, users, subs, invoices, refunds, events = build_data(rng)
 
     if sqlite_path:
         os.makedirs(os.path.dirname(os.path.abspath(sqlite_path)), exist_ok=True)
         url = f"sqlite:///{os.path.abspath(sqlite_path)}"
+    elif duckdb_path:
+        os.makedirs(os.path.dirname(os.path.abspath(duckdb_path)), exist_ok=True)
+        url = f"duckdb:///{os.path.abspath(duckdb_path)}"
 
     url = url or ADMIN_URL
     is_sqlite = url.startswith("sqlite")
+    is_duckdb = url.startswith("duckdb")
+    is_embedded = is_sqlite or is_duckdb
 
     engine = make_engine(url)
     try:
         with engine.begin() as conn:
             if is_sqlite:
                 for stmt in SQLITE_DDL.strip().split(";"):
+                    stmt = stmt.strip()
+                    if stmt:
+                        conn.execute(text(stmt))
+            elif is_duckdb:
+                for stmt in DUCKDB_DDL.strip().split(";"):
                     stmt = stmt.strip()
                     if stmt:
                         conn.execute(text(stmt))
@@ -420,13 +510,13 @@ def seed_database(url=None, sqlite_path=None):
             insert(conn, "refunds", refunds)
             insert(conn, "events", events)
 
-            if not is_sqlite:
+            if not is_embedded:
                 conn.execute(text("GRANT USAGE ON SCHEMA public TO reader"))
                 conn.execute(text("GRANT SELECT ON ALL TABLES IN SCHEMA public TO reader"))
     finally:
         engine.dispose()
 
-    target_desc = sqlite_path if sqlite_path else url
+    target_desc = sqlite_path if sqlite_path else (duckdb_path if duckdb_path else url)
     print(f"appdb seeded ({target_desc}):")
     for name, rows in [("accounts", accounts), ("users", users), ("subscriptions", subs),
                        ("invoices", invoices), ("refunds", refunds), ("events", events)]:
@@ -442,10 +532,17 @@ def main(argv=None):
         default=None,
         help="Seed into local SQLite database file instead of PostgreSQL (default: db/appdb.sqlite)",
     )
+    ap.add_argument(
+        "--duckdb",
+        nargs="?",
+        const="db/appdb.duckdb",
+        default=None,
+        help="Seed into local DuckDB database file instead of PostgreSQL (default: db/appdb.duckdb)",
+    )
     ap.add_argument("--url", default=None, help="Database connection URL override")
     args = ap.parse_args(argv)
 
-    seed_database(url=args.url, sqlite_path=args.sqlite)
+    seed_database(url=args.url, sqlite_path=args.sqlite, duckdb_path=args.duckdb)
 
 
 if __name__ == "__main__":

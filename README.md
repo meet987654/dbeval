@@ -150,7 +150,7 @@ python scorer/analyze.py results/raw/suite_results_all.csv --ties half --baselin
 
 ---
 
-### Option 1: Quickstart Execution Script (Docker or Zero-Docker SQLite + LLM Provider)
+### Option 1: Quickstart Execution Script (Docker, DuckDB, or SQLite + LLM Provider)
 
 To spin up the test database, seed `appdb`, and run a live 10-question evaluation comparing `baseline` vs `baseline_rules`:
 
@@ -164,7 +164,10 @@ cp .env.example .env
 # 3. Run quickstart (Standard mode with Docker + PostgreSQL):
 python scripts/quickstart.py
 
-# Or run in Zero-Docker mode using a local SQLite fixture (no Docker daemon needed):
+# Or run in Zero-Docker mode using a local in-process DuckDB fixture (fast analytical engine with native Postgres SQL):
+python scripts/quickstart.py --db-type duckdb
+
+# Or run in Zero-Docker mode using a local SQLite fixture:
 python scripts/quickstart.py --db-type sqlite
 ```
 
