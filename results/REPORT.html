@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Database evaluation benchmark report">
+<title>dbeval: Week 0 Final Evaluation Report</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f5f7fb;
+  --surface: #ffffff;
+  --text: #182230;
+  --muted: #667085;
+  --border: #e4e7ec;
+  --accent: #2563eb;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.7;
+}
+header {
+  background: #101828;
+  color: white;
+  padding: 42px 24px;
+}
+header .inner, main {
+  width: min(1100px, calc(100% - 32px));
+  margin: auto;
+}
+header p { color: #d0d5dd; margin-bottom: 0; }
+main {
+  background: var(--surface);
+  margin: 32px auto;
+  padding: clamp(20px, 5vw, 56px);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(16,24,40,.05);
+}
+h1, h2, h3, h4 { line-height: 1.3; }
+h2 {
+  margin-top: 2.4em;
+  padding-bottom: .45em;
+  border-bottom: 1px solid var(--border);
+}
+a { color: var(--accent); }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+  margin: 24px 0;
+  font-size: .94rem;
+}
+th, td {
+  border: 1px solid var(--border);
+  padding: 10px 13px;
+  text-align: left;
+}
+th { background: #f2f4f7; }
+tr:nth-child(even) td { background: #fafbfc; }
+code {
+  background: #f2f4f7;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: .9em;
+}
+pre {
+  overflow-x: auto;
+  background: #101828;
+  color: #f2f4f7;
+  padding: 18px;
+  border-radius: 9px;
+}
+pre code { background: transparent; color: inherit; padding: 0; }
+blockquote {
+  margin-left: 0;
+  padding: 12px 20px;
+  border-left: 4px solid var(--accent);
+  background: #eff6ff;
+}
+img { max-width: 100%; height: auto; }
+.mermaid { overflow-x: auto; }
+footer {
+  text-align: center;
+  color: var(--muted);
+  padding: 20px;
+  font-size: .85rem;
+}
+@media print {
+  body { background: white; }
+  main { width: 100%; margin: 0; border: 0; box-shadow: none; }
+  header { background: white; color: black; padding: 15px 0; }
+  header p { color: #444; }
+  a { color: inherit; text-decoration: none; }
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll("pre code.language-mermaid").forEach(function (code) {
+    const container = document.createElement("div");
+    container.className = "mermaid";
+    container.textContent = code.textContent;
+    code.parentElement.replaceWith(container);
+  });
+  if (window.mermaid) {
+    mermaid.initialize({ startOnLoad: true, theme: "default" });
+  }
+});
+</script>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\\\(', '\\\\)'], ['$', '$']] }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<header>
+  <div class="inner">
+    <h1>dbeval: Week 0 Final Evaluation Report</h1>
+    <p>Database Evaluation Benchmark Report</p>
+  </div>
+</header>
+<main>
+<h1 id="dbeval-week-0-final-evaluation-report">dbeval: Week 0 Final Evaluation Report</h1>
+<blockquote>
+<p><strong>Research Question:</strong> Does structuring business rules inside semantic layer tools (ktx, Wren Engine, Datus) improve LLM SQL generation beyond simply pasting those rules directly into the prompt (<code>baseline_rules</code>)?</p>
+</blockquote>
+<hr>
+<h2 id="1-executive-summary-decision">1. Executive Summary &amp; Decision</h2>
+<h3 id="the-finding">The Finding</h3>
+<p>On the rules-heavy database (<code>appdb</code>), encoding business rules inside semantic layer tools produces substantial gains over a raw schema baseline (+21 to +24 net questions passed), but <strong>lands within 0 to 3 questions of pasting the rules into the prompt (<code>baseline_rules</code>), and none sits reliably above it</strong>:
+- <code>baseline</code>: <strong>4.0 / 32</strong> (12.5%)
+- <code>baseline_rules</code>: <strong>28.0 / 32</strong> (87.5%)
+- <code>wren_reviewed</code> (with engine rewrite &amp; dialect transpile): <strong>28.0 / 32</strong> (87.5%) — net $+0.0$ questions vs. prompt rules (tied)
+- <code>ktx_reviewed</code>: <strong>26.33 / 32</strong> (82.3%) — net $-1.67$ questions vs. prompt rules
+- <code>datus_reviewed</code> (with free-text drop-in): <strong>26.33 / 32</strong> (82.3%) — net $-1.67$ questions vs. prompt rules
+- <code>datus_reviewed_defonly</code> (definition comments only): <strong>25.33 / 32</strong> (79.2%) — net $-2.67$ questions vs. prompt rules</p>
+<p>At our sample size (32 <code>appdb</code> questions, 18 <code>olist</code> questions), every reviewed tool is within 0 to 3 questions of <code>baseline_rules</code>, and all 95% paired bootstrap confidence intervals span zero. There is <strong>no evidence of an advantage for tool structures over prompt rules at this sample size</strong>.</p>
+<h3 id="open-question-next-step-rule-capture-and-verification-untested">Open Question / Next Step: Rule Capture and Verification, Untested</h3>
+<p>Per the pre-registered decision framework in <a href="file:///c:/Users/meetp/OneDrive/Desktop/Projects/dbeval/docs/DAY5_PROTOCOL.md"><code>docs/DAY5_PROTOCOL.md</code></a>:
+- <strong>A "Go" on a neutral comparative scoreboard between these tools is not supported</strong>, because no tool is reliably distinguishable from another or from <code>baseline_rules</code>.
+- <strong>A "Stop" is rejected</strong>, because the rules effect itself is massive and unequivocal: explicit rules lift accuracy from $12.5\%$ to $87.5\%$ on <code>appdb</code>.
+- <strong>Open question / next step: rule capture and verification, untested.</strong> The rules are the primary lever, not the tool structure. Future work should focus on exploring whether <strong>automated rule capture, induction, and verification</strong> (discovering candidate rules directly from databases and query logs) is tractable, rather than benchmarking static semantic layer formats.</p>
+<hr>
+<h2 id="2-pre-registered-hypotheses-readout">2. Pre-Registered Hypotheses Readout</h2>
+<table>
+<thead>
+<tr>
+<th>Hypothesis</th>
+<th>Pre-Registered Expectation</th>
+<th>Empirical Readout</th>
+<th style="text-align: center;">Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>H1</strong></td>
+<td>Tools with executable definitions (views, calculated columns) beat <code>baseline_rules</code> on complex logic (dates, currencies, net revenue).</td>
+<td>With native SQL expansion through Wren Engine and dialect transpilation, <code>wren_reviewed</code> scored 28.0/32 on <code>appdb</code>, matching <code>baseline_rules</code> (28.0/32; net $+0$ questions, $p = 1.000$, 95% CI $[-5.2, +5.7]$).</td>
+<td style="text-align: center;"><strong>No evidence of advantage at this sample size</strong></td>
+</tr>
+<tr>
+<td><strong>H2</strong></td>
+<td>Tools that only store prose descriptions match <code>baseline_rules</code>, not more.</td>
+<td><code>ktx_reviewed</code> (26.33/32) and <code>datus_reviewed_defonly</code> (25.33/32) land within 1.7 to 2.7 questions of <code>baseline_rules</code> on <code>appdb</code>, and within 0.3 questions on <code>olist</code>.</td>
+<td style="text-align: center;"><strong>Supported</strong></td>
+</tr>
+<tr>
+<td><strong>H3</strong></td>
+<td>Rushed reviews leave rules unencoded, scoring below <code>baseline_rules</code>.</td>
+<td>When Datus was stripped of the drop-in rules document (<code>datus_reviewed_defonly</code>), accuracy dropped by 1.0 question on <code>appdb</code> and 1.67 questions on <code>olist</code>.</td>
+<td style="text-align: center;"><strong>Partly supported by a narrow margin</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="3-question-level-benchmark-scoreboard">3. Question-Level Benchmark Scoreboard</h2>
+<p>All metrics reflect <strong>majority scoring across 3 repetitions per question</strong> (18 <code>olist</code> questions, 32 <code>appdb</code> questions). One question represents <strong>3.1 percentage points on <code>appdb</code></strong> and <strong>5.6 percentage points on <code>olist</code></strong>.</p>
+<h3 id="overall-accuracy-summary">Overall Accuracy Summary</h3>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th style="text-align: center;"><code>appdb</code> Passed (out of 32)</th>
+<th style="text-align: center;"><code>appdb</code> Accuracy</th>
+<th style="text-align: center;"><code>olist</code> Passed (out of 18)</th>
+<th style="text-align: center;"><code>olist</code> Accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>baseline</code></strong> (raw schema + samples)</td>
+<td style="text-align: center;">4.0 / 32</td>
+<td style="text-align: center;">12.5%</td>
+<td style="text-align: center;">13.0 / 18</td>
+<td style="text-align: center;">72.2%</td>
+</tr>
+<tr>
+<td><strong><code>schema_only</code></strong> (no samples)</td>
+<td style="text-align: center;">3.0 / 32</td>
+<td style="text-align: center;">9.4%</td>
+<td style="text-align: center;">11.0 / 18</td>
+<td style="text-align: center;">61.1%</td>
+</tr>
+<tr>
+<td><strong><code>schema_true_joins</code></strong> (FK oracle)</td>
+<td style="text-align: center;">4.0 / 32</td>
+<td style="text-align: center;">12.5%</td>
+<td style="text-align: center;">12.5 / 18</td>
+<td style="text-align: center;">69.4%</td>
+</tr>
+<tr>
+<td><strong><code>baseline_rules</code></strong> (raw prompt rules)</td>
+<td style="text-align: center;"><strong>28.0 / 32</strong></td>
+<td style="text-align: center;"><strong>87.5%</strong></td>
+<td style="text-align: center;"><strong>15.0 / 18</strong></td>
+<td style="text-align: center;"><strong>83.3%</strong></td>
+</tr>
+<tr>
+<td><strong><code>ktx_reviewed</code></strong> (description-based)</td>
+<td style="text-align: center;">26.33 / 32</td>
+<td style="text-align: center;">82.3%</td>
+<td style="text-align: center;">15.0 / 18</td>
+<td style="text-align: center;">83.3%</td>
+</tr>
+<tr>
+<td><strong><code>wren_reviewed</code></strong> <em>(with engine rewrite)</em></td>
+<td style="text-align: center;"><strong>28.0 / 32</strong></td>
+<td style="text-align: center;"><strong>87.5%</strong></td>
+<td style="text-align: center;">14.0 / 18</td>
+<td style="text-align: center;">77.8%</td>
+</tr>
+<tr>
+<td><em><code>wren_reviewed_unresolved</code></em> <em>(pre-fix)</em></td>
+<td style="text-align: center;">25.0 / 32</td>
+<td style="text-align: center;">78.1%</td>
+<td style="text-align: center;">13.33 / 18</td>
+<td style="text-align: center;">74.1%</td>
+</tr>
+<tr>
+<td><strong><code>datus_reviewed</code></strong> <em>(with free-text drop-in)</em></td>
+<td style="text-align: center;">26.33 / 32</td>
+<td style="text-align: center;">82.3%</td>
+<td style="text-align: center;">16.33 / 18</td>
+<td style="text-align: center;">90.7%</td>
+</tr>
+<tr>
+<td><strong><code>datus_reviewed_defonly</code></strong> <em>(DDL comments only)</em></td>
+<td style="text-align: center;">25.33 / 32</td>
+<td style="text-align: center;">79.2%</td>
+<td style="text-align: center;">14.67 / 18</td>
+<td style="text-align: center;">81.5%</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="paired-comparisons-vs-baseline">Paired Comparisons vs. <code>baseline</code></h3>
+<h4 id="appdb-32-questions"><code>appdb</code> (32 questions)</h4>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th style="text-align: center;">Fixed</th>
+<th style="text-align: center;">Broke</th>
+<th style="text-align: center;">Net Questions</th>
+<th style="text-align: center;">Diff (Pts)</th>
+<th style="text-align: center;">95% Bootstrap CI</th>
+<th style="text-align: center;">Sign-Test $p$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>baseline_rules</code></strong></td>
+<td style="text-align: center;">25</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">+24.0</td>
+<td style="text-align: center;">+75.0</td>
+<td style="text-align: center;">[+60.9, +89.1]</td>
+<td style="text-align: center;">$p &lt; 0.001$</td>
+</tr>
+<tr>
+<td><strong><code>wren_reviewed</code></strong></td>
+<td style="text-align: center;">25</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">+24.0</td>
+<td style="text-align: center;">+75.0</td>
+<td style="text-align: center;">[+60.4, +88.5]</td>
+<td style="text-align: center;">$p &lt; 0.001$</td>
+</tr>
+<tr>
+<td><strong><code>ktx_reviewed</code></strong></td>
+<td style="text-align: center;">24</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">+22.33</td>
+<td style="text-align: center;">+69.8</td>
+<td style="text-align: center;">[+54.2, +84.4]</td>
+<td style="text-align: center;">$p &lt; 0.001$</td>
+</tr>
+<tr>
+<td><strong><code>datus_reviewed</code></strong> <em>(with drop-in)</em></td>
+<td style="text-align: center;">25</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">+22.33</td>
+<td style="text-align: center;">+69.8</td>
+<td style="text-align: center;">[+52.1, +86.5]</td>
+<td style="text-align: center;">$p &lt; 0.001$</td>
+</tr>
+<tr>
+<td><strong><code>datus_reviewed_defonly</code></strong></td>
+<td style="text-align: center;">24</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">+21.33</td>
+<td style="text-align: center;">+66.7</td>
+<td style="text-align: center;">[+47.9, +83.3]</td>
+<td style="text-align: center;">$p &lt; 0.001$</td>
+</tr>
+</tbody>
+</table>
+<h4 id="olist-18-questions"><code>olist</code> (18 questions)</h4>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th style="text-align: center;">Fixed</th>
+<th style="text-align: center;">Broke</th>
+<th style="text-align: center;">Net Questions</th>
+<th style="text-align: center;">Diff (Pts)</th>
+<th style="text-align: center;">95% Bootstrap CI</th>
+<th style="text-align: center;">Sign-Test $p$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>baseline_rules</code></strong></td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">+2.0</td>
+<td style="text-align: center;">+11.1</td>
+<td style="text-align: center;">[-11.1, +33.3]</td>
+<td style="text-align: center;">$p = 0.625$</td>
+</tr>
+<tr>
+<td><strong><code>datus_reviewed</code></strong> <em>(with drop-in)</em></td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">+3.33</td>
+<td style="text-align: center;">+18.5</td>
+<td style="text-align: center;">[-7.4, +44.4]</td>
+<td style="text-align: center;">$p = 0.453$</td>
+</tr>
+<tr>
+<td><strong><code>ktx_reviewed</code></strong></td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">+2.0</td>
+<td style="text-align: center;">+11.1</td>
+<td style="text-align: center;">[+0.0, +27.8]</td>
+<td style="text-align: center;">$p = 0.500$</td>
+</tr>
+<tr>
+<td><strong><code>datus_reviewed_defonly</code></strong></td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">+1.67</td>
+<td style="text-align: center;">+9.3</td>
+<td style="text-align: center;">[-13.0, +31.5]</td>
+<td style="text-align: center;">$p = 1.000$</td>
+</tr>
+<tr>
+<td><strong><code>wren_reviewed</code></strong></td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">+1.0</td>
+<td style="text-align: center;">+5.6</td>
+<td style="text-align: center;">[-14.8, +27.8]</td>
+<td style="text-align: center;">$p = 1.000$</td>
+</tr>
+</tbody>
+</table>
+<p><em>Takeaway:</em> On <code>appdb</code>, all rule-bearing systems achieve large, statistically significant improvements over baseline ($p &lt; 0.001$). On <code>olist</code>, no system is statistically distinguishable from baseline.</p>
+<hr>
+<h3 id="paired-comparisons-vs-baseline_rules">Paired Comparisons vs. <code>baseline_rules</code></h3>
+<h4 id="appdb-32-questions_1"><code>appdb</code> (32 questions)</h4>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th style="text-align: center;">Fixed</th>
+<th style="text-align: center;">Broke</th>
+<th style="text-align: center;">Net Questions</th>
+<th style="text-align: center;">Diff (Pts)</th>
+<th style="text-align: center;">95% Bootstrap CI</th>
+<th style="text-align: center;">Sign-Test $p$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>wren_reviewed</code></strong></td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">+0.0</td>
+<td style="text-align: center;">+0.0</td>
+<td style="text-align: center;">[-5.2, +5.7]</td>
+<td style="text-align: center;">$p = 1.000$</td>
+</tr>
+<tr>
+<td><strong><code>ktx_reviewed</code></strong></td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">-1.67</td>
+<td style="text-align: center;">-5.2</td>
+<td style="text-align: center;">[-13.0, +1.6]</td>
+<td style="text-align: center;">$p = 0.375$</td>
+</tr>
+<tr>
+<td><strong><code>datus_reviewed</code></strong> <em>(with drop-in)</em></td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">-1.67</td>
+<td style="text-align: center;">-5.2</td>
+<td style="text-align: center;">[-15.1, +3.6]</td>
+<td style="text-align: center;">$p = 0.688$</td>
+</tr>
+<tr>
+<td><strong><code>datus_reviewed_defonly</code></strong></td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">-2.67</td>
+<td style="text-align: center;">-8.3</td>
+<td style="text-align: center;">[-19.8, +2.1]</td>
+<td style="text-align: center;">$p = 0.289$</td>
+</tr>
+</tbody>
+</table>
+<h4 id="olist-18-questions_1"><code>olist</code> (18 questions)</h4>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th style="text-align: center;">Fixed</th>
+<th style="text-align: center;">Broke</th>
+<th style="text-align: center;">Net Questions</th>
+<th style="text-align: center;">Diff (Pts)</th>
+<th style="text-align: center;">95% Bootstrap CI</th>
+<th style="text-align: center;">Sign-Test $p$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>datus_reviewed</code></strong> <em>(with drop-in)</em></td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">+1.33</td>
+<td style="text-align: center;">+7.4</td>
+<td style="text-align: center;">[-7.4, +25.9]</td>
+<td style="text-align: center;">$p = 1.000$</td>
+</tr>
+<tr>
+<td><strong><code>ktx_reviewed</code></strong></td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">+0.0</td>
+<td style="text-align: center;">+0.0</td>
+<td style="text-align: center;">[-16.7, +16.7]</td>
+<td style="text-align: center;">$p = 1.000$</td>
+</tr>
+<tr>
+<td><strong><code>datus_reviewed_defonly</code></strong></td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">-0.33</td>
+<td style="text-align: center;">-1.9</td>
+<td style="text-align: center;">[-5.6, +0.0]</td>
+<td style="text-align: center;">$p = 1.000$</td>
+</tr>
+<tr>
+<td><strong><code>wren_reviewed</code></strong></td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">-1.0</td>
+<td style="text-align: center;">-5.6</td>
+<td style="text-align: center;">[-22.2, +11.1]</td>
+<td style="text-align: center;">$p = 0.625$</td>
+</tr>
+</tbody>
+</table>
+<p><em>Takeaway:</em> When measured against pasting rules in the prompt (<code>baseline_rules</code>), all reviewed systems land within 0 to 3 questions, and none beat it.</p>
+<hr>
+<h2 id="4-deep-dives-failure-attributions">4. Deep-Dives &amp; Failure Attributions</h2>
+<h3 id="a-wren-engine-execution-arithmetic-audit-pipeline-artifacts">A. Wren Engine Execution, Arithmetic Audit &amp; Pipeline Artifacts</h3>
+<ol>
+<li><strong>The AppDB Execution Artifact &amp; Arithmetic Audit:</strong>
+   - In initial runs, Wren scored 25/32 because the LLM generated SQL referencing calculated fields (<code>subscriptions.is_churn</code>, <code>accounts.is_real_account</code>). Since Postgres lacks those physical columns, queries aborted with <code>UndefinedColumn</code> errors.
+   - <strong>Resolution:</strong> Routing queries through <code>session.transform_sql</code> (the compiled native Wren Rust core) dynamically expands model definitions into inline CTEs before Postgres execution.
+   - <strong>Arithmetic Semantics Audit:</strong> Because DuckDB transpilation uses floating-point division (<code>/</code>) whereas Postgres truncates integer division, we audited whether Wren's score lift to <strong>28.0 / 32 (87.5%)</strong> resulted from engine arithmetic masking integer-division errors (e.g. <code>/ 100</code>). An audit of all changed questions (<code>appdb-005</code>, <code>011</code>, <code>025</code>, <code>033</code>) confirmed that <strong>zero <code>/ 100</code> money questions flipped between runs</strong>. All currency queries already explicitly cast <code>amount_cents::numeric / 100</code> per prompt business rules. The score change was driven by LLM query variation: <code>appdb-005</code> (1/3 to 3/3) properly qualified <code>s.plan_tier</code> to prevent column ambiguity on joins, while <code>appdb-011</code> (2/3 to 3/3) consistently adopted the expanded <code>is_churn</code> and <code>is_real_account</code> calculated columns.</li>
+<li><strong>The Olist Dialect Fix and Qualification Rendering Artifact:</strong>
+   - <strong>Dialect Fix &amp; Re-Run:</strong> Three Olist failures (<code>olist-011</code>, <code>olist-018</code>, <code>olist-022</code>) occurred because Wren Engine's SQL rewrite pass translated <code>ROUND(AVG(...), 2)</code> by inserting DuckDB-style <code>CAST(... AS DOUBLE)</code>, causing Postgres to abort with <code>type "double" does not exist</code>. Transpiling queries via <code>sqlglot.transpile(sql, read="duckdb", write="postgres")</code> resolved all three questions across 3/3 runs, lifting Wren's Olist score to <strong>14.0 / 18 (77.8%)</strong>.
+   - <strong><code>olist-001</code> Context Rendering Artifact:</strong> "How many sellers are there?" failed in 3/3 runs because the model wrote <code>FROM olist.sellers</code>. The prompt context header emitted <code>DATABASE: olist</code>, prompting the model to qualify the table with the database name instead of the schema <code>public.sellers</code>. This is a context rendering artifact rather than a failure of semantic rule adherence (measured 14.0 / 18; 15.0 / 18 if <code>olist-001</code> had passed, matching <code>baseline_rules</code>).
+   - <strong>True Rule Adherence Misses on Olist:</strong><ul>
+<li><code>olist-006</code> (3/3): The generated query averaged raw payment installment rows directly rather than utilizing the <code>order_payment_totals</code> view defined in the layer.</li>
+<li><code>olist-007</code> (3/3): The query counted <code>customer_id</code> (a per-order identifier) instead of joining to <code>customers</code> and counting <code>customer_unique_id</code>.</li>
+<li><code>olist-008</code> (2/3): In 2 of 3 runs, an unjoined <code>cc_orders</code> alias was referenced; it passed in run 3.</li>
+</ul>
+</li>
+</ol>
+<h3 id="b-the-datus-drop-in-effect">B. The Datus "Drop-In" Effect</h3>
+<p>The initial evaluation permitted an optional <code>rules.md</code> file in the Datus working directory. Inspection showed that the reviewer copied all 14 <code>appdb</code> rules and all 8 <code>olist</code> rules verbatim into this file, turning Datus into <code>baseline_rules</code> with extra DDL.
+- Stripping <code>rules.md</code> and testing definition-only comments (<code>datus_reviewed_defonly</code>):
+  - <code>appdb</code>: dropped from <strong>26.33</strong> to <strong>25.33</strong> (-1.0 question / -3.1 points)
+  - <code>olist</code>: dropped from <strong>16.33</strong> to <strong>14.67</strong> (-1.67 questions / -9.2 points)
+- In the Gate D smoke test, definition-only Datus failed the Q3 net revenue test (getting 259,460.21 vs gold 258,794.23) because without <code>rules.md</code>, it reverted to the anti-pattern of a single <code>LEFT JOIN refunds</code> with invoice date filtering.</p>
+<h3 id="c-gate-c-value-list-verification">C. Gate C Value List Verification</h3>
+<p>All reviewed semantic layers were audited against PostgreSQL <code>SELECT DISTINCT</code> queries:
+- <code>plan_tier</code>: All tools correctly specified <code>starter</code>, <code>growth</code>, and <code>scale</code>. The legacy signup values (<code>pro</code>, <code>enterprise</code>) were flagged as invalid for reporting across all tools (<strong>0 errors</strong>).
+- <code>currency</code>: All tools specified <code>USD</code>, <code>EUR</code>, and <code>INR</code> with exact FX multipliers. <code>GBP</code> appeared 0 times (<strong>0 errors</strong>).
+- <code>cancel_reason</code> &amp; <code>status</code>: Accurately documented across all layers.</p>
+<hr>
+<h2 id="5-methodological-limitations-integrity-caveats">5. Methodological Limitations &amp; Integrity Caveats</h2>
+<ol>
+<li><strong>Reviewer Blindness Status:</strong> <strong>NOT VERIFIED</strong>
+   - The six review sessions were run sequentially by an automated agent process in a single execution pipeline rather than separate human reviewers in isolated chats. Cognitive isolation from prior harness context is not verified.</li>
+<li><strong>First Attempt Non-Blind &amp; Quarantined:</strong>
+   - The initial attempt (archived as <code>attempt1</code>) was executed in the main workspace with access to test files and review logs, and contained factual errors (e.g., plan tiers as 'pro'/'enterprise' and 'GBP' currency). These layers were quarantined, and attempt 2 was re-run from clean starting layers.</li>
+<li><strong>Post-Hoc Rules Revision (Rules v2):</strong>
+   - The initial baseline benchmark was run with <code>business_rules.md</code> v1. Rules v2 clarified date windows (half-open, no <code>BETWEEN</code>), cash-basis refund netting, and <code>plan_tier</code> distinction. Baseline and control numbers were re-benchmarked against rules v2 for consistency.</li>
+<li><strong>Excluded Olist Questions:</strong>
+   - Three questions (<code>olist-012</code>, <code>olist-016</code>, <code>olist-017</code>) were excluded from the scored suite due to schema/semantic ambiguities in the raw Brazilian e-commerce dataset, leaving 18 scored questions (plus 1 ambiguous question <code>olist-013</code>).</li>
+<li><strong>Connector &amp; Tool Versions:</strong>
+   - Datus was evaluated using <code>datus-agent 0.4.3</code> with <code>datus-postgresql 0.1.9</code>.
+   - Wren Engine was evaluated using <code>wren-engine 0.6.0</code>.
+   - ktx was evaluated using <code>@kaelio/ktx 0.16.0</code>.</li>
+<li><strong>Agent Execution Time vs. Human Effort:</strong>
+   - Review sessions took between 1 and 13 minutes of automated agent execution. This measures script execution time, not human engineering effort, and cannot be used to assess the labor cost of semantic layer authoring.</li>
+<li><strong>The Shared Document Upper Bound:</strong>
+   - The answer-key gold SQL queries and the reviewed semantic layers were both authored from the identical requirements document (<code>docs/business_rules.md</code>). Therefore, this study measures how well tools <em>carry</em> known rules, not whether tools can <em>discover</em> unwritten business logic.</li>
+<li><strong>Sample Size Constraints:</strong>
+   - With 32 <code>appdb</code> questions and 18 <code>olist</code> questions, the minimum detectable effect size is approximately 3 questions on <code>appdb</code> and 2 questions on <code>olist</code>. Differences smaller than this are indistinguishable from noise.</li>
+<li><strong>Commit Provenance of Benchmark Numbers:</strong>
+   - Baseline, out-of-the-box context layers, and control benchmarks were executed at commit <code>124585c</code> (tagged <code>study-v1</code>).
+   - Initial reviewed layers audit and drop-in split were recorded at commit <code>ea085f2</code> (tagged <code>study-v1.1</code>).
+   - Patched Wren runner (with <code>sqlglot</code> dialect transpilation), 3-run Wren re-evaluation, regenerated paired statistics, and final scoreboard numbers were produced at commit <code>study-v1.2</code>.</li>
+</ol>
+<hr>
+<h2 id="6-next-steps-proposal-for-rule-induction-verification">6. Next Steps: Proposal for Rule Induction &amp; Verification</h2>
+<p>Because the rules are the primary lever, the highest-leverage unsolved problem in data agent reliability is <strong>extracting and verifying implicit business rules from production environments</strong>:</p>
+<pre><code class="language-mermaid">flowchart TD
+    A[Raw Schema &amp; DDL] --&gt; D[Rule Induction Engine]
+    B[Query History / BI Logs] --&gt; D
+    C[Database Profiling &amp; Constraints] --&gt; D
+    D --&gt; E[Candidate Rules Generation]
+    E --&gt; F[Automated Data Verification]
+    F --&gt;|Verify against DB| G[Verified Business Rules]
+    G --&gt; H[Harness Evaluation: dbeval]
+</code></pre>
+<h3 id="proposed-next-experiment">Proposed Next Experiment:</h3>
+<ol>
+<li><strong>Target:</strong> Attempt to recover the 14 known <code>appdb</code> business rules (test flags, soft deletes, plan tiers, cents conversion, churn definitions, refund netting) <em>without access to <code>docs/business_rules.md</code></em>.</li>
+<li><strong>Inputs:</strong> Database contents, information schema, and a synthetic query log of 100 historical queries.</li>
+<li><strong>Mechanism:</strong> An induction pipeline that generates candidate rules (e.g. <em>"Should <code>is_test = true</code> be excluded from reporting?"</em>), verifies candidate filters against table distributions, and compiles an automated <code>rules.md</code>.</li>
+<li><strong>Evaluation:</strong> Score the induced rules through the existing <code>dbeval</code> benchmark harness to measure rule recovery precision, recall, and end-to-end downstream SQL accuracy.</li>
+</ol>
+<hr>
+<h2 id="7-upstream-issues-filed-proposed-fixes">7. Upstream Issues Filed &amp; Proposed Fixes</h2>
+<p>In addition to benchmark scoring, <code>dbeval</code> functioned as an active testing harness for the evaluated open-source tools. Rigorous evaluation against real-world schemas uncovered two failure modes in upstream repositories. Issues were filed and fixes were proposed in upstream pull requests (both open, not merged):</p>
+<h3 id="1-kaelioktx-silent-enrichment-failure-cache-poisoning">1. <code>@kaelio/ktx</code> — Silent Enrichment Failure &amp; Cache Poisoning</h3>
+<ul>
+<li><strong>Issue Filed:</strong> <a href="https://github.com/kaelio/ktx/issues/377"><code>kaelio/ktx#377</code></a></li>
+<li><strong>Proposed Fix in PR:</strong> <a href="https://github.com/Kaelio/ktx/pull/378"><code>Kaelio/ktx#378</code></a> <em>(open, not merged)</em></li>
+<li><strong>Failure Mode:</strong> When external LLM provider calls fail completely during local schema enrichment (e.g. gateway 404 from <code>/language-model</code>, rate limits, or bad credentials), <code>local-enrichment.ts</code> reported <code>completed</code> with exit code 0, cached empty/null results in <code>descriptions.json</code> and SQLite <code>scan:descriptions</code>, and bypassed per-table resume on subsequent runs in <code>ktx 0.16.0</code>.</li>
+<li><strong>Proposed Fix:</strong> Adds total failure detection, truthful non-zero exit status reporting, Windows SQLite handle cleanup, and prevents incomplete cache short-circuiting so subsequent runs resume incomplete tables.</li>
+</ul>
+<h3 id="2-datus-datus-postgresql-foreign-key-omission-in-reconstructed-table-ddl">2. <code>Datus</code> (<code>datus-postgresql</code>) — Foreign Key Omission in Reconstructed Table DDL</h3>
+<ul>
+<li><strong>Issue Filed:</strong> <a href="https://github.com/Datus-ai/Datus-agent/issues/1542"><code>Datus-ai/Datus-agent#1542</code></a></li>
+<li><strong>Proposed Fix in PR:</strong> <a href="https://github.com/Datus-ai/datus-db-adapters/pull/177"><code>Datus-ai/datus-db-adapters#177</code></a> <em>(open, not merged)</em></li>
+<li><strong>Failure Mode:</strong> In <code>PostgreSQLConnector._get_ddl()</code>, constraint extraction was restricted to <code>c.contype IN ('p', 'u')</code>, completely omitting <code>'f'</code> (foreign keys). Reconstructed table DDL stored in <code>schema_metadata.json</code> and indexed in LanceDB contained zero foreign key relationships, forcing downstream models to guess join keys from column names alone.</li>
+<li><strong>Proposed Fix:</strong> Expands constraint extraction to <code>contype IN ('p', 'u', 'f')</code>, orders constraints deterministically (<code>PRIMARY KEY</code> $\rightarrow$ <code>UNIQUE</code> $\rightarrow$ <code>FOREIGN KEY</code>), and cleanly separates unvalidated (<code>NOT VALID</code>) foreign keys into standalone <code>ALTER TABLE</code> statements to maintain valid PostgreSQL execution grammar.</li>
+</ul>
+</main>
+<footer>Generated from Markdown by dbeval</footer>
+</body>
+</html>
