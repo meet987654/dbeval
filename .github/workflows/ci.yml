@@ -31,6 +31,7 @@ jobs:
           python scorer/test_report_html.py
           python scorer/test_report_statistics.py
           python runners/test_baseline.py
+          python runners/test_dbt_run.py
           python -m unittest ruleminer.test_ruleminer
 
       - name: Validate question suites
