@@ -6,6 +6,8 @@
 4. Verifies that gold_sql for scored questions starts with a read-only query statement (SELECT / WITH).
 5. Verifies that ambiguous questions (category: ambiguous) define an 'expected' clarification guide.
 6. Verifies optional typing (e.g. 'ordered' must be a boolean if present).
+7. Verifies multi-turn conversations: an entry with 'turns' must have a non-empty list of turns
+   (each with a non-empty 'question' and a read-only 'gold_sql'), and no top-level 'question'/'gold_sql'.
 
 Usage:
     python scorer/validate_questions.py
@@ -26,10 +28,45 @@ ROOT = os.path.dirname(HERE)
 DEFAULT_FILES = [
     os.path.join(ROOT, "questions", "appdb.yaml"),
     os.path.join(ROOT, "questions", "olist.yaml"),
+    os.path.join(ROOT, "questions", "appdb_conversations.yaml"),
 ]
 
 ID_PATTERN = re.compile(r"^[a-zA-Z0-9_\-]+$")
 VALID_SQL_PREFIXES = ("select", "with")
+
+
+def _check_gold(gold_sql, location):
+    if not gold_sql or not isinstance(gold_sql, str) or not gold_sql.strip():
+        return [f"{location}: missing or empty 'gold_sql' query"]
+    if not gold_sql.strip().lower().startswith(VALID_SQL_PREFIXES):
+        return [f"{location}: 'gold_sql' must start with one of {VALID_SQL_PREFIXES}, got: {gold_sql[:30]!r}"]
+    return []
+
+
+def validate_conversation(q: Dict, location: str) -> List[str]:
+    """Validate the `turns` of a multi-turn conversation entry."""
+    errors = []
+    for key in ("question", "gold_sql"):
+        if key in q:
+            errors.append(f"{location}: conversation must not have a top-level '{key}' (put it in each turn)")
+    if q.get("category") == "ambiguous":
+        errors.append(f"{location}: conversations cannot be category 'ambiguous'")
+    turns = q["turns"]
+    if not isinstance(turns, list) or len(turns) < 2:
+        errors.append(f"{location}: 'turns' must be a list of at least 2 turns")
+        return errors
+    for n, t in enumerate(turns, start=1):
+        loc = f"{location} turn {n}"
+        if not isinstance(t, dict):
+            errors.append(f"{loc}: turn must be a YAML mapping/dict, got {type(t).__name__}")
+            continue
+        text = t.get("question")
+        if not text or not isinstance(text, str) or not text.strip():
+            errors.append(f"{loc}: missing or empty 'question' string")
+        errors.extend(_check_gold(t.get("gold_sql"), loc))
+        if "ordered" in t and not isinstance(t["ordered"], bool):
+            errors.append(f"{loc}: 'ordered' must be a boolean (True/False), got {type(t['ordered']).__name__}")
+    return errors
 
 
 def validate_question(q: Dict, index: int, filepath: str, global_ids: Set[str]) -> List[str]:
@@ -53,6 +90,10 @@ def validate_question(q: Dict, index: int, filepath: str, global_ids: Set[str]) 
             errors.append(f"{location}: duplicate question ID '{qid}' found across suites")
         else:
             global_ids.add(qid)
+
+    if "turns" in q:
+        errors.extend(validate_conversation(q, location))
+        return errors
 
     question = q.get("question")
     if not question or not isinstance(question, str) or not question.strip():

@@ -5,6 +5,7 @@ and records comprehensive latency, token usage, and accuracy logs to CSV.
 Usage:
     python scorer/run_suite.py --system baseline --db appdb --runs 1
     python scorer/run_suite.py --system all --db both --runs 3
+    python scorer/run_suite.py --system baseline --db appdb --conversations   # multi-turn follow-ups
     python scorer/run_suite.py --system ktx --db olist --only olist-001,olist-002
 """
 
@@ -29,6 +30,7 @@ import datus_run
 import wren_run
 import controls
 from compare import same
+from conversation import contextualize, conversation_results, expand
 
 BENCHMARK_SYSTEMS = ["baseline", "ktx", "datus", "wren"]
 CONTROL_SYSTEMS = ["schema_only", "schema_true_joins", "baseline_rules", "ruleminer_rules"]
@@ -57,6 +59,14 @@ def load_questions(db):
         data = yaml.safe_load(f)
     return data or []
 
+def load_conversations(db):
+    """Multi-turn conversations for `db`, flattened to per-turn dicts (empty if the db has none)."""
+    path = os.path.join(ROOT, "questions", f"{db}_conversations.yaml")
+    if not os.path.exists(path):
+        return []
+    with open(path, "r", encoding="utf-8") as f:
+        return expand(yaml.safe_load(f) or [])
+
 def execute_gold(db, gold_sql):
     if not gold_sql:
         return None, None
@@ -66,7 +76,7 @@ def execute_gold(db, gold_sql):
     except Exception as e:
         return None, f"Gold SQL execution failed: {str(e)[:200]}"
 
-def run_evaluation(systems, dbs, runs=1, only=None, output_csv=None):
+def run_evaluation(systems, dbs, runs=1, only=None, output_csv=None, conversations=False):
     os.makedirs(os.path.join(ROOT, "results", "raw"), exist_ok=True)
     if not output_csv:
         ts = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -109,9 +119,13 @@ def run_evaluation(systems, dbs, runs=1, only=None, output_csv=None):
             print(f"\n>>> BEGINNING RUN {run_idx} OF {runs} <<<")
 
             for db in dbs:
-                questions = load_questions(db)
+                questions = expand(load_questions(db))
+                if conversations:
+                    questions += load_conversations(db)
                 if only:
-                    questions = [q for q in questions if q["id"] in only]
+                    questions = [q for q in questions if q["id"] in only or q.get("conv_id") in only]
+                # per-system history of this run's conversations: (system, conv_id) -> [(question, sql)]
+                histories = {}
 
                 for q in questions:
                     q_id = q["id"]
@@ -133,7 +147,11 @@ def run_evaluation(systems, dbs, runs=1, only=None, output_csv=None):
 
                     for sys_name in systems:
                         runner_fn = SYSTEM_RUNNERS[sys_name]
-                        ans = runner_fn(db, question_text)
+                        conv_id = q.get("conv_id")
+                        history = histories.setdefault((sys_name, conv_id), []) if conv_id else None
+                        ans = runner_fn(db, contextualize(question_text, history))
+                        if conv_id:
+                            history.append((question_text, ans.get("sql")))
 
                         passed = False
                         error_msg = ans.get("error")
@@ -220,6 +238,24 @@ def print_summary(records, systems, dbs):
                 cols_str = " | ".join(f"{c:<10}" for c in cols)
                 print(f"{sys_name:<12} | {db:<8} | {cols_str}")
         print("=" * 75)
+    print_conversation_summary(records, systems, dbs)
+
+def print_conversation_summary(records, systems, dbs):
+    convs = conversation_results(records)
+    if not convs:
+        return
+    print("\nMULTI-TURN CONVERSATIONS (a conversation passes only if every turn passes):")
+    print(f"{'System':<12} | {'DB':<8} | {'Convs passed':<14} | {'Turns passed':<14}")
+    print("-" * 56)
+    for sys_name in systems:
+        for db in dbs:
+            sub = [v for (s_, d_, _, _), v in convs.items() if s_ == sys_name and d_ == db]
+            if not sub:
+                continue
+            full = sum(1 for v in sub if all(v))
+            turns = sum(sum(v) for v in sub)
+            total = sum(len(v) for v in sub)
+            print(f"{sys_name:<12} | {db:<8} | {full}/{len(sub):<12} | {turns}/{total:<12}")
 
 def main():
     ap = argparse.ArgumentParser(description="dbeval comprehensive test suite runner")
@@ -231,7 +267,9 @@ def main():
     )
     ap.add_argument("--db", choices=["olist", "appdb", "both"], default="both")
     ap.add_argument("--runs", type=int, default=1, help="Number of repetitions across the full suite (default: 1)")
-    ap.add_argument("--only", help="Comma-separated question IDs to run")
+    ap.add_argument("--only", help="Comma-separated question IDs to run (a conversation id selects all its turns)")
+    ap.add_argument("--conversations", action="store_true",
+                    help="also run the multi-turn conversation suite (questions/<db>_conversations.yaml)")
     ap.add_argument("--output", help="Custom output CSV path")
     args = ap.parse_args()
 
@@ -249,7 +287,7 @@ def main():
     dbs = ["olist", "appdb"] if args.db == "both" else [args.db]
     only = {x.strip() for x in args.only.split(",")} if args.only else None
 
-    run_evaluation(systems=systems, dbs=dbs, runs=args.runs, only=only, output_csv=args.output)
+    run_evaluation(systems=systems, dbs=dbs, runs=args.runs, only=only, output_csv=args.output, conversations=args.conversations)
 
 if __name__ == "__main__":
     main()

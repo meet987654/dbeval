@@ -59,6 +59,7 @@ Before making changes, verify that the test harness and analysis scripts run cle
    python -m compileall runners scorer db scripts
    python scorer/test_compare.py
    python scorer/test_validate_questions.py
+   python scorer/test_conversation.py
    python scorer/test_analyze.py
    python runners/test_baseline.py
    ```
@@ -84,6 +85,15 @@ Before making changes, verify that the test harness and analysis scripts run cle
    # Zero-Docker mode with SQLite:
    python scripts/quickstart.py --db-type sqlite
    ```
+
+5. **Multi-turn conversations (follow-up questions):**
+   Conversation suites live in `questions/<db>_conversations.yaml` as entries with `turns`
+   (each turn has its own `question` and `gold_sql`). Run them with `--conversations`:
+   ```bash
+   python scorer/run_suite.py --system baseline_rules --db appdb --conversations
+   ```
+   Each turn is scored on its own (CSV `question_id` is `<conversation id>#t<n>`); later turns are
+   given the system's own earlier questions and SQL, and the summary also reports whole-conversation passes.
 
 ---
 

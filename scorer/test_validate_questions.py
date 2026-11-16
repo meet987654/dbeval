@@ -83,6 +83,35 @@ def run_tests():
     errs = validate_question(q_bad_ordered, 8, "test.yaml", global_ids)
     assert any("ordered" in e.lower() for e in errs), f"Expected ordered error, got: {errs}"
 
+    # 9. Valid conversation passes; turns are validated
+    conv = {
+        "id": "conv-001",
+        "category": "conversation",
+        "turns": [
+            {"question": "How many accounts?", "gold_sql": "SELECT COUNT(*) FROM accounts"},
+            {"question": "How many of those are test?", "gold_sql": "SELECT COUNT(*) FROM accounts WHERE is_test"},
+        ],
+    }
+    errs = validate_question(conv, 9, "test.yaml", global_ids)
+    assert not errs, f"Expected no errors, got: {errs}"
+
+    # 10. Conversation with one turn, a bad turn, or a top-level question fails
+    errs = validate_question({"id": "conv-002", "turns": [conv["turns"][0]]}, 10, "test.yaml", global_ids)
+    assert any("at least 2 turns" in e for e in errs), errs
+    bad = {"id": "conv-003", "question": "top level", "turns": [
+        {"question": "ok", "gold_sql": "SELECT 1"},
+        {"question": "", "gold_sql": "DROP TABLE x", "ordered": "no"},
+    ]}
+    errs = validate_question(bad, 11, "test.yaml", global_ids)
+    assert any("top-level 'question'" in e for e in errs), errs
+    assert any("turn 2" in e and "'question'" in e for e in errs), errs
+    assert any("turn 2" in e and "must start with one of" in e for e in errs), errs
+    assert any("turn 2" in e and "ordered" in e for e in errs), errs
+
+    # 11. Duplicate conversation id fails
+    errs = validate_question(conv, 12, "test.yaml", global_ids)
+    assert any("duplicate" in e.lower() for e in errs), errs
+
     print("validate_questions.py: all unit tests passed")
 
 
