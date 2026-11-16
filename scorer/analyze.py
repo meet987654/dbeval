@@ -4,6 +4,8 @@ Run:
     python scorer/analyze.py results/raw/suite_results_XXXX.csv
     python scorer/analyze.py results/raw/suite_results_XXXX.csv --baseline baseline --markdown-out results/ANALYSIS.md
     python scorer/analyze.py results/raw/suite_results_XXXX.csv --ties half --matrix results/per_question.csv
+    python scorer/analyze.py results/raw/suite_results_XXXX.csv --cost --model codestral-latest
+    python scorer/analyze.py results/raw/suite_results_XXXX.csv --cost --price-in 0.3 --price-out 0.9
 
 Why this exists: the 3 repeated runs are nearly identical at temperature 0, so counting them as
 54 or 96 independent trials overstates the evidence. The real sample size is the number of
@@ -31,6 +33,18 @@ CANDIDATES = {
     "run": ["run", "run_num", "run_id", "iteration", "pass_num", "repeat"],
     "passed": ["passed", "correct", "is_correct", "success", "match", "ok", "pass"],
 }
+# Approximate list prices in USD per 1M tokens (input, output). These drift; verify against the
+# provider's pricing page or override with --price-in/--price-out. Local runners cost $0.
+PRICING = {
+    "codestral-latest": (0.30, 0.90),
+    "gpt-4o": (2.50, 10.00),
+    "gpt-4o-mini": (0.15, 0.60),
+    "claude-sonnet-4": (3.00, 15.00),
+    "claude-haiku-3-5": (0.80, 4.00),
+    "llama-3.3-70b-versatile": (0.59, 0.79),
+}
+LOCAL_MODEL_HINTS = ("ollama", "vllm", "local", "qwen2.5-coder")
+OPTIONAL_COST_COLS = {"seconds": "seconds", "tokens_in": "tokens_in", "tokens_out": "tokens_out"}
 TRUE = {"1", "true", "t", "yes", "y", "pass", "passed"}
 FALSE = {"0", "false", "f", "no", "n", "fail", "failed", ""}
 
@@ -76,6 +90,31 @@ def bootstrap_diff(tool, base, reps=5000, seed=1):
     return diffs[int(0.025 * reps)], diffs[int(0.975 * reps)]
 
 
+def resolve_price(model=None, price_in=None, price_out=None):
+    """Return (usd_per_1m_in, usd_per_1m_out) from explicit prices or the PRICING table."""
+    if price_in is not None or price_out is not None:
+        return (price_in or 0.0, price_out or 0.0)
+    if model is None:
+        raise SystemExit("--cost needs --model <name> or --price-in/--price-out (USD per 1M tokens).")
+    key = model.strip().lower()
+    if key in PRICING:
+        return PRICING[key]
+    if any(h in key for h in LOCAL_MODEL_HINTS):
+        return (0.0, 0.0)
+    raise SystemExit(f"Unknown model {model!r}. Known: {sorted(PRICING)}; or pass --price-in/--price-out.")
+
+
+def percentile(vals, q):
+    """Linear-interpolated percentile (q in 0..100) of a non-empty list."""
+    v = sorted(vals)
+    if len(v) == 1:
+        return v[0]
+    pos = (len(v) - 1) * q / 100
+    lo = int(pos)
+    hi = min(lo + 1, len(v) - 1)
+    return v[lo] + (v[hi] - v[lo]) * (pos - lo)
+
+
 def run_analysis(
     csv_path,
     baseline="baseline",
@@ -84,6 +123,10 @@ def run_analysis(
     ties="fail",
     col_overrides=None,
     quiet=False,
+    cost=False,
+    model=None,
+    price_in=None,
+    price_out=None,
 ):
     """Run question-level analysis, generate markdown tables, and write output files."""
     col_overrides = col_overrides or {}
@@ -97,8 +140,18 @@ def run_analysis(
     infra_col = next((h for h in headers if h.lower() == "infra_error"), None)
     cat_col = next((h for h in headers if h.lower() == "category"), None)
 
+    price = resolve_price(model, price_in, price_out) if cost else None
+    cost_cols = {}
+    if cost:
+        lower = {h.lower(): h for h in headers}
+        missing = [c for c in OPTIONAL_COST_COLS if c not in lower]
+        if missing:
+            raise SystemExit(f"--cost needs columns {missing} in the CSV. Headers are: {headers}")
+        cost_cols = {c: lower[c] for c in OPTIONAL_COST_COLS}
+
     dropped_infra = 0
     runs = defaultdict(list)  # (db, system, question) -> [bool, ...]
+    usage = defaultdict(list)  # (db, system) -> [(seconds, tokens_in, tokens_out), ...]
     for r in rows:
         if cat_col and r[cat_col] == "ambiguous":
             continue
@@ -106,6 +159,12 @@ def run_analysis(
             dropped_infra += 1
             continue
         runs[(r[col["db"]], r[col["system"]], r[col["question"]])].append(to_bool(r[col["passed"]]))
+        if cost:
+            try:
+                usage[(r[col["db"]], r[col["system"]])].append(
+                    tuple(float(r[cost_cols[c]] or 0) for c in OPTIONAL_COST_COLS))
+            except ValueError:
+                pass  # unparseable usage numbers: skip this row's cost, keep its accuracy
 
     dbs = sorted({k[0] for k in runs})
     systems = sorted({k[1] for k in runs})
@@ -161,6 +220,27 @@ def run_analysis(
             net = sum(per[s]) - sum(base)
             diff = net / n * 100
             out_lines.append(f"| {s} | {fixed} | {broke} | {net:+g} | {diff:+.1f} | [{lo:+.1f}, {hi:+.1f}] | {sign_test_p(fixed, broke):.3f} |")
+        if cost:
+            out_lines.append(f"\nCost and latency (price: ${price[0]:g} in / ${price[1]:g} out per 1M tokens"
+                             f"{', model ' + model if model else ''}; per-attempt figures over all non-ambiguous runs):\n")
+            out_lines.append("| system | attempts | p50 latency (s) | p95 latency (s) | input tokens | output tokens "
+                             "| est. cost (USD) | cost per 100 questions (USD) | accuracy points per $1 |")
+            out_lines.append("|---|---|---|---|---|---|---|---|---|")
+            for s in present:
+                u = usage.get((db, s), [])
+                if not u:
+                    out_lines.append(f"| {s} | 0 | - | - | - | - | - | - | - |")
+                    continue
+                secs = [x[0] for x in u]
+                tin = sum(x[1] for x in u)
+                tout = sum(x[2] for x in u)
+                usd = (tin * price[0] + tout * price[1]) / 1e6
+                per100 = usd / len(u) * 100
+                acc = sum(per[s]) / n * 100
+                eff = f"{acc / per100:.1f}" if per100 > 0 else "n/a (free)"
+                out_lines.append(f"| {s} | {len(u)} | {percentile(secs, 50):.2f} | {percentile(secs, 95):.2f} "
+                                 f"| {tin:,.0f} | {tout:,.0f} | {usd:.4f} | {per100:.4f} | {eff} |")
+            out_lines.append("\nAccuracy points per $1 = accuracy (%) divided by cost per 100 questions (USD).\n")
         out_lines.append(f"\nOne question is worth {100 / n:.1f} points on this database. "
                          "An interval that includes 0, or p above 0.05, means the difference is not distinguishable from noise.\n")
 
@@ -204,6 +284,11 @@ def main(argv=None):
                     help="how to score a question that passed in only some runs: 'fail' = majority vote "
                          "(a 1-of-2 split counts as a fail), 'half' = use the pass rate (1 of 2 = 0.5). "
                          "Use 'half' when you have only 2 runs.")
+    ap.add_argument("--cost", action="store_true",
+                    help="add latency (p50/p95), token totals, estimated USD cost and accuracy-per-dollar tables")
+    ap.add_argument("--model", help="model name for pricing lookup (see PRICING); local models cost $0")
+    ap.add_argument("--price-in", type=float, help="override input price, USD per 1M tokens")
+    ap.add_argument("--price-out", type=float, help="override output price, USD per 1M tokens")
     args = ap.parse_args(argv)
 
     col_overrides = {k: getattr(args, f"col_{k}") for k in CANDIDATES if getattr(args, f"col_{k}")}
@@ -215,6 +300,10 @@ def main(argv=None):
         ties=args.ties,
         col_overrides=col_overrides,
         quiet=args.quiet,
+        cost=args.cost,
+        model=args.model,
+        price_in=args.price_in,
+        price_out=args.price_out,
     )
 
 

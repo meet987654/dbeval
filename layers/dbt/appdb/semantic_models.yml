@@ -1,0 +1,243 @@
+# dbt Semantic Layer (MetricFlow spec) for the dbeval `appdb` database.
+#
+# Hand-written to encode docs/business_rules.md in MetricFlow's own vocabulary:
+# semantic models (entities / dimensions / measures) and metrics with filters.
+# This is the dbt counterpart of layers/wren/appdb_reviewed: the business rules ARE encoded,
+# so compare it against `baseline_rules`, not against the out-of-the-box `baseline`.
+version: 2
+
+semantic_models:
+  - name: accounts
+    description: One row per customer account. A REAL account has is_test = false AND deleted_at IS NULL.
+    model: ref('accounts')
+    defaults:
+      agg_time_dimension: created_at
+    entities:
+      - name: account
+        type: primary
+        expr: id
+    dimensions:
+      - name: created_at
+        type: time
+        type_params: {time_granularity: day}
+      - name: plan_tier
+        type: categorical
+        description: Current plan (use this, never the legacy `plan` column).
+      - name: country
+        type: categorical
+      - name: currency
+        type: categorical
+      - name: is_test
+        type: categorical
+      - name: deleted_at
+        type: time
+        type_params: {time_granularity: day}
+    measures:
+      - name: account_count
+        agg: count
+        expr: id
+
+  - name: users
+    description: One row per user. A REAL user has deleted_at IS NULL and belongs to a real account.
+    model: ref('users')
+    defaults:
+      agg_time_dimension: created_at
+    entities:
+      - name: user
+        type: primary
+        expr: id
+      - name: account
+        type: foreign
+        expr: account_id
+    dimensions:
+      - name: created_at
+        type: time
+        type_params: {time_granularity: day}
+      - name: role
+        type: categorical
+      - name: deleted_at
+        type: time
+        type_params: {time_granularity: day}
+    measures:
+      - name: user_count
+        agg: count
+        expr: id
+
+  - name: subscriptions
+    description: One row per subscription. Status values - active, trialing, past_due, canceled.
+    model: ref('subscriptions')
+    defaults:
+      agg_time_dimension: started_at
+    entities:
+      - name: subscription
+        type: primary
+        expr: id
+      - name: account
+        type: foreign
+        expr: account_id
+    dimensions:
+      - name: started_at
+        type: time
+        type_params: {time_granularity: day}
+      - name: canceled_at
+        type: time
+        type_params: {time_granularity: day}
+      - name: status
+        type: categorical
+      - name: plan_tier
+        type: categorical
+      - name: cancel_reason
+        type: categorical
+        description: voluntary and payment_failed are churn; upgrade is NOT churn.
+    measures:
+      - name: subscription_count
+        agg: count
+        expr: id
+
+  - name: invoices
+    description: One row per invoice. Money is stored in cents and must be converted to USD via fx_rates.
+    model: ref('invoices')
+    defaults:
+      agg_time_dimension: paid_at
+    entities:
+      - name: invoice
+        type: primary
+        expr: id
+      - name: account
+        type: foreign
+        expr: account_id
+      - name: subscription
+        type: foreign
+        expr: subscription_id
+      - name: currency
+        type: foreign
+        expr: currency
+    dimensions:
+      - name: paid_at
+        type: time
+        type_params: {time_granularity: day}
+      - name: issued_at
+        type: time
+        type_params: {time_granularity: day}
+      - name: status
+        type: categorical
+    measures:
+      - name: gross_revenue_usd
+        description: Paid invoice value in USD - amount_cents::numeric / 100 * fx_rates.usd_per_unit (numeric division, joined on invoice currency).
+        agg: sum
+        expr: amount_cents::numeric / 100 * (select usd_per_unit from fx_rates where fx_rates.currency = invoices.currency)
+      - name: paying_accounts
+        agg: count_distinct
+        expr: account_id
+
+  - name: refunds
+    description: One row per refund. There is no foreign key; refunds.invoice_id points to invoices.id. A refund uses the currency of its invoice.
+    model: ref('refunds')
+    defaults:
+      agg_time_dimension: created_at
+    entities:
+      - name: refund
+        type: primary
+        expr: id
+      - name: invoice
+        type: foreign
+        expr: invoice_id
+    dimensions:
+      - name: created_at
+        type: time
+        type_params: {time_granularity: day}
+    measures:
+      - name: refunds_usd
+        description: Refund value in USD, converted with the currency of the refunded invoice.
+        agg: sum
+        expr: amount_cents::numeric / 100 * (select f.usd_per_unit from invoices i join fx_rates f on f.currency = i.currency where i.id = refunds.invoice_id)
+
+  - name: events
+    description: One row per product event.
+    model: ref('events')
+    defaults:
+      agg_time_dimension: occurred_at
+    entities:
+      - name: event
+        type: primary
+        expr: id
+      - name: user
+        type: foreign
+        expr: user_id
+      - name: account
+        type: foreign
+        expr: account_id
+    dimensions:
+      - name: occurred_at
+        type: time
+        type_params: {time_granularity: day}
+      - name: event_type
+        type: categorical
+    measures:
+      - name: active_users
+        agg: count_distinct
+        expr: user_id
+
+metrics:
+  - name: real_accounts
+    description: Real accounts (not test, not deleted).
+    type: simple
+    type_params: {measure: account_count}
+    filter: "{{ Dimension('account__is_test') }} = false AND {{ Dimension('account__deleted_at') }} IS NULL"
+
+  - name: real_users
+    description: Real users - not deleted, on a real account.
+    type: simple
+    type_params: {measure: user_count}
+    filter: "{{ Dimension('user__deleted_at') }} IS NULL AND {{ Dimension('account__is_test') }} = false AND {{ Dimension('account__deleted_at') }} IS NULL"
+
+  - name: active_subscriptions
+    description: Subscriptions with status = 'active' on real accounts. trialing and past_due are NOT active.
+    type: simple
+    type_params: {measure: subscription_count}
+    filter: "{{ Dimension('subscription__status') }} = 'active' AND {{ Dimension('account__is_test') }} = false AND {{ Dimension('account__deleted_at') }} IS NULL"
+
+  - name: churned_subscriptions
+    description: Churn = status 'canceled' with cancel_reason in (voluntary, payment_failed), canceled_at in the period, real accounts. upgrade is NOT churn.
+    type: simple
+    type_params: {measure: subscription_count}
+    filter: "{{ Dimension('subscription__status') }} = 'canceled' AND {{ Dimension('subscription__cancel_reason') }} IN ('voluntary', 'payment_failed') AND {{ Dimension('account__is_test') }} = false AND {{ Dimension('account__deleted_at') }} IS NULL"
+
+  - name: gross_revenue
+    description: Gross revenue in USD - paid invoices (status = 'paid') with paid_at in the period, real accounts only.
+    type: simple
+    type_params: {measure: gross_revenue_usd}
+    filter: "{{ Dimension('invoice__status') }} = 'paid' AND {{ Dimension('account__is_test') }} = false AND {{ Dimension('account__deleted_at') }} IS NULL"
+
+  - name: refunds
+    description: Refunds in USD with created_at in the period, real accounts only.
+    type: simple
+    type_params: {measure: refunds_usd}
+
+  - name: net_revenue
+    description: Net revenue = gross_revenue - refunds, each filtered on its own date column (paid_at / created_at), cash basis. Never join invoices to refunds in one filtered query.
+    type: derived
+    type_params:
+      expr: gross_revenue - refunds
+      metrics: [gross_revenue, refunds]
+
+  - name: paying_customers
+    description: Real accounts with at least one paid invoice (paid_at in the period).
+    type: simple
+    type_params: {measure: paying_accounts}
+    filter: "{{ Dimension('invoice__status') }} = 'paid' AND {{ Dimension('account__is_test') }} = false AND {{ Dimension('account__deleted_at') }} IS NULL"
+
+  - name: arpa
+    description: Average revenue per paying customer = net_revenue / paying_customers.
+    type: ratio
+    type_params:
+      numerator: net_revenue
+      denominator: paying_customers
+
+  - name: monthly_active_users
+    description: Real users with at least one event in the period.
+    type: simple
+    type_params: {measure: active_users}
+    filter: "{{ Dimension('account__is_test') }} = false AND {{ Dimension('account__deleted_at') }} IS NULL"
+
+# Date windows are half-open (start inclusive, next period's start exclusive). All timestamps are UTC.

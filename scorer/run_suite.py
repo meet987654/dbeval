@@ -6,6 +6,7 @@ Usage:
     python scorer/run_suite.py --system baseline --db appdb --runs 1
     python scorer/run_suite.py --system all --db both --runs 3
     python scorer/run_suite.py --system baseline --db appdb --conversations   # multi-turn follow-ups
+    python scorer/run_suite.py --system dbt --db appdb --runs 1
     python scorer/run_suite.py --system ktx --db olist --only olist-001,olist-002
 """
 
@@ -28,12 +29,15 @@ import baseline as b_runner
 import ktx_run
 import datus_run
 import wren_run
+import dbt_run
 import controls
 from compare import same
 from conversation import contextualize, conversation_results, expand
 
 BENCHMARK_SYSTEMS = ["baseline", "ktx", "datus", "wren"]
 CONTROL_SYSTEMS = ["schema_only", "schema_true_joins", "baseline_rules", "ruleminer_rules"]
+# Systems that only have a semantic layer for some databases; other databases are skipped.
+SYSTEM_DBS = {"dbt": {"appdb"}}
 REVIEWED_SYSTEMS = ["ktx_reviewed", "wren_reviewed", "datus_reviewed"]
 
 SYSTEM_RUNNERS = {
@@ -41,6 +45,7 @@ SYSTEM_RUNNERS = {
     "ktx": ktx_run.answer,
     "datus": datus_run.answer,
     "wren": wren_run.answer,
+    "dbt": dbt_run.answer,
     "schema_only": controls.answer_schema_only,
     "schema_true_joins": controls.answer_schema_true_joins,
     "baseline_rules": controls.answer_baseline_rules,
@@ -146,6 +151,8 @@ def run_evaluation(systems, dbs, runs=1, only=None, output_csv=None, conversatio
                         gold_rows, gold_err = gold_cache[(db, q_id)]
 
                     for sys_name in systems:
+                        if db not in SYSTEM_DBS.get(sys_name, {db}):
+                            continue
                         runner_fn = SYSTEM_RUNNERS[sys_name]
                         conv_id = q.get("conv_id")
                         history = histories.setdefault((sys_name, conv_id), []) if conv_id else None
@@ -261,7 +268,7 @@ def main():
     ap = argparse.ArgumentParser(description="dbeval comprehensive test suite runner")
     ap.add_argument(
         "--system",
-        choices=["baseline", "ktx", "datus", "wren", "schema_only", "schema_true_joins", "baseline_rules", "ktx_reviewed", "wren_reviewed", "datus_reviewed", "datus_reviewed_defonly", "controls", "reviewed", "all", "everything"],
+        choices=["baseline", "ktx", "datus", "wren", "dbt", "schema_only", "schema_true_joins", "baseline_rules", "ktx_reviewed", "wren_reviewed", "datus_reviewed", "datus_reviewed_defonly", "controls", "reviewed", "all", "everything"],
         default="all",
         help="System to test: 'all' (baseline, ktx, datus, wren), 'controls', 'reviewed', 'everything' (all systems), or specific system name"
     )

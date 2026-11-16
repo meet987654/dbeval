@@ -143,12 +143,57 @@ def test_run_analysis_end_to_end():
         assert os.path.exists(md_legacy_out)
 
 
+def test_cost_report():
+    from analyze import percentile, resolve_price
+
+    assert percentile([1, 2, 3, 4], 50) == 2.5
+    assert percentile([5], 95) == 5
+    assert resolve_price("codestral-latest") == (0.30, 0.90)
+    assert resolve_price("ollama") == (0.0, 0.0)
+    assert resolve_price(None, 1.0, 2.0) == (1.0, 2.0)
+    try:
+        resolve_price("nope")
+        raise AssertionError("expected SystemExit for unknown model")
+    except SystemExit:
+        pass
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        path = os.path.join(tmpdir, "r.csv")
+        rows = [
+            {"db": "d", "system": "baseline", "question": "q1", "run": "1", "passed": "1", "seconds": "1", "tokens_in": "1000000", "tokens_out": "0"},
+            {"db": "d", "system": "baseline", "question": "q2", "run": "1", "passed": "0", "seconds": "3", "tokens_in": "1000000", "tokens_out": "1000000"},
+            {"db": "d", "system": "tool", "question": "q1", "run": "1", "passed": "1", "seconds": "2", "tokens_in": "0", "tokens_out": "0"},
+            {"db": "d", "system": "tool", "question": "q2", "run": "1", "passed": "1", "seconds": "2", "tokens_in": "0", "tokens_out": "0"},
+        ]
+        with open(path, "w", newline="", encoding="utf-8") as f:
+            w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+            w.writeheader()
+            w.writerows(rows)
+        text, _ = run_analysis(path, matrix=None, quiet=True, cost=True, price_in=1.0, price_out=2.0)
+        # baseline: 2 attempts, 2M in + 1M out = $2 + $2 = $4 -> $200 per 100; accuracy 50% -> 0.2/$
+        assert "| baseline | 2 | 2.00 | 2.90 | 2,000,000 | 1,000,000 | 4.0000 | 200.0000 | 0.2 |" in text, text
+        assert "| tool | 2 | 2.00 | 2.00 | 0 | 0 | 0.0000 | 0.0000 | n/a (free) |" in text, text
+        # without --cost nothing changes
+        plain, _ = run_analysis(path, matrix=None, quiet=True)
+        assert "p50 latency" not in plain
+        # --cost on a CSV without usage columns fails loudly
+        bad = os.path.join(tmpdir, "bad.csv")
+        with open(bad, "w", newline="", encoding="utf-8") as f:
+            f.write("db,system,question,run,passed\nd,baseline,q1,1,1\n")
+        try:
+            run_analysis(bad, matrix=None, quiet=True, cost=True, price_in=1.0, price_out=1.0)
+            raise AssertionError("expected SystemExit for missing columns")
+        except SystemExit:
+            pass
+
+
 def run_all_tests():
     test_to_bool()
     test_sign_test_p()
     test_bootstrap_diff()
     test_detect()
     test_run_analysis_end_to_end()
+    test_cost_report()
     print("analyze.py: all unit and integration tests passed")
 
 
