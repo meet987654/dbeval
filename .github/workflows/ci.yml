@@ -33,7 +33,7 @@ jobs:
           python scorer/test_report_statistics.py
           python runners/test_baseline.py
           python runners/test_dbt_run.py
-          python -m unittest ruleminer.test_ruleminer
+          python -m unittest ruleminer.test_ruleminer ruleminer.test_export
 
       - name: Validate question suites
         run: |
