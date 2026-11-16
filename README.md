@@ -219,6 +219,7 @@ All systems under test run against the exact same LLM (**`codestral-2508`** via 
 | **ktx** | `@kaelio/ktx@0.16.0` | `layers/ktx/<db>/semantic-layer/` | Table schemas + Inferred foreign keys (YAML) | Schema + Inferred joins in prompt |
 | **Datus (stored context)** | `datus-agent 0.4.3` | `layers/datus/<db>/` | LanceDB table DDL, PKs, sample rows | RAG-retrieved definitions & samples in prompt |
 | **Wren Engine** | `wren-engine 0.6.0` | `layers/wren/<db>/target/mdl.json` | MDL compiled models, columns, declared relationships | Compiled MDL schemas & relationships in prompt |
+| **dbt Semantic Layer** | MetricFlow YAML spec (no dbt install needed) | `layers/dbt/<db>/semantic_models.yml` | Semantic models, entities, measures, filtered metrics (`appdb` only; business rules encoded) | Rendered semantic layer in prompt (`--system dbt`) |
 
 ---
 
