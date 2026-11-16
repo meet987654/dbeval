@@ -1,0 +1,64 @@
+# Multi-turn conversational follow-up questions for appdb.
+# Each entry is a conversation: later turns refer back to earlier ones ("those", "that").
+# Every turn has its own gold_sql and is scored independently; a conversation passes only if all turns pass.
+# Run with: python scorer/run_suite.py --db appdb --conversations
+- id: appdb-conv-001
+  category: conversation
+  turns:
+    - question: How many accounts do we have?
+      gold_sql: SELECT COUNT(*) FROM accounts WHERE is_test = false AND deleted_at IS NULL
+    - question: How many of those are on the scale plan?
+      gold_sql: SELECT COUNT(*) FROM accounts WHERE plan_tier = 'scale' AND is_test = false AND deleted_at IS NULL
+    - question: Break them down by country.
+      gold_sql: SELECT country, COUNT(*) FROM accounts WHERE plan_tier = 'scale' AND is_test = false AND deleted_at IS NULL GROUP BY country
+
+- id: appdb-conv-002
+  category: conversation
+  turns:
+    - question: How many subscriptions are currently active?
+      gold_sql: >-
+        SELECT COUNT(*) FROM subscriptions s JOIN accounts a ON a.id = s.account_id
+        WHERE s.status = 'active' AND a.is_test = false AND a.deleted_at IS NULL
+    - question: Break that down by plan tier.
+      gold_sql: >-
+        SELECT s.plan_tier, COUNT(*) FROM subscriptions s JOIN accounts a ON a.id = s.account_id
+        WHERE s.status = 'active' AND a.is_test = false AND a.deleted_at IS NULL GROUP BY s.plan_tier
+    - question: Which tier has the most?
+      gold_sql: >-
+        SELECT s.plan_tier FROM subscriptions s JOIN accounts a ON a.id = s.account_id
+        WHERE s.status = 'active' AND a.is_test = false AND a.deleted_at IS NULL
+        GROUP BY s.plan_tier ORDER BY COUNT(*) DESC LIMIT 1
+
+- id: appdb-conv-003
+  category: conversation
+  turns:
+    - question: How many subscriptions churned in 2025?
+      gold_sql: >-
+        SELECT COUNT(*) FROM subscriptions s JOIN accounts a ON a.id = s.account_id
+        WHERE s.status = 'canceled' AND s.cancel_reason IN ('voluntary', 'payment_failed')
+        AND s.canceled_at >= '2025-01-01 00:00:00+00' AND s.canceled_at < '2026-01-01 00:00:00+00'
+        AND a.is_test = false AND a.deleted_at IS NULL
+    - question: And in 2026?
+      gold_sql: >-
+        SELECT COUNT(*) FROM subscriptions s JOIN accounts a ON a.id = s.account_id
+        WHERE s.status = 'canceled' AND s.cancel_reason IN ('voluntary', 'payment_failed')
+        AND s.canceled_at >= '2026-01-01 00:00:00+00' AND s.canceled_at < '2027-01-01 00:00:00+00'
+        AND a.is_test = false AND a.deleted_at IS NULL
+    - question: How many of those were because of failed payments?
+      gold_sql: >-
+        SELECT COUNT(*) FROM subscriptions s JOIN accounts a ON a.id = s.account_id
+        WHERE s.status = 'canceled' AND s.cancel_reason = 'payment_failed'
+        AND s.canceled_at >= '2026-01-01 00:00:00+00' AND s.canceled_at < '2027-01-01 00:00:00+00'
+        AND a.is_test = false AND a.deleted_at IS NULL
+
+- id: appdb-conv-004
+  category: conversation
+  turns:
+    - question: How many users do we have?
+      gold_sql: >-
+        SELECT COUNT(*) FROM users u JOIN accounts a ON a.id = u.account_id
+        WHERE u.deleted_at IS NULL AND a.is_test = false AND a.deleted_at IS NULL
+    - question: How many of them are admins?
+      gold_sql: >-
+        SELECT COUNT(*) FROM users u JOIN accounts a ON a.id = u.account_id
+        WHERE u.deleted_at IS NULL AND a.is_test = false AND a.deleted_at IS NULL AND u.role = 'admin'
