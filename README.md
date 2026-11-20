@@ -41,12 +41,12 @@ All metrics reflect majority scoring across 3 repetitions per question evaluated
 
 ### Upstream Issues Filed & Proposed Fixes
 
-During benchmark execution and engine audits, `dbeval` surfaced two failure modes in upstream repositories. Issues were filed and fixes were proposed in upstream pull requests (both open, not merged):
+During benchmark execution and engine audits, `dbeval` surfaced two failure modes in upstream repositories. Issues were filed and fixes were proposed in upstream pull requests (the Datus fix has been merged; the ktx fix is open, not merged):
 
 1. **[`kaelio/ktx#377`](https://github.com/kaelio/ktx/issues/377)** — *Silent Enrichment Failure & Cache Poisoning*:
    When external LLM enrichment failed (e.g. gateway 404 from `/language-model` or rate limits), `@kaelio/ktx` silently reported exit code 0, cached empty/null results in `descriptions.json` and SQLite `scan:descriptions`, and bypassed per-table resume in `ktx 0.16.0`. Proposed fix in PR [`Kaelio/ktx#378`](https://github.com/Kaelio/ktx/pull/378) (open, not merged) adds total failure detection, truthful exit status reporting, and safe resume handling.
 2. **[`Datus-ai/Datus-agent#1542`](https://github.com/Datus-ai/Datus-agent/issues/1542)** — *Foreign Key Omission in Reconstructed Table DDL*:
-   `datus-postgresql` reconstructed table DDL by restricting constraints to `contype IN ('p', 'u')`, omitting all foreign keys and forcing LLMs to guess join keys. Proposed fix in PR [`Datus-ai/datus-db-adapters#177`](https://github.com/Datus-ai/datus-db-adapters/pull/177) (open, not merged) expands constraint extraction to `contype IN ('p', 'u', 'f')`, adds deterministic constraint ordering, and separates unvalidated (`NOT VALID`) foreign keys into standalone `ALTER TABLE` statements.
+   `datus-postgresql` reconstructed table DDL by restricting constraints to `contype IN ('p', 'u')`, omitting all foreign keys and forcing LLMs to guess join keys. Proposed fix in PR [`Datus-ai/datus-db-adapters#177`](https://github.com/Datus-ai/datus-db-adapters/pull/177) (merged Oct 29, 2026) expands constraint extraction to `contype IN ('p', 'u', 'f')`, adds deterministic constraint ordering, and separates unvalidated (`NOT VALID`) foreign keys into standalone `ALTER TABLE` statements.
 
 ---
 
@@ -231,7 +231,7 @@ All systems under test run against the exact same LLM (**`codestral-2508`** via 
 - [x] **Question Suite Frozen (`suite-v1`):** 53 validated questions (34 `appdb`, 19 `olist`, consisting of 50 scored and 3 ambiguous). Tagged `suite-v1`.
 - [x] **Day 4: Test Harness & 3x Full Evaluation:** Built runners and `scorer/run_suite.py`. Completed 3 full evaluation passes with `codestral-2508` across all 4 systems on both databases.
 - [x] **Day 5: Timed Review, Execution Fixes & Final Report:** Encoded business rules across ktx, Wren Engine, and Datus. Fixed Wren engine SQL rewriting pass to resolve calculated fields. Isolated the Datus free-text drop-in effect. Completed 50 scored questions, 3 runs each, and generated paired statistical reports (`scorer/analyze.py`) and failure attribution (`scorer/label_failures.py`). Tagged `study-v1` and `study-v1.3`.
-- [x] **Post-Study Tool Audits & Upstream Fixes:** Identified silent enrichment failure in ktx (filed `kaelio/ktx#377`, proposed fix `kaelio/ktx#378`) and missing foreign keys in Datus (filed `Datus-ai/Datus-agent#1542`, proposed fix `Datus-ai/datus-db-adapters#177`).
+- [x] **Post-Study Tool Audits & Upstream Fixes:** Identified silent enrichment failure in ktx (filed `kaelio/ktx#377`, proposed fix `kaelio/ktx#378`) and missing foreign keys in Datus (filed `Datus-ai/Datus-agent#1542`, fix `Datus-ai/datus-db-adapters#177`, merged Oct 29).
 - [x] **Local & Offline LLM Support:** Integrated offline local inference runners for Ollama and vLLM (`runners/baseline.py`).
 - [x] **RuleMiner Automated Discovery Spike (Issue #5):** Built prototype pipeline (`ruleminer/`) inducing business rules, currency scales, implicit joins, and lifecycle states from schemas and query log ASTs ([`docs/RULEMINER.md`](docs/RULEMINER.md)).
 
